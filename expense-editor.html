@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Expense Sheet</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root {
+  --rouge: #550318;
+  --rouge-deep: #3a0210;
+  --champagne: #E6CCA1;
+  --champagne-soft: #F3E7D2;
+  --lace: #F6F4F0;
+  --terra: #2E2522;
+  --muted: #9B8E8A;
+  --border: #E8DDD8;
+  --paper: #FFFFFF;
+  --cream-on-dark: rgba(230,204,161,.7);
+  --good: #1E5631;
+  --pending: #8a6d33;
+}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{margin:0;font-family:'Lato',Arial,sans-serif;background:var(--lace);color:var(--terra);padding-bottom:80px;}
+[contenteditable="true"]{cursor:text;border-radius:2px;}
+[contenteditable="true"]:hover{background:rgba(255,255,255,.15);}
+[contenteditable="true"]:focus{outline:1px solid rgba(255,255,255,.6);}
+
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+
+.controls{max-width:780px;margin:20px auto 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px;}
+.save-status{font-size:10.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.action-btn{background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;padding:11px 20px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.action-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+
+.frame{max-width:780px;margin:0 auto 40px;padding:10px;background:linear-gradient(155deg,var(--champagne),var(--rouge) 60%,var(--rouge-deep));border-radius:5px;box-shadow:0 30px 80px rgba(58,2,16,.22);}
+.doc{background:var(--paper);border-radius:2px;position:relative;overflow:hidden;}
+
+.hero{background:radial-gradient(140% 130% at 15% 0%, var(--rouge) 0%, var(--rouge-deep) 60%, #26010a 100%);color:var(--champagne);padding:40px 46px 30px;position:relative;overflow:hidden;}
+.hero::before{
+  content:'';position:absolute;inset:0;opacity:.07;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cg fill='none' stroke='%23E6CCA1' stroke-width='0.8'%3E%3Cpath d='M220 30 C 260 60, 280 110, 260 160 C 245 205, 190 235, 145 210 C 100 185, 85 130, 115 90 C 140 58, 180 40, 220 30 Z'/%3E%3Cpath d='M40 260 C 60 220, 100 200, 140 215 C 175 228, 195 265, 175 290'/%3E%3Cpath d='M220 30 L 220 230'/%3E%3Cpath d='M160 110 Q220 145 275 105'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:cover;
+}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.brand-mark{font-family:'EB Garamond',Georgia,serif;font-size:23px;letter-spacing:5px;color:#fff;font-weight:600;}
+.brand-rule{width:32px;height:1.5px;background:var(--champagne);margin:10px 0 7px;}
+.brand-tag{font-size:8px;letter-spacing:3px;color:var(--cream-on-dark);text-transform:uppercase;}
+.hero-addr{text-align:right;font-size:10px;color:var(--cream-on-dark);line-height:1.9;letter-spacing:.3px;}
+
+.hero-title{margin-top:30px;position:relative;z-index:1;}
+.eyebrow-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.hero-title .eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--cream-on-dark);}
+.submit-date{font-size:10px;letter-spacing:.5px;color:var(--cream-on-dark);text-align:right;}
+.submit-date-lbl{text-transform:uppercase;letter-spacing:1.5px;font-size:9px;margin-right:6px;opacity:.85;}
+.submit-date-val{color:#fff;font-weight:600;border-bottom:1px dashed rgba(230,204,161,.5);}
+.hero-title h1{font-family:'EB Garamond',Georgia,serif;font-weight:600;font-style:italic;font-size:24px;color:#fff;letter-spacing:.3px;line-height:1.1;}
+
+.status-strip{padding:14px 46px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.5px;background:var(--champagne-soft);color:var(--pending);}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--pending);}
+.stale-strip{padding:12px 46px;display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:700;letter-spacing:.2px;background:#FBEAEA;color:#9A3B1F;}
+
+.line-items{padding:22px 46px 0;background:var(--paper);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--rouge);padding:0 10px 9px;border-bottom:1.5px solid var(--rouge);font-weight:700;}
+thead th.num{text-align:right;}
+tbody td{padding:6.5px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--terra);}
+tbody tr td:first-child{font-weight:600;color:var(--muted);font-size:11.5px;}
+.empty-row{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 10px;font-style:italic;}
+
+.totals-wrap{padding:20px 46px 0;background:var(--paper);display:flex;justify-content:flex-end;}
+.totals-card{width:100%;max-width:280px;background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));border-radius:3px;padding:18px 22px;color:var(--champagne);display:flex;justify-content:space-between;align-items:baseline;}
+.totals-card .lbl{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:13px;color:var(--champagne);}
+.totals-card .amt{font-family:'EB Garamond',Georgia,serif;font-weight:700;font-size:22px;color:#fff;}
+
+.sig-grid{padding:30px 46px 8px;display:grid;grid-template-columns:1fr 1fr;gap:30px;background:var(--paper);margin-top:10px;border-top:1px solid var(--border);}
+.sig-box .lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700;}
+.sig-pad-wrap{border:1.5px dashed var(--border);border-radius:3px;background:var(--lace);position:relative;height:90px;}
+.sig-pad{display:block;width:100%;height:90px;touch-action:none;cursor:crosshair;}
+.sig-clear{position:absolute;top:6px;right:8px;background:none;border:none;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.sig-save{position:absolute;bottom:6px;right:8px;background:var(--rouge);color:var(--champagne);border:none;border-radius:2px;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;padding:6px 10px;cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.sig-upload{margin-top:7px;text-align:center;}
+.sig-upload input{display:none;}
+.sig-upload label{font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;}
+.sig-locked{border:1.5px solid var(--border);border-radius:3px;background:var(--lace);height:90px;display:flex;align-items:center;justify-content:center;}
+.sig-locked img{max-height:100%;max-width:100%;}
+.ceo-box{border:1.5px dashed var(--border);border-radius:3px;background:var(--lace);height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;transition:background .3s,border-color .3s;}
+.ceo-box.approved{border:1.5px solid #C9DDCE;background:#F1F7F3;}
+.ceo-box .ceo-status{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:13px;color:var(--muted);}
+.ceo-check{display:block;font-family:'Lato',Arial,sans-serif;font-weight:700;color:var(--good);font-size:15px;letter-spacing:.3px;}
+.ceo-name{display:block;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:12.5px;color:var(--terra);margin-top:4px;}
+.ceo-stamp{display:block;font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:.2px;}
+.approve-btn{background:var(--good);color:#fff;border:none;border-radius:2px;padding:9px 16px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:'Lato',Arial,sans-serif;margin-top:6px;}
+
+.trn-note{text-align:center;font-size:9px;color:var(--muted);opacity:.7;padding:20px 46px 26px;background:var(--paper);}
+
+@media print {
+  .no-print{display:none!important;}
+  body{background:#fff;padding:0;}
+  .frame{box-shadow:none;background:none;padding:0;margin:0;max-width:none;}
+  .doc{border-radius:0;}
+}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','finance','ceo']);</script>
+<script src="vendor/html2canvas.min.js"></script>
+
+<div class="topbar no-print">
+  <a href="expenses.html">‹ EXPENSE SHEETS</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="controls no-print">
+  <span class="save-status" id="save-status"></span>
+  <button class="action-btn" id="share-btn" style="display:none;" disabled>📤 Share to Accountant</button>
+</div>
+
+<div class="frame">
+<div class="doc" id="doc">
+
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="brand-mark">FLOWERS.AE</div>
+        <div class="brand-rule"></div>
+        <div class="brand-tag">The Art of Gifting</div>
+      </div>
+      <div class="hero-addr">
+        Villa 11, Al Athar Street<br>
+        Jumeirah 3, Dubai, UAE
+      </div>
+    </div>
+    <div class="hero-title">
+      <div class="eyebrow-row">
+        <div class="eyebrow">Event Commission</div>
+        <div class="submit-date"><span class="submit-date-lbl">Date</span><span class="submit-date-val" id="submit-date">—</span></div>
+      </div>
+      <h1 id="doc-title">—</h1>
+    </div>
+  </div>
+
+  <div class="status-strip no-print" id="status-strip">
+    <span class="status-dot"></span>
+    <span>Waiting for final approval</span>
+  </div>
+
+  <div class="stale-strip no-print" id="stale-strip" style="display:none;">
+    <span>⚠</span>
+    <span>An event for this month was approved after this sheet was generated — the total below may be missing it.</span>
+  </div>
+
+  <div class="line-items">
+    <table>
+      <thead>
+        <tr><th>Order #</th><th class="num">Commission</th></tr>
+      </thead>
+      <tbody id="items-body"></tbody>
+    </table>
+  </div>
+
+  <div class="totals-wrap">
+    <div class="totals-card"><span class="lbl">Total</span><span class="amt" id="total-amt">AED 0.00</span></div>
+  </div>
+
+  <div class="sig-grid">
+    <div class="sig-box">
+      <div class="lbl">Staff Signature</div>
+      <div id="sig-area"></div>
+    </div>
+    <div class="sig-box">
+      <div class="lbl">CEO Approval</div>
+      <div class="ceo-box" id="ceo-box"><div class="ceo-status" id="ceo-status">Awaiting approval</div></div>
+    </div>
+  </div>
+
+  <div class="trn-note">TRN: 100391300900003 &middot; Flowers.ae &middot; The Art of Gifting</div>
+
+</div>
+</div>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase();
+
+const me = FLApp.currentUser();
+const isAdmin = FLApp.isAdmin();
+const isCeo = FLApp.isCeo();
+const isFinance = FLApp.role(me) === 'finance';
+const status = document.getElementById('save-status');
+
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+let exp = id ? FLApp.expenseGet(id) : null;
+
+if (!exp) {
+  document.body.innerHTML = '<div style="padding:60px;text-align:center;color:#9B8E8A;">Expense sheet not found.<br><a href="expenses.html" style="color:#550318;">‹ Back to Expense Sheets</a></div>';
+  throw new Error('expense not found');
+}
+/* finance can only ever see already-approved sheets; admin only sees their own */
+if ((isFinance && !(exp.ceoApproval && exp.ceoApproval.approved)) || (isAdmin && !isCeo && exp.staffId !== me.id)) {
+  location.replace('expenses.html');
+}
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtMonth(ym) { const [y, m] = ym.split('-').map(Number); return MONTH_NAMES[m - 1] + ' ' + y; }
+function fmtDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' +
+    d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+function AED(n) { return 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 }); }
+
+function render() {
+  const approved = !!(exp.ceoApproval && exp.ceoApproval.approved);
+  document.getElementById('doc-title').textContent = exp.staffName + ' — ' + fmtMonth(exp.month);
+  document.getElementById('submit-date').textContent = exp.submittedAt ? fmtDateTime(exp.submittedAt).split(',')[0] : '—';
+
+  const body = document.getElementById('items-body');
+  if (!exp.lineItems || !exp.lineItems.length) {
+    body.innerHTML = '<tr><td colspan="2" class="empty-row">No approved events for this month yet.</td></tr>';
+  } else {
+    body.innerHTML = exp.lineItems.map(li =>
+      '<tr><td>' + (li.orderNo || '—') + '</td><td class="num">' + AED(li.commission) + '</td></tr>'
+    ).join('');
+  }
+  document.getElementById('total-amt').textContent = AED(exp.total || 0);
+
+  const strip = document.getElementById('status-strip');
+  strip.style.display = approved ? 'none' : '';
+
+  document.getElementById('stale-strip').style.display = (!approved && FLApp.expenseSheetStale(exp)) ? '' : 'none';
+
+  /* staff signature */
+  const sigArea = document.getElementById('sig-area');
+  if (exp.staffSignature) {
+    sigArea.innerHTML = '<div class="sig-locked"><img src="' + exp.staffSignature + '" alt="Signature"></div>';
+  } else if (isAdmin && exp.staffId === me.id && !approved) {
+    sigArea.innerHTML = '<div class="sig-pad-wrap no-print">' +
+      '<canvas class="sig-pad" id="sig-pad"></canvas>' +
+      '<button class="sig-clear" type="button" onclick="clearSig()">Clear</button>' +
+      '<button class="sig-save" type="button" onclick="saveSig()">Save</button>' +
+      '</div>' +
+      '<div class="sig-upload no-print">' +
+      '<label for="sig-file">or upload a photo of your signature</label>' +
+      '<input type="file" id="sig-file" accept="image/*" onchange="uploadSig(this)">' +
+      '</div>';
+    initSigPad();
+  } else {
+    sigArea.innerHTML = '<div class="sig-locked" style="color:#9B8E8A;font-size:12px;font-style:italic;">Not signed yet</div>';
+  }
+
+  /* CEO approval */
+  const ceoBox = document.getElementById('ceo-box');
+  if (approved) {
+    ceoBox.classList.add('approved');
+    ceoBox.innerHTML = '<div class="ceo-status"><span class="ceo-check">✓ Approved</span>' +
+      '<span class="ceo-name">' + exp.ceoApproval.approvedByName + ', CEO</span>' +
+      '<span class="ceo-stamp">(' + fmtDateTime(exp.ceoApproval.approvedAt) + ')</span></div>';
+  } else if (isCeo) {
+    if (FLApp.expenseMonthFullyApproved(exp.month)) {
+      ceoBox.innerHTML = '<div class="ceo-status">Awaiting approval</div>' +
+        '<button class="approve-btn no-print" type="button" onclick="approveSheet()">Approve</button>';
+    } else {
+      ceoBox.innerHTML = '<div class="ceo-status" style="font-size:11.5px;line-height:1.5;">All ' + fmtMonth(exp.month) + ' events must be approved before this can be approved</div>';
+    }
+  } else {
+    ceoBox.innerHTML = '<div class="ceo-status">Awaiting approval</div>';
+  }
+
+  /* share button — admin, only once approved */
+  const shareBtn = document.getElementById('share-btn');
+  if (isAdmin && exp.staffId === me.id) {
+    shareBtn.style.display = '';
+    shareBtn.disabled = !approved;
+  } else {
+    shareBtn.style.display = 'none';
+  }
+}
+
+function save() {
+  try { FLApp.expenseSave(exp); status.textContent = 'Saved ✓'; }
+  catch (e) { status.textContent = 'Not saved — storage full'; }
+}
+
+function initSigPad() {
+  const canvas = document.getElementById('sig-pad');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  ctx.strokeStyle = '#550318';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  let drawing = false;
+  function pos(e) { const r = canvas.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e; return { x: t.clientX - r.left, y: t.clientY - r.top }; }
+  function start(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+  function move(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+  function end() { drawing = false; }
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+}
+function clearSig() {
+  const canvas = document.getElementById('sig-pad');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+/* turns a photo of ink-on-paper into a transparent-background PNG, so an
+   uploaded signature sits on the sheet like it was actually signed there
+   rather than looking like a pasted photo — pixels near paper-white fade
+   to fully transparent, dark ink stays opaque, with a soft ramp between so
+   the edges of each stroke don't look jagged. */
+function removeSignatureBackground(dataURL, maxSide) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      const imgData = ctx.getImageData(0, 0, c.width, c.height);
+      const d = imgData.data;
+      const DARK = 140, LIGHT = 225; // below DARK = fully opaque ink, above LIGHT = fully transparent paper
+      for (let i = 0; i < d.length; i += 4) {
+        const brightness = (d[i] + d[i + 1] + d[i + 2]) / 3;
+        let alpha;
+        if (brightness <= DARK) alpha = 255;
+        else if (brightness >= LIGHT) alpha = 0;
+        else alpha = Math.round(255 * (LIGHT - brightness) / (LIGHT - DARK));
+        d[i + 3] = Math.min(d[i + 3], alpha);
+      }
+      ctx.putImageData(imgData, 0, 0);
+      res(c.toDataURL('image/png'));
+    };
+    img.onerror = rej;
+    img.src = dataURL;
+  });
+}
+async function uploadSig(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    exp.staffSignature = await removeSignatureBackground(reader.result, 700);
+    if (!exp.submittedAt) exp.submittedAt = new Date().toISOString();
+    if (isAdmin) FLApp.setAdminSignature(exp.staffSignature);
+    save();
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+async function saveSig() {
+  const canvas = document.getElementById('sig-pad');
+  const blank = document.createElement('canvas');
+  blank.width = canvas.width; blank.height = canvas.height;
+  if (canvas.toDataURL() === blank.toDataURL()) { await FLApp.flAlert('Please sign before saving.'); return; }
+  exp.staffSignature = canvas.toDataURL('image/png');
+  if (!exp.submittedAt) exp.submittedAt = new Date().toISOString();
+  if (isAdmin) FLApp.setAdminSignature(exp.staffSignature);
+  save();
+  render();
+}
+
+async function approveSheet() {
+  if (!FLApp.expenseMonthFullyApproved(exp.month)) { await FLApp.flAlert('All ' + fmtMonth(exp.month) + ' events must be approved first.'); return; }
+  if (!await FLApp.flConfirm('Approve ' + exp.staffName + '\'s ' + fmtMonth(exp.month) + ' commission sheet? This locks the sheet.')) return;
+  exp.ceoApproval = { approved: true, approvedAt: new Date().toISOString(), approvedByName: me.name };
+  save();
+  location.reload();
+}
+
+document.getElementById('share-btn').addEventListener('click', async () => {
+  const canvas = await html2canvas(document.getElementById('doc'), { scale: 2, useCORS: true });
+  const dataUrl = canvas.toDataURL('image/png');
+  const name = (exp.staffName + '-' + exp.month + '-commission').replace(/[^\w\d-]+/g, '-') + '.png';
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Expense Sheet — ' + fmtMonth(exp.month) });
+      return;
+    }
+  } catch (e) { /* fall through to download */ }
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = name; a.click();
+  await FLApp.flAlert('Expense sheet image saved — attach it in WhatsApp.');
+});
+
+render();
+
+/* This page has contenteditable fields, so an unannounced redraw could throw away
+   what is being typed. Only redraw when THIS sheet actually changed on another
+   device (Jo approving it, normally) and nobody is mid-edit here. */
+(function () {
+  const stamp = () => { const c = id ? FLApp.expenseGet(id) : null; return c ? JSON.stringify(c) : ''; };
+  let last = stamp();
+  const busy = () => {
+    const el = document.activeElement;
+    if (!el || el === document.body) return false;
+    return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+  };
+  FLApp.onSync(state => {
+    if (state !== 'synced' || !id) return;
+    const now = stamp();
+    if (now === last || busy()) return;
+    last = now;
+    exp = FLApp.expenseGet(id);
+    if (exp) render();
+  });
+})();
+</script>
+</body>
+</html>

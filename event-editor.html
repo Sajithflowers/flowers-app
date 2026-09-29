@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Event GP Sheet</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;position:sticky;top:0;z-index:100;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar .status{color:rgba(230,204,161,.75);font-size:11px;letter-spacing:1px;}
+.wrap{max-width:640px;margin:0 auto;padding:14px;}
+@media (min-width:900px){ .wrap{max-width:1000px;} }
+.card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:16px;margin-bottom:14px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.card h2{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);font-weight:700;margin-bottom:12px;letter-spacing:.5px;}
+label{display:block;font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:10px 0 4px;}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:2px;font-size:14px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;color:var(--terra);}
+input:focus,textarea:focus{border-color:var(--champagne);background:#fff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+.shopify-row{display:flex;gap:8px;align-items:flex-end;}
+.shopify-row>div{flex:1;}
+.btn-open{padding:11px 14px;background:var(--rouge);color:var(--champagne);border:none;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;}
+
+.line{display:grid;grid-template-columns:1fr 52px 70px 74px 30px;gap:6px;align-items:center;margin-bottom:7px;}
+.line input{padding:9px 8px;font-size:13px;}
+.line .ncell{display:flex;align-items:center;gap:4px;min-width:0;}
+.line .ncell input{flex:1;min-width:0;}
+.inv-chip{width:34px;height:34px;border:1px solid var(--champagne);border-radius:2px;overflow:hidden;flex-shrink:0;cursor:pointer;padding:0;background:#fff;}
+.inv-chip img{width:100%;height:100%;object-fit:cover;display:block;}
+.line .tot{font-size:12.5px;font-weight:700;color:var(--terra);text-align:right;}
+.line .del{background:none;border:none;color:var(--bad);font-size:16px;cursor:pointer;padding:0;}
+.line-head{display:grid;grid-template-columns:1fr 52px 70px 74px 30px;gap:6px;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.add-line{width:100%;padding:10px;border:1px dashed var(--champagne);background:#FBF6EC;color:var(--rouge);border-radius:2px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;margin-top:6px;text-transform:uppercase;}
+.attach{display:flex;align-items:center;gap:8px;margin:2px 0 12px;flex-wrap:wrap;}
+.attach button{padding:9px 12px;border:1px solid var(--champagne);background:#FBF6EC;border-radius:2px;font-size:11px;font-weight:700;cursor:pointer;color:var(--rouge);}
+.attach span{font-size:11px;color:var(--muted);}
+.sec-total{text-align:right;font-size:12px;font-weight:700;color:var(--rouge);border-top:1px solid #F1EBE4;padding-top:9px;margin-top:4px;}
+
+.summary{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge));color:#fff;border:none;}
+.summary h2{color:var(--champagne);}
+.srow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(230,204,161,.15);font-size:13.5px;gap:10px;}
+.srow:last-child{border-bottom:none;}
+.srow .k{color:rgba(255,255,255,.85);}
+.srow .v{font-weight:700;white-space:nowrap;}
+.srow.big .v{font-size:17px;color:var(--champagne);}
+.srow .v.pos{color:#8fd8a8;} .srow .v.neg{color:#f2a0a0;}
+.srow .sub{font-size:10px;color:rgba(230,204,161,.6);display:block;text-align:right;}
+.danger{width:100%;padding:12px;margin-top:4px;border:1px solid #E5C9C9;background:none;color:var(--bad);border-radius:2px;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
+.appr-btns{display:flex;gap:10px;margin-bottom:12px;}
+.appr{flex:1;padding:14px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;font-family:'Lato',Arial,sans-serif;}
+.appr.approve{border:1.5px solid #BFD8C6;background:#F3FAF5;color:var(--good);}
+.appr.approve.on{background:var(--good);color:#fff;border-color:var(--good);box-shadow:0 6px 18px rgba(30,86,49,.35);}
+.appr.reject{border:1.5px solid #E5C9C9;background:#FBF3F3;color:var(--bad);}
+.appr.reject.on{background:var(--bad);color:#fff;border-color:var(--bad);box-shadow:0 6px 18px rgba(143,29,29,.35);}
+.appr-stamp{font-size:11.5px;color:var(--muted);margin-top:10px;font-style:italic;line-height:1.6;}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:5px 11px;border-radius:20px;text-transform:uppercase;}
+.pill.rejected{background:#FBF3F3;color:var(--bad);}
+.pill.pending{background:var(--lace);color:var(--muted);}
+.share-btn{width:100%;margin-top:14px;padding:14px;background:var(--champagne);color:var(--rouge);border:none;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;font-family:'Lato',Arial,sans-serif;transition:all .25s;}
+.share-btn:active{transform:scale(.98);}
+#invFile{display:none;}
+#viewer{position:fixed;inset:0;background:rgba(20,2,8,.95);display:none;z-index:500;overflow-y:auto;padding:20px 14px;}
+#viewer.open{display:block;animation:vIn .25s ease;}
+@keyframes vIn{from{opacity:0;}to{opacity:1;}}
+#viewerPages{max-width:820px;margin:26px auto 0;display:flex;flex-direction:column;gap:14px;}
+#viewerPages img{width:100%;border:2px solid var(--champagne);box-shadow:0 10px 50px rgba(0,0,0,.6);}
+#viewer .close{position:fixed;top:14px;right:16px;background:var(--champagne);color:var(--rouge);border:none;width:40px;height:40px;border-radius:50%;font-size:17px;font-weight:700;cursor:pointer;z-index:501;box-shadow:0 4px 16px rgba(0,0,0,.5);}
+#upl-busy{display:none;font-size:11px;color:var(--rouge);font-weight:700;letter-spacing:1px;}
+#upl-busy.on{display:inline;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','finance','ceo']);</script>
+
+<div class="topbar">
+  <a href="events.html">‹ EVENTS</a>
+  <span class="status" id="save-status">—</span>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>Event Details</h2>
+    <label>Event name</label>
+    <input id="f-name" placeholder="e.g. Nasrin 30th Jun">
+    <div class="grid2">
+      <div><label>Event date</label><input id="f-date" type="date"></div>
+      <div><label>Order number</label><input id="f-order" placeholder="e.g. 264933" inputmode="numeric"></div>
+      <div><label>Event budget (AED)</label><input id="f-budget" type="number" inputmode="decimal" placeholder="0.00"></div>
+      <div><label>Discount %</label><input id="f-disc" type="number" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <div class="shopify-row" id="shopifyRow">
+      <div><label>Shopify order link (optional)</label><input id="f-shopify" placeholder="Paste link…"></div>
+      <button class="btn-open" onclick="openShopify()">OPEN ↗</button>
+    </div>
+    <div class="grid2" id="occasionRow" style="display:none;">
+      <div><label>Occasion (optional)</label><input id="f-occasion" list="occasion-list" placeholder="e.g. Birthday, Anniversary"></div>
+      <div><label>Client mobile (optional)</label><input id="f-mobile" type="tel" placeholder="e.g. 050 123 4567"></div>
+    </div>
+    <datalist id="occasion-list">
+      <option value="Birthday"><option value="Anniversary"><option value="Wedding">
+      <option value="Engagement"><option value="Baby Shower"><option value="Corporate">
+    </datalist>
+  </div>
+
+  <div class="card">
+    <h2>Flowers</h2>
+    <div class="attach">
+      <button id="upl-btn" onclick="document.getElementById('invFile').click()">📎 Upload invoice — PDF, screenshot or photo</button>
+      <span id="upl-busy" class="">PROCESSING…</span>
+      <span id="upl-hint">Each upload becomes a flower cost line — just type the amount. Tap the thumbnail to open and review it.</span>
+    </div>
+    <div class="line-head"><span>Flower / invoice</span><span>Qty</span><span>Price</span><span>Total</span><span></span></div>
+    <div id="flowersLines"></div>
+    <button class="add-line" onclick="addLine('flowers')">＋ Add flower line manually</button>
+    <div class="sec-total" id="flowersTotal"></div>
+  </div>
+
+  <div class="card">
+    <h2>Sundries</h2>
+    <div class="line-head"><span>Item used</span><span>Qty</span><span>Price</span><span>Total</span><span></span></div>
+    <div id="sundriesLines"></div>
+    <button class="add-line" onclick="addLine('sundries')">＋ Add sundry</button>
+    <div class="sec-total" id="sundriesTotal"></div>
+  </div>
+
+  <div class="card">
+    <h2>Other Cost</h2>
+    <div class="line-head"><span>Item (transport, overtime…)</span><span>Qty</span><span>Price</span><span>Total</span><span></span></div>
+    <div id="otherLines"></div>
+    <button class="add-line" onclick="addLine('other')">＋ Add cost</button>
+    <div class="sec-total" id="otherTotal"></div>
+  </div>
+
+  <div class="card summary">
+    <h2 style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">Summary
+      <span id="sum-order" style="font-family:'Lato',Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--champagne);white-space:nowrap;"></span>
+    </h2>
+    <div id="summaryBox"></div>
+    <button class="share-btn" id="share-btn" onclick="shareSummary()">📤 &nbsp;Share Summary — WhatsApp</button>
+  </div>
+
+  <div class="card" id="approvalCard">
+    <h2>Approval</h2>
+    <div class="appr-btns">
+      <button id="btn-approve" class="appr approve">✓ Approved</button>
+      <button id="btn-reject" class="appr reject">✕ Not approved</button>
+    </div>
+    <div id="rejectWrap" style="display:none;">
+      <label>Reason — what needs fixing?</label>
+      <textarea id="f-reject-reason" rows="2" placeholder="e.g. Missing tulip invoice, transport cost looks too high…"></textarea>
+    </div>
+    <div id="apprStamp" class="appr-stamp"></div>
+  </div>
+
+  <div class="card" id="reviewCard" style="display:none;">
+    <h2>Review status</h2>
+    <div id="reviewStatusPill"></div>
+    <div id="reviewTrail" style="margin-top:8px;font-size:12.5px;line-height:1.6;"></div>
+    <div id="resendBox" style="margin-top:12px;">
+      <label>Note for Jo (optional)</label>
+      <textarea id="f-resend-note" rows="2" placeholder="e.g. Fixed — budget now matches the invoice"></textarea>
+      <button class="add-line" type="button" onclick="sendBackToPending()">↩ Send back to pending</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Notes</h2>
+    <textarea id="f-notes" rows="3" placeholder="Anything to remember about this event…"></textarea>
+  </div>
+
+  <button class="danger" id="delEventBtn" style="display:none;" onclick="delEvent()">Delete this event</button>
+</div>
+
+<input type="file" id="invFile" accept="image/*,application/pdf" multiple>
+<div id="viewer" onclick="this.classList.remove('open')"><button class="close">✕</button><div id="viewerPages"></div></div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const wantId = params.get('id');
+let ev = wantId ? FLApp.eventGet(wantId) : null;
+
+if (!ev) {
+  ev = { id: 'e' + Date.now(), name: '', date: '', orderNo: '', shopify: '', budget: '', discountPct: '',
+         flowers: [], sundries: [], other: [], notes: '', occasion: '', mobile: '' };
+  /* opened from "Make sheet" on a Tracker row — carry its figures across so
+     nothing is retyped and the order numbers cannot drift apart */
+  ['orderNo', 'date', 'budget', 'discountPct', 'name', 'mobile'].forEach(k => {
+    const v = params.get(k);
+    if (v) ev[k] = v;
+  });
+}
+const COMMISSION_PCT = 10; /* fixed by request */
+const GPT = 70;   /* deliberately NOT a setting — this number is on the page Jo approves */
+
+const AED = n => 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const status = document.getElementById('save-status');
+
+const F = { name: 'f-name', date: 'f-date', orderNo: 'f-order', budget: 'f-budget', discountPct: 'f-disc', shopify: 'f-shopify', notes: 'f-notes', occasion: 'f-occasion', mobile: 'f-mobile' };
+Object.entries(F).forEach(([k, id]) => {
+  const el = document.getElementById(id);
+  el.value = ev[k] != null ? ev[k] : '';
+  el.addEventListener('input', () => { ev[k] = el.value; refresh(); });
+});
+
+async function openShopify() {
+  const url = (ev.shopify || '').trim();
+  if (!url) { await FLApp.flAlert('Paste a Shopify link first.'); return; }
+  window.open(/^https?:\/\//.test(url) ? url : 'https://' + url, '_blank');
+}
+
+function viewImgs(list) {
+  document.getElementById('viewerPages').innerHTML =
+    list.map(src => '<img src="' + src + '">').join('');
+  document.getElementById('viewer').classList.add('open');
+}
+
+function renderLines(sec) {
+  const box = document.getElementById(sec + 'Lines');
+  box.innerHTML = '';
+  (ev[sec] || []).forEach((l, i) => {
+    const row = document.createElement('div');
+    row.className = 'line';
+    row.innerHTML = '<div class="ncell"><input class="ln" placeholder="Name"></div>' +
+      '<input class="lq" type="number" inputmode="decimal" placeholder="1">' +
+      '<input class="lp" type="number" inputmode="decimal" placeholder="0.00"><span class="tot"></span><button class="del">✕</button>';
+    if (l.img) {
+      const chip = document.createElement('button');
+      chip.className = 'inv-chip';
+      chip.innerHTML = '<img src="' + l.img + '">';
+      chip.onclick = () => viewImgs(l.imgs && l.imgs.length ? l.imgs : [l.img]);
+      row.querySelector('.ncell').prepend(chip);
+    }
+    const [n, q, p] = [row.querySelector('.ln'), row.querySelector('.lq'), row.querySelector('.lp')];
+    n.value = l.name || ''; q.value = l.qty != null ? l.qty : ''; p.value = l.price != null ? l.price : '';
+    const tot = row.querySelector('.tot');
+    const upd = () => {
+      l.name = n.value; l.qty = q.value; l.price = p.value;
+      tot.textContent = AED((parseFloat(q.value) || 0) * (parseFloat(p.value) || 0));
+      refresh();
+    };
+    [n, q, p].forEach(x => x.addEventListener('input', upd));
+    tot.textContent = AED((parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0));
+    row.querySelector('.del').onclick = async () => {
+      if (l.img && !(await FLApp.flConfirm('Remove this invoice line and its image?'))) return;
+      ev[sec].splice(i, 1); renderLines(sec); refresh();
+    };
+    box.appendChild(row);
+  });
+}
+function addLine(sec) {
+  (ev[sec] = ev[sec] || []).push({ name: '', qty: 1, price: '' });
+  renderLines(sec);
+  const rows = document.getElementById(sec + 'Lines').querySelectorAll('.line .ln');
+  rows[rows.length - 1].focus();
+  scheduleSave();
+}
+
+/* invoice upload (images + PDFs, multiple) → each becomes a flower cost line */
+function fileToDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function compressImage(dataURL, maxSide) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = rej;
+    img.src = dataURL;
+  });
+}
+async function pdfToImages(file) {
+  /* render PDF pages to images with the bundled pdf.js (works offline in the app) */
+  const pdfjsLib = await import('./vendor/pdf.min.mjs');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  const nPages = Math.min(pdf.numPages, 6);
+  for (let p = 1; p <= nPages; p++) {
+    const page = await pdf.getPage(p);
+    let vp = page.getViewport({ scale: 1 });
+    const scale = 1000 / vp.width;
+    vp = page.getViewport({ scale });
+    const c = document.createElement('canvas');
+    c.width = vp.width; c.height = vp.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    pages.push(c.toDataURL('image/jpeg', 0.72));
+  }
+  return pages;
+}
+
+document.getElementById('invFile').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if (!files.length) return;
+  const busy = document.getElementById('upl-busy');
+  busy.classList.add('on');
+  try {
+    for (const file of files) {
+      let pages = null;
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        pages = await pdfToImages(file);
+      } else if (file.type.startsWith('image/')) {
+        pages = [await compressImage(await fileToDataURL(file), 900)];
+      } else {
+        await FLApp.flAlert('"' + file.name + '" is not an image or PDF — not added.');
+        continue;
+      }
+      const invoiceNum = (ev.flowers || []).filter(l => l.img).length + 1;
+      const label = file.name ? file.name.replace(/\.(pdf|png|jpe?g|webp)$/i, '').slice(0, 40) : ('INVOICE ' + invoiceNum);
+      (ev.flowers = ev.flowers || []).push({ name: label, qty: 1, price: '', img: pages[0], imgs: pages });
+    }
+    renderLines('flowers');
+    refresh();
+    const lines = document.querySelectorAll('#flowersLines .line .lp');
+    if (lines.length) lines[lines.length - 1].focus();
+  } catch (err) {
+    await FLApp.flAlert('Could not read that file: ' + err.message);
+  }
+  busy.classList.remove('on');
+});
+
+function calc() {
+  const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
+  const flowers = sum(ev.flowers), sundries = sum(ev.sundries), other = sum(ev.other);
+  const cost = flowers + sundries + other;
+  const budget = parseFloat(ev.budget) || 0;
+  const discPct = parseFloat(ev.discountPct) || 0;
+  const discount = budget * discPct / 100;
+  const after = budget - discount;
+  const profit = after - cost;
+  const gp = after ? profit / after * 100 : 0;
+  const commission = profit > 0 ? profit * COMMISSION_PCT / 100 : 0;
+  return { flowers, sundries, other, cost, budget, discPct, discount, after, profit, gp, commission };
+}
+
+function refresh() {
+  const c = calc();
+  document.getElementById('sum-order').textContent = (ev.orderNo || '').trim() ? 'ORDER #' + ev.orderNo.trim() : '';
+  document.getElementById('flowersTotal').textContent = 'Flowers total: ' + AED(c.flowers);
+  document.getElementById('sundriesTotal').textContent = 'Sundries total: ' + AED(c.sundries);
+  document.getElementById('otherTotal').textContent = 'Other cost total: ' + AED(c.other);
+  document.getElementById('summaryBox').innerHTML =
+    '<div class="srow"><span class="k">Event budget</span><span class="v">' + AED(c.budget) + '</span></div>' +
+    (c.discPct ? '<div class="srow"><span class="k">Discount (' + c.discPct + '%)</span><span class="v">− ' + AED(c.discount) + '</span></div>' +
+    '<div class="srow"><span class="k">After discount</span><span class="v">' + AED(c.after) + '</span></div>' : '') +
+    '<div class="srow"><span class="k">Flowers</span><span class="v">' + AED(c.flowers) + '</span></div>' +
+    '<div class="srow"><span class="k">Sundries</span><span class="v">' + AED(c.sundries) + '</span></div>' +
+    '<div class="srow"><span class="k">Other cost</span><span class="v">' + AED(c.other) + '</span></div>' +
+    '<div class="srow"><span class="k">Total cost</span><span class="v">' + AED(c.cost) + '</span></div>' +
+    '<div class="srow big"><span class="k">Profit</span><span class="v ' + (c.profit >= 0 ? 'pos' : 'neg') + '">' + AED(c.profit) + '</span></div>' +
+    '<div class="srow big"><span class="k">GP margin</span><span class="v ' + (c.gp >= GPT ? 'pos' : 'neg') + '">' + c.gp.toFixed(2) + '%<span class="sub">target ' + GPT + '% → ' + (c.gp - GPT).toFixed(2) + '%</span></span></div>' +
+    (FLApp.isAdmin() ? '<div class="srow"><span class="k">Commission (10% of profit)</span><span class="v">' + AED(c.commission) + '</span></div>' : '');
+  scheduleSave();
+}
+
+/* ── WhatsApp summary card: branded PNG rendered on a canvas ── */
+function buildSummaryImage() {
+  const c = calc();
+  const rows = [
+    ['Event budget', AED(c.budget)],
+    ...(c.discPct ? [['Discount (' + c.discPct + '%)', '− ' + AED(c.discount)], ['After discount', AED(c.after)]] : []),
+    ['Flowers', AED(c.flowers)],
+    ['Sundries', AED(c.sundries)],
+    ['Other cost', AED(c.other)],
+    ['Total cost', AED(c.cost)]
+  ];
+  const W = 1080, rowH = 78, headH = 360, bigH = 250, footH = 150;
+  const H = headH + rows.length * rowH + bigH + footH;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+
+  /* rouge gradient background */
+  const g = x.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#3a0210'); g.addColorStop(.6, '#550318'); g.addColorStop(1, '#6d0a24');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+
+  /* header */
+  x.textAlign = 'center';
+  x.fillStyle = '#FFFFFF';
+  x.font = '700 64px "EB Garamond", Georgia, serif';
+  x.fillText('FLOWERS.AE', W / 2, 105);
+  x.fillStyle = '#E6CCA1'; x.fillRect(W / 2 - 60, 130, 120, 4);
+  x.font = '700 30px Lato, Arial'; x.fillStyle = '#E6CCA1';
+  x.fillText('E V E N T   G P   S U M M A R Y', W / 2, 185);
+  x.fillStyle = '#FFFFFF';
+  x.font = '700 52px "EB Garamond", Georgia, serif';
+  x.fillText((ev.name || 'Event').slice(0, 30), W / 2, 265);
+  x.font = '400 30px Lato, Arial'; x.fillStyle = 'rgba(255,255,255,.75)';
+  const meta = [ev.date ? new Date(ev.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '', ev.orderNo ? 'Order #' + ev.orderNo : ''].filter(Boolean).join('   ·   ');
+  x.fillText(meta, W / 2, 315);
+
+  /* rows */
+  let y = headH;
+  rows.forEach(([k, v]) => {
+    x.strokeStyle = 'rgba(230,204,161,.25)'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(70, y); x.lineTo(W - 70, y); x.stroke();
+    x.textAlign = 'left'; x.font = '400 32px Lato, Arial'; x.fillStyle = 'rgba(255,255,255,.85)';
+    x.fillText(k, 70, y + 52);
+    x.textAlign = 'right'; x.font = '700 32px Lato, Arial'; x.fillStyle = '#FFFFFF';
+    x.fillText(v, W - 70, y + 52);
+    y += rowH;
+  });
+
+  /* big numbers: profit + GP */
+  x.strokeStyle = '#E6CCA1'; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(70, y + 10); x.lineTo(W - 70, y + 10); x.stroke();
+  x.textAlign = 'left'; x.font = '400 34px Lato, Arial'; x.fillStyle = '#E6CCA1';
+  x.fillText('Profit', 70, y + 95);
+  x.textAlign = 'right'; x.font = '700 58px "EB Garamond", Georgia, serif';
+  x.fillStyle = c.profit >= 0 ? '#8fd8a8' : '#f2a0a0';
+  x.fillText(AED(c.profit), W - 70, y + 100);
+  x.textAlign = 'left'; x.font = '400 34px Lato, Arial'; x.fillStyle = '#E6CCA1';
+  x.fillText('GP margin', 70, y + 185);
+  x.textAlign = 'right'; x.font = '700 58px "EB Garamond", Georgia, serif';
+  x.fillStyle = c.gp >= GPT ? '#8fd8a8' : '#f2a0a0';
+  x.fillText(c.gp.toFixed(2) + '%', W - 70, y + 190);
+  x.font = '400 26px Lato, Arial'; x.fillStyle = 'rgba(230,204,161,.7)';
+  x.fillText('target ' + GPT + '%  →  ' + (c.gp - GPT >= 0 ? '+' : '') + (c.gp - GPT).toFixed(2) + '%', W - 70, y + 230);
+
+  /* approval + footer */
+  y += bigH;
+  const a = ev.approval || {};
+  x.textAlign = 'center'; x.font = '700 30px Lato, Arial';
+  if (a.status === 'approved') { x.fillStyle = '#8fd8a8'; x.fillText('✓ APPROVED — ' + a.by, W / 2, y + 45); }
+  else if (a.status === 'rejected') { x.fillStyle = '#f2a0a0'; x.fillText('✕ NOT APPROVED — ' + (a.reason || ''), W / 2, y + 45); }
+  x.font = '400 24px Lato, Arial'; x.fillStyle = 'rgba(230,204,161,.55)';
+  x.fillText('F L O W E R S . A E   ·   T H E   A R T   O F   G I F T I N G', W / 2, y + 105);
+
+  return cv.toDataURL('image/png');
+}
+
+async function shareSummary() {
+  await document.fonts.ready;
+  const dataUrl = buildSummaryImage();
+  const name = ((ev.name || 'event').replace(/[^\w\d]+/g, '-') + '-GP-summary.png');
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: ev.name || 'Event GP Summary' });
+      return;
+    }
+  } catch (e) { /* fall through to download */ }
+  const aEl = document.createElement('a');
+  aEl.href = dataUrl; aEl.download = name; aEl.click();
+  await FLApp.flAlert('Summary image saved — attach it in WhatsApp.');
+}
+
+let t = null;
+function scheduleSave() {
+  status.textContent = 'Saving…';
+  clearTimeout(t);
+  t = setTimeout(() => {
+    try { FLApp.eventSave(ev); status.textContent = 'Saved ✓'; }
+    catch (e) { status.textContent = 'Storage full — remove an image'; }
+  }, 700);
+}
+
+async function delEvent() {
+  if (await FLApp.flConfirm('Delete this whole event sheet? This cannot be undone.')) {
+    FLApp.eventDelete(ev.id);
+    location.href = 'events.html';
+  }
+}
+
+/* ── Approval — the CEO's card only; others see the status pills on the list ── */
+if (!FLApp.isCeo()) document.getElementById('approvalCard').style.display = 'none';
+
+/* deleting an event sheet is permanent — only admin should be able to, not finance */
+if (FLApp.isAdmin()) document.getElementById('delEventBtn').style.display = '';
+
+/* ── Share button + upload instructions: admin only.
+     CEO/accountant get a simple tap-to-view hint instead. ── */
+if (!FLApp.isAdmin()) {
+  document.getElementById('share-btn').style.display = 'none';
+  document.getElementById('upl-hint').textContent = 'Tap the small image next to a flower line to open and review the attached invoice.';
+}
+
+/* CEO/finance shouldn't see the raw Shopify order URL — just a button to open it */
+if (!FLApp.isAdmin()) {
+  document.getElementById('shopifyRow').innerHTML = ev.shopify
+    ? '<button class="btn-open" onclick="openShopify()">View Shopify order ↗</button>'
+    : '';
+}
+
+/* occasion + client mobile: admin only, strictly — CEO/finance never see this at all */
+if (FLApp.isAdmin()) document.getElementById('occasionRow').style.display = '';
+
+function renderApproval() {
+  const a = ev.approval || { status: 'pending' };
+  document.getElementById('btn-approve').classList.toggle('on', a.status === 'approved');
+  document.getElementById('btn-reject').classList.toggle('on', a.status === 'rejected');
+  document.getElementById('rejectWrap').style.display = a.status === 'rejected' ? '' : 'none';
+  document.getElementById('f-reject-reason').value = a.reason || '';
+  const stamp = document.getElementById('apprStamp');
+  if (a.status === 'approved') stamp.textContent = 'Approved by ' + a.by + ' · ' + new Date(a.at).toLocaleString('en-GB');
+  else if (a.status === 'rejected') stamp.textContent = 'Not approved by ' + a.by + ' · ' + new Date(a.at).toLocaleString('en-GB');
+  else stamp.textContent = 'Waiting for review — not yet approved.';
+}
+function setApproval(status) {
+  const cur = (ev.approval || {}).status;
+  const me = FLApp.currentUser().name;
+  if (cur === status) {
+    ev.approval = { status: 'pending' };            /* tap again to undo */
+  } else {
+    ev.approval = { status, reason: status === 'rejected' ? (ev.approval && ev.approval.reason || '') : '', by: me, at: new Date().toISOString() };
+  }
+  FLApp.eventSave(ev);                              /* direct save — works for CEO too */
+  renderApproval();
+  /* notify (in-app log + email once EmailJS is configured) */
+  const label = '"' + (ev.name || 'Untitled') + '" (order ' + (ev.orderNo || '—') + ')';
+  if (ev.approval.status === 'approved') {
+    FLApp.notify('Event APPROVED: ' + label, me);
+    const pending = FLApp.eventsAll().filter(e => !(e.approval && ['approved', 'rejected'].includes(e.approval.status)));
+    if (!pending.length) FLApp.notify('ALL EVENTS REVIEWED ✓ — nothing pending', me);
+  } else if (ev.approval.status === 'rejected') {
+    FLApp.notify('Event NOT APPROVED: ' + label, me);
+  }
+}
+document.getElementById('btn-approve').onclick = () => setApproval('approved');
+document.getElementById('btn-reject').onclick = () => setApproval('rejected');
+document.getElementById('f-reject-reason').addEventListener('input', e => {
+  if (ev.approval && ev.approval.status === 'rejected') {
+    ev.approval.reason = e.target.value;
+    FLApp.eventSave(ev);
+  }
+});
+renderApproval();
+
+/* Admin-facing counterpart to CEO's approve/reject: shown only when there's
+   something for the admin to react to (an active rejection, or a resend
+   that's still awaiting her). Sending back never happens automatically on
+   save — it's always this explicit action, so an accidental rejection with
+   nothing to fix can be sent back with just a note, no edit required. */
+function renderReviewCard() {
+  const card = document.getElementById('reviewCard');
+  if (!FLApp.isAdmin()) { card.style.display = 'none'; return; }
+  const a = ev.approval || { status: 'pending' };
+  if (a.status === 'approved' || (a.status === 'pending' && !a.priorReason)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  document.getElementById('reviewStatusPill').innerHTML = a.status === 'rejected'
+    ? '<span class="pill rejected">✕ Not approved</span>'
+    : '<span class="pill pending">Pending review</span>';
+  const reason = a.status === 'rejected' ? a.reason : a.priorReason;
+  const rejectedBy = a.status === 'rejected' ? a.by : a.priorBy;
+  let trail = reason ? '<div><b>' + (rejectedBy || 'Jo') + ':</b> "' + reason + '"</div>' : '';
+  if (a.status === 'pending' && a.adminNote) {
+    trail += '<div style="margin-top:4px;color:var(--good);"><b>' + (a.resubmittedBy || 'You') + ':</b> "' + a.adminNote + '"</div>';
+  }
+  document.getElementById('reviewTrail').innerHTML = trail;
+  document.getElementById('resendBox').style.display = a.status === 'rejected' ? '' : 'none';
+  document.getElementById('f-resend-note').value = '';
+}
+function sendBackToPending() {
+  const note = document.getElementById('f-resend-note').value.trim();
+  const prior = ev.approval || {};
+  ev.approval = {
+    status: 'pending',
+    priorReason: prior.reason || '',
+    priorBy: prior.by || '',
+    priorAt: prior.at || '',
+    adminNote: note,
+    resubmittedBy: FLApp.currentUser().name,
+    resubmittedAt: new Date().toISOString()
+  };
+  FLApp.eventSave(ev);
+  renderApproval();
+  renderReviewCard();
+}
+renderReviewCard();
+
+/* CEO = review only: everything visible and invoices open, nothing editable */
+const READONLY = FLApp.isCeo();
+function applyReadonly() {
+  if (!READONLY) return;
+  /* approval controls stay usable in review mode — that's the CEO's job here */
+  document.querySelectorAll('input:not(#invFile), textarea:not(#f-reject-reason)').forEach(x => x.disabled = true);
+  document.querySelectorAll('.add-line, .attach button, .danger, .line .del').forEach(x => x.style.display = 'none');
+  document.querySelectorAll('.inv-chip').forEach(x => x.disabled = false);
+}
+if (READONLY) {
+  const orig = renderLines;
+  renderLines = function (sec) { orig(sec); applyReadonly(); };
+  const origSave = scheduleSave;
+  scheduleSave = function () { status.textContent = 'Review mode'; };
+}
+
+['flowers', 'sundries', 'other'].forEach(renderLines);
+refresh();
+applyReadonly();
+status.textContent = READONLY ? 'Review mode — read only' : (params.get('id') ? 'Saved ✓' : 'New event');
+
+/* If this page opened in the fraction of a second before the photo store
+   finished loading, the invoice images here are placeholders and render
+   broken. Swap in the real ones the moment they arrive and redraw. */
+FLApp.whenReady(function () {
+  if (!wantId) return;
+  const hydrated = FLApp.hydratePhotos(ev);
+  if (hydrated === ev) return;          /* nothing was a placeholder */
+  Object.assign(ev, hydrated);
+  ['flowers', 'sundries', 'other'].forEach(renderLines);
+  refresh();
+  applyReadonly();
+});
+</script>
+</body>
+</html>

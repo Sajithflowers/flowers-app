@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Expense Sheets</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--champagne-soft:#F3E7D2;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--pending:#8a6d33;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:100px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:20px 16px 24px;text-align:center;position:relative;overflow:hidden;}
+.header::after{content:'❀';position:absolute;right:-10px;bottom:-28px;font-size:110px;opacity:.07;color:var(--champagne);}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:1.5px;}
+.header .gold-rule{width:40px;height:2px;background:var(--champagne);margin:10px auto 8px;}
+.header p{font-size:11px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;}
+.list{padding:16px 14px;max-width:520px;margin:0 auto;}
+@media (min-width:900px){ .list{max-width:880px;} }
+.section-lbl{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin:18px 4px 10px;}
+.doc{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:17px;margin-bottom:13px;box-shadow:0 3px 16px rgba(85,3,24,.06);cursor:pointer;position:relative;}
+.doc:active{transform:scale(.985);}
+.doc-del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:4px 6px;}
+.doc-del:active{color:var(--rouge);}
+.doc h2{font-family:'EB Garamond',Georgia,serif;font-size:18px;color:var(--rouge);font-weight:700;letter-spacing:.3px;}
+.doc .meta{font-size:11.5px;color:var(--muted);margin-top:4px;letter-spacing:.3px;}
+.doc .status{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;letter-spacing:.5px;padding:4px 9px;border-radius:2px;}
+.doc .status.pending{background:var(--champagne-soft);color:var(--pending);}
+.doc .status.approved{background:#E8F0EA;color:var(--good);}
+.open-card{background:#fff;border:1.5px dashed var(--border);border-radius:3px;padding:17px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.open-card h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--terra);font-weight:700;}
+.open-card p{font-size:11px;color:var(--muted);margin-top:3px;}
+.gen-btn{background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;padding:11px 16px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Lato',Arial,sans-serif;white-space:nowrap;}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:60px 30px;line-height:1.8;}
+.empty .fleur{font-size:34px;display:block;margin-bottom:12px;opacity:.5;}
+.sig-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:17px;margin-bottom:13px;}
+.sig-card h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);font-weight:700;margin-bottom:3px;}
+.sig-card p{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.sig-preview{border:1.5px solid var(--border);border-radius:3px;background:var(--lace);height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.sig-preview img{max-height:100%;max-width:100%;}
+.sig-preview.empty-sig{color:var(--muted);font-size:12px;font-style:italic;}
+.sig-pad-wrap{border:1.5px dashed var(--border);border-radius:3px;background:var(--lace);position:relative;height:90px;margin-bottom:8px;}
+.sig-pad{display:block;width:100%;height:90px;touch-action:none;cursor:crosshair;}
+.sig-clear{position:absolute;top:6px;right:8px;background:none;border:none;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.sig-save{background:var(--rouge);color:var(--champagne);border:none;border-radius:2px;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.sig-upload{margin-top:8px;text-align:center;}
+.sig-upload input{display:none;}
+.sig-upload label{font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;}
+.sig-edit-link{font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','finance','ceo']);</script>
+
+<div class="topbar">
+  <a href="tools.html">‹ TOOLS</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="header">
+  <h1>Expense Sheets</h1>
+  <div class="gold-rule"></div>
+  <p>Monthly event commission</p>
+</div>
+
+<div class="list">
+  <div id="sigCard"></div>
+  <div id="list"></div>
+</div>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase();
+const me = FLApp.currentUser();
+const myRole = FLApp.role(me);
+const isAdmin = FLApp.isAdmin();
+const isCeo = FLApp.isCeo();
+const isFinance = myRole === 'finance';
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return MONTH_NAMES[m - 1] + ' ' + y;
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
+    ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+function AED(n) { return 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 }); }
+
+function render() {
+  const list = document.getElementById('list');
+  let sheets = FLApp.expensesAll();
+  if (isFinance) sheets = sheets.filter(s => s.ceoApproval && s.ceoApproval.approved);
+  else if (isAdmin) sheets = sheets.filter(s => s.staffId === me.id);
+  else if (isCeo) sheets = sheets.filter(s => !(s.ceoApproval && s.ceoApproval.approved));
+  /* once Jo approves a sheet it drops off her list — it's done, no need to keep seeing it;
+     it stays visible to the submitting admin and, from that point on, to finance */
+
+  let html = '';
+
+  if (sheets.length) {
+    html += '<div class="section-lbl">Sheets</div>';
+    sheets.sort((a, b) => (b.month || '').localeCompare(a.month || ''));
+    sheets.forEach(s => {
+      const approved = s.ceoApproval && s.ceoApproval.approved;
+      const canDelete = isAdmin && s.staffId === me.id && !approved;
+      html += '<div class="doc" onclick="location.href=\'expense-editor.html?id=' + s.id + '\'">' +
+        (canDelete ? '<button class="doc-del" type="button" onclick="event.stopPropagation();deleteSheet(\'' + s.id + '\')">&times;</button>' : '') +
+        '<h2>' + (s.staffName || 'Untitled') + ' — ' + fmtMonth(s.month) + '</h2>' +
+        '<div class="meta">' + (s.lineItems || []).length + ' events &middot; ' + AED(s.total || 0) + '</div>' +
+        '<div class="status ' + (approved ? 'approved' : 'pending') + '">' + (approved ? '✓ Approved' : 'Awaiting approval') + '</div>' +
+        '</div>';
+    });
+  }
+
+  if (isAdmin) {
+    const evs = FLApp.eventsAll().filter(e => e.date);
+    const months = [...new Set(evs.map(e => e.date.slice(0, 7)))].sort().reverse();
+    const existingMonths = new Set(FLApp.expensesAll().filter(s => s.staffId === me.id).map(s => s.month));
+    const openMonths = months.filter(ym => FLApp.expenseCutoffPassed(ym) && !existingMonths.has(ym) && (FLApp.expenseLineItemsForMonth(ym) || []).length);
+    if (openMonths.length) {
+      html += '<div class="section-lbl">Ready to Generate</div>';
+      openMonths.forEach(ym => {
+        const items = FLApp.expenseLineItemsForMonth(ym) || [];
+        const total = items.reduce((s, i) => s + i.commission, 0);
+        html += '<div class="open-card">' +
+          '<div><h2>' + fmtMonth(ym) + '</h2><p>' + items.length + ' approved events &middot; ' + AED(total) + '</p></div>' +
+          '<button class="gen-btn" onclick="generate(\'' + ym + '\')">+ Generate</button>' +
+          '</div>';
+      });
+    }
+  }
+
+  if (!html) {
+    list.innerHTML = '<div class="empty"><span class="fleur">❀</span>' +
+      (isFinance ? 'No approved sheets yet.' : 'Nothing to show yet.<br>Sheets open once a month\'s events are approved past its cutoff.') +
+      '</div>';
+  } else {
+    list.innerHTML = html;
+  }
+}
+
+/* lets Admin set/update their default signature any time — not just while
+   a sheet happens to be open and unapproved. Needed because an auto-generated
+   sheet created before any signature existed goes out unsigned and, once
+   approved, has no way to be signed after the fact. */
+let sigEditing = false;
+function renderSigCard() {
+  const box = document.getElementById('sigCard');
+  if (!isAdmin) { box.innerHTML = ''; return; }
+  const sig = FLApp.adminSignature();
+  if (sigEditing) {
+    box.innerHTML = '<div class="sig-card">' +
+      '<h2>My signature</h2>' +
+      '<p>Used automatically on every future sheet, generated or auto-generated.</p>' +
+      '<div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-pad"></canvas>' +
+      '<button class="sig-clear" type="button" onclick="clearSigPad()">Clear</button></div>' +
+      '<button class="sig-save" type="button" onclick="saveMySig()">Save signature</button>' +
+      '<div class="sig-upload"><label for="sig-file">or upload a photo of your signature</label>' +
+      '<input type="file" id="sig-file" accept="image/*" onchange="uploadMySig(this)"></div>' +
+      (sig ? '<div style="margin-top:8px;"><button class="sig-edit-link" type="button" onclick="sigEditing=false;renderSigCard();">Cancel</button></div>' : '') +
+      '</div>';
+    initSigPad();
+  } else {
+    box.innerHTML = '<div class="sig-card">' +
+      '<h2>My signature</h2>' +
+      '<p>Used automatically on every future sheet, generated or auto-generated.</p>' +
+      (sig
+        ? '<div class="sig-preview"><img src="' + sig + '" alt="Your signature"></div><button class="sig-edit-link" type="button" onclick="sigEditing=true;renderSigCard();">Update signature</button>'
+        : '<div class="sig-preview empty-sig">Not set yet</div><button class="sig-edit-link" type="button" onclick="sigEditing=true;renderSigCard();">Set your signature</button>') +
+      '</div>';
+  }
+}
+function initSigPad() {
+  const canvas = document.getElementById('sig-pad');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * 2; canvas.height = rect.height * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2); ctx.strokeStyle = '#550318'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+  let drawing = false;
+  function pos(e) { const r = canvas.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e; return { x: t.clientX - r.left, y: t.clientY - r.top }; }
+  function start(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+  function move(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+  function end() { drawing = false; }
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+}
+function clearSigPad() {
+  const canvas = document.getElementById('sig-pad');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+function removeSignatureBackground(dataURL, maxSide) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      const imgData = ctx.getImageData(0, 0, c.width, c.height);
+      const d = imgData.data;
+      const DARK = 140, LIGHT = 225;
+      for (let i = 0; i < d.length; i += 4) {
+        const brightness = (d[i] + d[i + 1] + d[i + 2]) / 3;
+        let alpha;
+        if (brightness <= DARK) alpha = 255;
+        else if (brightness >= LIGHT) alpha = 0;
+        else alpha = Math.round(255 * (LIGHT - brightness) / (LIGHT - DARK));
+        d[i + 3] = Math.min(d[i + 3], alpha);
+      }
+      ctx.putImageData(imgData, 0, 0);
+      res(c.toDataURL('image/png'));
+    };
+    img.onerror = rej;
+    img.src = dataURL;
+  });
+}
+async function uploadMySig(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    FLApp.setAdminSignature(await removeSignatureBackground(reader.result, 700));
+    sigEditing = false;
+    renderSigCard();
+  };
+  reader.readAsDataURL(file);
+}
+async function saveMySig() {
+  const canvas = document.getElementById('sig-pad');
+  const blank = document.createElement('canvas');
+  blank.width = canvas.width; blank.height = canvas.height;
+  if (canvas.toDataURL() === blank.toDataURL()) { await FLApp.flAlert('Please sign before saving.'); return; }
+  FLApp.setAdminSignature(canvas.toDataURL('image/png'));
+  sigEditing = false;
+  renderSigCard();
+}
+
+async function deleteSheet(id) {
+  if (!await FLApp.flConfirm('Delete this expense sheet? This can\'t be undone.')) return;
+  FLApp.expenseDelete(id);
+  render();
+}
+
+function generate(ym) {
+  const items = FLApp.expenseLineItemsForMonth(ym) || [];
+  const total = items.reduce((s, i) => s + i.commission, 0);
+  const id = 'exp_' + me.id + '_' + ym;
+  const sig = FLApp.adminSignature();
+  FLApp.expenseSave({
+    id, staffId: me.id, staffName: me.name, month: ym,
+    lineItems: items, total,
+    submittedAt: sig ? new Date().toISOString() : null, staffSignature: sig,
+    ceoApproval: { approved: false, approvedAt: null, approvedByName: null }
+  });
+  location.href = 'expense-editor.html?id=' + id;
+}
+
+render();
+renderSigCard();
+window.addEventListener('pageshow', () => { render(); renderSigCard(); });
+
+  const syncFp = () => (localStorage.getItem('fl_expenses') || '') + '|' + (localStorage.getItem('fl_admin_signature') || '');
+  let lastFp = syncFp();
+  /* another device changed something — redraw instead of making the user
+     leave the page and come back to see it */
+  FLApp.onSync(state => {
+    if (state !== 'synced') return;
+    const now = syncFp();
+    if (now === lastFp) return;
+    lastFp = now;
+    render();
+  });
+</script>
+</body>
+</html>

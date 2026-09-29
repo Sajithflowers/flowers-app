@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Event Calendar</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;
+  --terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;
+  --chance:#2E5C87;--good-bg:#BFE0C9;--chance-bg:#C1D9EC;--chance-dim:#93A3B0;--chance-bg-dim:#E7E9EA;
+}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:16px 16px 20px;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:21px;font-weight:700;letter-spacing:1.5px;}
+.header p{font-size:10px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 0;}
+.wrap{max-width:900px;margin:0 auto;padding:14px;}
+
+.cal-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px 22px 18px;box-shadow:0 8px 28px rgba(85,3,24,.08);}
+.cal-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px;}
+.cal-nav{display:flex;align-items:center;gap:10px;}
+.cal-nav button{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--lace);color:var(--rouge);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;}
+.cal-nav button:hover{background:var(--champagne);}
+.cal-title{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:700;color:var(--terra);min-width:150px;text-align:center;}
+.cal-today{font-size:11px;font-weight:700;color:var(--rouge);background:none;border:1px solid var(--rouge);border-radius:20px;padding:6px 13px;cursor:pointer;letter-spacing:.03em;font-family:inherit;}
+.legend{display:flex;gap:10px;flex-wrap:wrap;}
+.legend-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.legend-chip.good{background:var(--good-bg);color:var(--good);}
+.legend-chip.chance{background:var(--chance-bg);color:var(--chance);}
+.legend-chip .sw{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.legend-chip.good .sw{background:var(--good);}
+.legend-chip.chance .sw{background:var(--chance);}
+.legend-chip small{font-weight:500;opacity:.85;}
+
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:18px;}
+.wd{background:var(--lace);font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;text-align:center;padding:9px 0;}
+.day{min-width:0;min-height:92px;background:#fff;padding:8px;cursor:pointer;transition:background .12s;display:flex;flex-direction:column;gap:4px;overflow:hidden;}
+.day:not(.blank):not(.has-good):not(.has-chance):not(.has-chance-past):not(.has-both):not(.has-both-past):hover{background:var(--lace);}
+.day.blank{background:#fff;cursor:default;}
+.day.has-good{background:var(--good-bg);}
+.day.has-chance{background:var(--chance-bg);}
+.day.has-chance-past{background:var(--chance-bg-dim);}
+.day.has-both{background:linear-gradient(135deg,var(--good-bg) 0%,var(--good-bg) 48%,var(--chance-bg) 52%,var(--chance-bg) 100%);}
+.day.has-both-past{background:linear-gradient(135deg,var(--good-bg) 0%,var(--good-bg) 48%,var(--chance-bg-dim) 52%,var(--chance-bg-dim) 100%);}
+.day-num{font-size:12.5px;font-weight:700;color:var(--terra);flex-shrink:0;}
+.day.today .day-num{background:var(--rouge);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.chip{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--terra);min-width:0;}
+.chip .cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.chip .cdot.good{background:var(--good);}
+.chip .cdot.chance{background:var(--chance);}
+.chip .cdot.chance-past{background:var(--chance-dim);}
+.chip .ctxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.chip .ctxt.past-txt{color:var(--muted);}
+.more{font-size:9.5px;color:var(--muted);font-weight:700;padding-left:11px;flex-shrink:0;}
+
+.note-strip{background:rgba(85,3,24,0.05);border:1px dashed var(--champagne);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);margin-top:16px;line-height:1.55;}
+.note-strip b{color:var(--terra);}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(30,20,18,0.45);align-items:center;justify-content:center;z-index:50;padding:20px;}
+.overlay.on{display:flex;}
+.modal{background:#fff;border-radius:12px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;}
+.modal-head h3{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);margin:0;}
+.modal-close{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;line-height:1;padding:4px;}
+.modal-body{padding:16px 20px 22px;}
+
+.sec-lbl{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:16px 0 8px;}
+.sec-lbl:first-child{margin-top:0;}
+.block{background:var(--lace);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+.block-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.tag{font-size:9px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:20px;text-transform:uppercase;flex-shrink:0;}
+.tag.good{background:var(--good-bg);color:var(--good);}
+.tag.chance{background:var(--chance-bg);color:var(--chance);}
+.tag.chance-past{background:var(--chance-bg-dim);color:var(--chance-dim);}
+.block-title{font-size:13px;font-weight:700;color:var(--terra);flex:1;}
+.block-del{background:none;border:none;color:var(--muted);font-size:10.5px;text-decoration:underline;cursor:pointer;font-family:inherit;}
+.block-desc{font-size:12.5px;color:var(--terra);margin-bottom:8px;line-height:1.5;}
+.block-desc textarea{width:100%;padding:8px 9px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:#fff;color:var(--terra);font-family:inherit;resize:vertical;min-height:44px;margin-bottom:6px;}
+.edit-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;}
+.edit-row label{display:block;font-size:8.5px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.edit-row input{width:100%;padding:7px 8px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:#fff;color:var(--terra);font-family:inherit;}
+.edit-after{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+.edit-after b{color:var(--rouge);}
+.gp-flag{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.btn-mini{background:var(--rouge);color:var(--champagne);border:none;padding:6px 12px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+
+.msg-list{display:flex;flex-direction:column;gap:5px;margin-top:6px;}
+.msg-row{display:flex;align-items:flex-start;gap:6px;background:#fff;border:1px solid var(--border);border-radius:5px;padding:6px 9px;font-size:11.5px;}
+.msg-name{font-weight:700;flex-shrink:0;white-space:nowrap;}
+.msg-name.admin{color:var(--rouge);}
+.msg-name.ceo{color:var(--good);}
+.msg-text{flex:1;color:var(--terra);word-break:break-word;}
+.msg-compose{display:flex;gap:6px;margin-top:7px;}
+.msg-compose input{flex:1;font-size:12px;padding:7px 9px;border:1px solid var(--border);border-radius:5px;font-family:inherit;background:#fff;}
+.msg-compose button{background:var(--rouge);color:var(--champagne);border:none;border-radius:5px;padding:0 12px;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;text-transform:uppercase;font-family:inherit;}
+.no-msg{font-size:11px;color:var(--muted);font-style:italic;}
+
+.add-form{margin-top:4px;}
+.add-form label{display:block;font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin:10px 0 4px;}
+.add-form input,.add-form textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fff;font-family:inherit;color:var(--terra);}
+.add-form textarea{resize:vertical;min-height:50px;}
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn-save{background:var(--rouge);color:var(--champagne);border:none;padding:10px 18px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-top:10px;font-family:inherit;}
+.empty-hint{font-size:12px;color:var(--muted);text-align:center;padding:16px;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','ceo']);</script>
+
+<div class="topbar">
+  <a href="tools.html">‹ EVENT TOOLS</a>
+  <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+</div>
+
+<div class="header">
+  <h1>Event Calendar</h1>
+  <p>Confirmed dates &amp; tentative leads at a glance</p>
+</div>
+
+<div class="wrap">
+  <div class="cal-card">
+    <div class="cal-top">
+      <div class="cal-nav">
+        <button onclick="shiftMonth(-1)">‹</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button onclick="shiftMonth(1)">›</button>
+        <button class="cal-today" onclick="goToday()">Today</button>
+      </div>
+      <div class="legend">
+        <span class="legend-chip good"><span class="sw"></span>Green <small>— Confirmed events</small></span>
+        <span class="legend-chip chance"><span class="sw"></span>Blue <small>— Chance to have event</small></span>
+      </div>
+    </div>
+
+    <div class="grid" id="calGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const isAdmin = FLApp.isAdmin();
+const myRole = isAdmin ? 'admin' : (FLApp.isCeo() ? 'ceo' : null);
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const now = new Date();
+let viewYear = now.getFullYear();
+let viewMonth = now.getMonth();
+const todayISO = now.toISOString().slice(0, 10);
+
+function AED(n) { return 'AED ' + Number(n || 0).toLocaleString(); }
+function pad(n) { return String(n).padStart(2, '0'); }
+function isoFor(day) { return viewYear + '-' + pad(viewMonth + 1) + '-' + pad(day); }
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function shiftMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  render();
+}
+function goToday() { viewYear = now.getFullYear(); viewMonth = now.getMonth(); render(); }
+
+function confirmedForDay(day) {
+  const iso = isoFor(day);
+  return FLApp.trackerAll().filter(r => r.eventDate === iso);
+}
+function chanceForDay(day) {
+  const iso = isoFor(day);
+  return FLApp.calendarAll().filter(x => x.type === 'chance' && x.date === iso);
+}
+function commentsForOrder(orderNo) {
+  const row = FLApp.calendarAll().find(x => x.id === 'conf_' + orderNo);
+  return (row && row.comments) || [];
+}
+
+function render() {
+  document.getElementById('calTitle').textContent = MONTH_NAMES[viewMonth] + ' ' + viewYear;
+  const grid = document.getElementById('calGrid');
+  const firstDow = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  let html = WD.map(d => '<div class="wd">' + d + '</div>').join('');
+  for (let i = 0; i < firstDow; i++) html += '<div class="day blank"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = isoFor(d);
+    const conf = confirmedForDay(d);
+    const chance = chanceForDay(d);
+    const isPast = iso < todayISO;
+    const chanceType = isPast ? 'chance-past' : 'chance';
+    const all = conf.map(r => ({ type: 'good', text: 'Order #' + r.orderNo }))
+      .concat(chance.map(c => ({ type: chanceType, text: c.text })));
+    const shown = all.slice(0, 2);
+    const extra = all.length - shown.length;
+    let tint = '';
+    if (conf.length && chance.length) tint = isPast ? ' has-both-past' : ' has-both';
+    else if (conf.length) tint = ' has-good';
+    else if (chance.length) tint = isPast ? ' has-chance-past' : ' has-chance';
+    html += '<div class="day' + (iso === todayISO ? ' today' : '') + tint + '" onclick="openDay(' + d + ')">' +
+      '<div class="day-num">' + d + '</div>' +
+      shown.map(e => '<div class="chip"><span class="cdot ' + e.type + '"></span><span class="ctxt' + (e.type === 'chance-past' ? ' past-txt' : '') + '">' + esc(e.text) + '</span></div>').join('') +
+      (extra > 0 ? '<div class="more">+' + extra + ' more</div>' : '') +
+      '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function msgListHtml(comments) {
+  if (!comments.length) return '<div class="no-msg">No comments yet.</div>';
+  return '<div class="msg-list">' + comments.map(c =>
+    '<div class="msg-row"><span class="msg-name ' + c.role + '">' + esc(c.name) + ':</span><span class="msg-text">' + esc(c.text) + '</span></div>'
+  ).join('') + '</div>';
+}
+function composeHtml(kind, key) {
+  return '<div class="msg-compose"><input type="text" id="cm-' + kind + '-' + key + '" placeholder="Write a comment…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addComment(\'' + kind + '\',\'' + key + '\');}"><button onclick="addComment(\'' + kind + '\',\'' + key + '\')">Send</button></div>';
+}
+
+function addComment(kind, key) {
+  const input = document.getElementById('cm-' + kind + '-' + key);
+  const text = (input.value || '').trim();
+  if (!text) return;
+  if (kind === 'good') {
+    FLApp.calendarAddComment('conf_' + key, { type: 'confirmed-comments', orderNo: key }, text);
+  } else {
+    FLApp.calendarAddComment(key, { type: 'chance' }, text);
+  }
+  openDay(currentDay);
+}
+
+async function deleteChance(id) {
+  if (!await FLApp.flConfirm('Remove this entry?')) return;
+  FLApp.calendarDelete(id);
+  render();
+  openDay(currentDay);
+}
+
+function editChanceText(id) {
+  const text = document.getElementById('edit-chance-' + id).value.trim();
+  if (!text) return;
+  const row = FLApp.calendarAll().find(x => x.id === id);
+  if (!row) return;
+  row.text = text;
+  FLApp.calendarSave(row);
+  render();
+  openDay(currentDay);
+}
+
+async function addChance() {
+  const text = document.getElementById('newChanceText').value.trim();
+  if (!text) { await FLApp.flAlert('Write what the event is first.'); return; }
+  FLApp.calendarSave({ id: 'cal' + Date.now(), type: 'chance', date: isoFor(currentDay), text, comments: [] });
+  render();
+  openDay(currentDay);
+}
+
+let currentDay = null;
+function openDay(day) {
+  currentDay = day;
+  const conf = confirmedForDay(day);
+  const chance = chanceForDay(day);
+  const iso = isoFor(day);
+  const isPast = iso < todayISO;
+  const gpOrders = new Set(FLApp.eventsAll().map(e => e.orderNo).filter(Boolean));
+
+  document.getElementById('modalTitle').textContent = day + ' ' + MONTH_NAMES[viewMonth] + ' ' + viewYear;
+  let html = '';
+
+  if (conf.length) {
+    html += '<div class="sec-lbl">Confirmed — from Tracker</div>';
+    conf.forEach(r => {
+      const after = (r.revenue || 0) * (1 - (r.discountPct || 0) / 100);
+      const onGP = gpOrders.has(r.orderNo);
+      html += '<div class="block"><div class="block-top"><span class="tag good">Confirmed</span><span class="block-title">Order #' + esc(r.orderNo) + '</span></div>' +
+        '<div class="block-desc">' + AED(r.revenue) + ' revenue, ' + (r.discountPct || 0) + '% disc → ' + AED(after) + '<br>GP Sheet: ' + (onGP ? '✅ done' : '— not made yet') + '</div>' +
+        msgListHtml(commentsForOrder(r.orderNo)) + composeHtml('good', r.orderNo) + '</div>';
+    });
+  }
+
+  if (chance.length) {
+    html += '<div class="sec-lbl">Chance to have event</div>';
+    chance.forEach(e => {
+      html += '<div class="block"><div class="block-top"><span class="tag ' + (isPast ? 'chance-past' : 'chance') + '">' + (isPast ? 'Chance — past date' : 'Chance') + '</span><span style="flex:1;"></span>' +
+        (isAdmin ? '<button class="block-del" onclick="deleteChance(\'' + e.id + '\')">remove</button>' : '') + '</div>';
+      if (isAdmin) {
+        html += '<div class="block-desc"><textarea id="edit-chance-' + e.id + '">' + esc(e.text) + '</textarea>' +
+          '<button class="btn-mini" onclick="editChanceText(\'' + e.id + '\')">Save changes</button></div>';
+      } else {
+        html += '<div class="block-desc">' + esc(e.text) + '</div>';
+      }
+      html += msgListHtml(e.comments || []) + composeHtml('chance', e.id) + '</div>';
+    });
+  }
+
+  if (!conf.length && !chance.length) {
+    html += '<div class="empty-hint">Nothing logged for this date.</div>';
+  }
+
+  if (isAdmin) {
+    html += '<div class="sec-lbl">Add chance entry</div>' +
+      '<div class="add-form"><textarea id="newChanceText" placeholder="e.g. Possible corporate gala — client deciding by Friday"></textarea>' +
+      '<button class="btn-save" onclick="addChance()">Save entry</button></div>';
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('overlay').classList.add('on');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('on');
+}
+
+render();
+
+if (FLApp.syncEnabled()) {
+  let lastFp = (localStorage.getItem('fl_tracker') || '') + '|' + (localStorage.getItem('fl_calendar') || '');
+  FLApp.onSync(state => {
+    if (state !== 'synced') return;
+    const now2 = (localStorage.getItem('fl_tracker') || '') + '|' + (localStorage.getItem('fl_calendar') || '');
+    if (now2 !== lastFp) {
+      lastFp = now2;
+      render();
+      if (document.getElementById('overlay').classList.contains('on')) openDay(currentDay);
+    }
+  });
+}
+</script>
+</body>
+</html>

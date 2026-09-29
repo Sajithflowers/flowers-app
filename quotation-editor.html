@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Quotation</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root {
+  --rouge: #550318;
+  --rouge-deep: #3a0210;
+  --champagne: #E6CCA1;
+  --champagne-soft: #F3E7D2;
+  --lace: #F6F4F0;
+  --terra: #2E2522;
+  --muted: #9B8E8A;
+  --sage: #6E7350;
+  --border: #E8DDD8;
+  --paper: #FFFFFF;
+  --cream-on-dark: rgba(230,204,161,.7);
+}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{margin:0;font-family:'Lato',Arial,sans-serif;background:var(--lace);color:var(--terra);padding-bottom:80px;}
+[contenteditable="true"]{cursor:text;border-radius:2px;}
+[contenteditable="true"]:hover{background:var(--champagne-soft);}
+[contenteditable="true"]:focus{outline:1.5px solid var(--rouge);outline-offset:1px;background:var(--champagne-soft);}
+
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+
+.controls{max-width:780px;margin:20px auto 24px;background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:20px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;box-shadow:0 4px 20px rgba(58,2,16,.06);}
+.controls .grp{display:flex;align-items:center;gap:10px;}
+.controls label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.seg{display:flex;border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.seg button{background:var(--paper);border:none;color:var(--terra);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.seg button.active{background:var(--rouge);color:var(--champagne);}
+.controls input[type="number"]{width:90px;padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;font-family:'Lato',Arial,sans-serif;color:var(--terra);background:var(--lace);}
+.controls input[type="number"]:disabled{opacity:.4;}
+.print-btn{margin-left:auto;background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;padding:11px 20px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.print-btn:active{transform:scale(.97);}
+.save-status{font-size:10.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+
+.frame{max-width:780px;margin:0 auto 40px;padding:10px;background:linear-gradient(155deg,var(--champagne),var(--rouge) 60%,var(--rouge-deep));border-radius:5px;box-shadow:0 30px 80px rgba(58,2,16,.22);}
+.doc{background:var(--paper);border-radius:2px;position:relative;overflow:hidden;}
+
+.hero{background:radial-gradient(140% 130% at 15% 0%, var(--rouge) 0%, var(--rouge-deep) 60%, #26010a 100%);color:var(--champagne);padding:46px 46px 34px;position:relative;overflow:hidden;}
+.hero::before{
+  content:'';position:absolute;inset:0;opacity:.07;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cg fill='none' stroke='%23E6CCA1' stroke-width='0.8'%3E%3Cpath d='M220 30 C 260 60, 280 110, 260 160 C 245 205, 190 235, 145 210 C 100 185, 85 130, 115 90 C 140 58, 180 40, 220 30 Z'/%3E%3Cpath d='M40 260 C 60 220, 100 200, 140 215 C 175 228, 195 265, 175 290'/%3E%3Cpath d='M220 30 L 220 230'/%3E%3Cpath d='M160 110 Q220 145 275 105'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:cover;
+}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.brand-mark{font-family:'EB Garamond',Georgia,serif;font-size:23px;letter-spacing:5px;color:#fff;font-weight:600;}
+.brand-rule{width:32px;height:1.5px;background:var(--champagne);margin:10px 0 7px;}
+.brand-tag{font-size:8px;letter-spacing:3px;color:var(--cream-on-dark);text-transform:uppercase;}
+.hero-addr{text-align:right;font-size:10px;color:var(--cream-on-dark);line-height:1.9;letter-spacing:.3px;}
+.hero-addr .site{color:var(--champagne);font-weight:700;}
+
+.hero-title{margin-top:38px;position:relative;z-index:1;}
+.hero-title .eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--cream-on-dark);margin-bottom:10px;}
+.hero-title h1{font-family:'EB Garamond',Georgia,serif;font-weight:600;font-style:italic;font-size:18px;color:#fff;letter-spacing:.3px;line-height:1;}
+.hero-meta{display:flex;gap:34px;margin-top:24px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero-meta div{font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream-on-dark);}
+.hero-meta b{display:block;font-size:13px;letter-spacing:.3px;text-transform:none;color:#fff;margin-top:4px;font-variant-numeric:tabular-nums;font-weight:600;}
+
+.client-block{padding:30px 46px 8px;display:grid;grid-template-columns:1fr 1fr;gap:20px 30px;background:var(--paper);}
+.field-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.field-value{font-size:14px;color:var(--terra);font-weight:600;}
+
+.line-items{padding:20px 46px 0;background:var(--paper);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--rouge);padding:0 10px 12px;border-bottom:1.5px solid var(--rouge);font-weight:700;}
+thead th.num{text-align:right;}
+tbody td{padding:15px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--terra);}
+tbody tr td:first-child{font-weight:600;}
+tbody tr:last-child td{border-bottom:none;}
+.item-note{display:block;font-size:11px;color:var(--muted);margin-top:3px;font-weight:400;}
+.row-del{border:none;background:transparent;color:var(--muted);font-size:17px;line-height:1;cursor:pointer;padding:0 4px;}
+.row-del:hover{color:#8f1d1d;}
+.item-add{display:block;width:100%;margin:14px 0 4px;padding:12px;border:1.5px dashed var(--muted);border-radius:2px;background:transparent;color:var(--rouge);font-family:'Lato',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.item-add:hover{background:var(--champagne-soft);}
+
+.totals-wrap{padding:24px 46px 0;background:var(--paper);display:flex;justify-content:flex-end;}
+.totals-card{width:100%;max-width:310px;background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));border-radius:3px;padding:22px 24px;color:var(--champagne);}
+.totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--cream-on-dark);}
+.totals-row.discount{color:#DCE0C8;font-weight:600;}
+.totals-row.grand{border-top:1px solid rgba(230,204,161,.35);margin-top:10px;padding-top:14px;font-size:23px;font-weight:700;color:#fff;align-items:baseline;}
+.totals-row.grand span:first-child{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:14px;font-weight:500;color:var(--champagne);}
+
+.footer-grid{padding:36px 46px 8px;display:grid;grid-template-columns:1fr 1fr;gap:26px;background:var(--paper);margin-top:14px;border-top:1px solid var(--border);}
+.footer-col h3{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--rouge);margin-bottom:12px;font-weight:700;}
+.pay-methods{display:flex;flex-wrap:wrap;gap:7px 16px;}
+.pay-chip{font-size:11.5px;color:var(--terra);display:flex;align-items:center;gap:6px;}
+.pay-chip .dot{width:4px;height:4px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+.bank-line{font-size:12px;line-height:2;color:var(--terra);}
+.bank-line b{color:var(--muted);font-weight:600;font-size:10px;letter-spacing:.4px;display:inline-block;width:112px;}
+
+.contact-strip{margin:8px 46px 0;padding:18px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:var(--paper);}
+.contact-strip .who{font-size:11.5px;color:var(--terra);}
+.contact-strip .who b{color:var(--rouge);}
+.contact-strip .reach{font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;}
+
+.sign-off{text-align:center;padding:22px 46px 8px;font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:var(--rouge);background:var(--paper);font-weight:700;}
+.trn-note{text-align:center;font-size:9px;color:var(--muted);opacity:.7;padding:6px 46px 32px;background:var(--paper);}
+
+@media print {
+  .no-print{display:none!important;}
+  body{background:#fff;padding:0;}
+  .frame{box-shadow:none;background:none;padding:0;margin:0;max-width:none;}
+  .doc{border-radius:0;}
+  [contenteditable="true"]:hover,[contenteditable="true"]:focus{background:none;outline:none;}
+}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/html2canvas.min.js"></script>
+<script>FLApp.guard();</script>
+
+<div class="topbar no-print">
+  <a href="quotations.html">‹ QUOTATIONS</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="controls no-print">
+  <div class="grp">
+    <label>Discount</label>
+    <div class="seg">
+      <button id="seg-pct" class="active" onclick="setDiscountType('pct')">%</button>
+      <button id="seg-amt" onclick="setDiscountType('amt')">AED</button>
+      <button id="seg-none" onclick="setDiscountType('none')">None</button>
+    </div>
+  </div>
+  <div class="grp">
+    <input type="number" id="discount-input" value="0" min="0" oninput="recalc(); scheduleSave();">
+    <span style="font-size:11px;color:var(--muted);" id="discount-unit">%</span>
+  </div>
+  <span class="save-status" id="save-status"></span>
+  <button class="print-btn" onclick="FLApp.exportPdf(document.getElementById('doc'), (docTitle() || 'Quotation') + '.pdf')" type="button">🖨 Print / Save as PDF</button>
+</div>
+
+<div class="frame">
+<div class="doc" id="doc">
+
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="brand-mark" contenteditable="true">FLOWERS.AE</div>
+        <div class="brand-rule"></div>
+        <div class="brand-tag" contenteditable="true">The Art of Gifting</div>
+      </div>
+      <div class="hero-addr" contenteditable="true">
+        Villa 11, Al Athar Street<br>
+        Jumeirah 3, Dubai, UAE<br>
+        <span class="site">www.flowers.ae</span>
+      </div>
+    </div>
+    <div class="hero-title">
+      <div class="eyebrow" contenteditable="true">Quotation</div>
+      <h1 contenteditable="true" id="client-name">Client Name</h1>
+    </div>
+    <div class="hero-meta">
+      <div>Prepared Date<b contenteditable="true" id="prepared-date">19 Jul 2026</b></div>
+    </div>
+  </div>
+
+  <div class="client-block">
+    <div>
+      <div class="field-label" contenteditable="true">Contact</div>
+      <div class="field-value" contenteditable="true">+971 5X XXX XXXX</div>
+    </div>
+    <div>
+      <div class="field-label" contenteditable="true">Delivery / Setup Date</div>
+      <div class="field-value" contenteditable="true">Date &amp; time</div>
+    </div>
+    <div>
+      <div class="field-label" contenteditable="true">Location</div>
+      <div class="field-value" contenteditable="true">Delivery address</div>
+    </div>
+    <div>
+      <div class="field-label" contenteditable="true">Prepared By</div>
+      <div class="field-value" contenteditable="true" id="prepared-by">Flowers.ae</div>
+    </div>
+  </div>
+
+  <div class="line-items">
+    <table>
+      <thead>
+        <tr><th>Description</th><th class="num">Qty</th><th class="num">Unit Price</th><th class="num">Total</th><th class="num no-print"></th></tr>
+      </thead>
+      <tbody id="items-body">
+        <tr>
+          <td contenteditable="true">Item description</td>
+          <td class="num" contenteditable="true" oninput="recalc()">1</td><td class="num" contenteditable="true" oninput="recalc()">AED 0.00</td><td class="num">AED 0.00</td>
+          <td class="num no-print"><button class="row-del" onclick="this.closest('tr').remove(); recalc(); scheduleSave();" title="Remove item" type="button">&times;</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="item-add no-print" id="add-item-btn" onclick="addItem()" type="button">+ Add Item</button>
+  </div>
+
+  <div class="totals-wrap">
+    <div class="totals-card">
+      <div class="totals-row"><span contenteditable="true">Subtotal (Incl. VAT)</span><span id="subtotal-amt">AED 0.00</span></div>
+      <div class="totals-row discount" id="discount-row" style="display:none;"><span id="discount-label">Discount</span><span id="discount-amt">&minus; AED 0.00</span></div>
+      <div class="totals-row"><span contenteditable="true">Net Amount (Excl. VAT)</span><span id="net-amt">AED 0.00</span></div>
+      <div class="totals-row"><span contenteditable="true">VAT (5%)</span><span id="vat-amt">AED 0.00</span></div>
+      <div class="totals-row grand"><span contenteditable="true">Total Due</span><span id="grand-amt">AED 0.00</span></div>
+    </div>
+  </div>
+
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3 contenteditable="true">Mode of Payment</h3>
+      <div class="pay-methods">
+        <span class="pay-chip"><span class="dot"></span><span contenteditable="true">Bank Transfer</span></span>
+        <span class="pay-chip"><span class="dot"></span><span contenteditable="true">Card / Payment Link</span></span>
+        <span class="pay-chip"><span class="dot"></span><span contenteditable="true">Cash on Delivery</span></span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h3 contenteditable="true">Bank Details</h3>
+      <div class="bank-line">
+        <b>Bank</b><span contenteditable="true">Wio Bank</span><br>
+        <b>Account Name</b><span contenteditable="true">Flowers AE L.L.C</span><br>
+        <b>IBAN</b><span contenteditable="true">AE81 0860 0000 0971 7343 861</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-strip">
+    <div class="who" contenteditable="true">Questions about this quote?</div>
+    <div class="reach">
+      <span contenteditable="true">+971 55 179 0624</span>
+      <span contenteditable="true">events@flowers.ae</span>
+    </div>
+  </div>
+
+  <div class="sign-off" contenteditable="true">Flowers.ae &middot; The Art of Gifting</div>
+  <div class="trn-note" contenteditable="true">TRN: 100391300900003</div>
+
+</div>
+</div>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser() ? FLApp.currentUser().name.toUpperCase() : '';
+
+const docEl = document.getElementById('doc');
+const status = document.getElementById('save-status');
+const params = new URLSearchParams(location.search);
+let quoteId = params.get('id');
+
+let discountType = 'pct';
+const existing = quoteId ? FLApp.quoteGet(quoteId) : null;
+if (existing) {
+  docEl.innerHTML = existing.html;
+  discountType = existing.discountType || 'pct';
+  document.getElementById('discount-input').value = (existing.discountValue != null) ? existing.discountValue : 0;
+} else {
+  quoteId = null;
+  const _u = FLApp.currentUser();
+  if (_u) document.getElementById('prepared-by').textContent = _u.name + ', Flowers.ae';
+  document.getElementById('prepared-date').textContent = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+document.getElementById('seg-pct').classList.toggle('active', discountType === 'pct');
+document.getElementById('seg-amt').classList.toggle('active', discountType === 'amt');
+document.getElementById('seg-none').classList.toggle('active', discountType === 'none');
+document.getElementById('discount-input').disabled = (discountType === 'none');
+document.getElementById('discount-unit').textContent = discountType === 'amt' ? 'AED' : '%';
+
+function docTitle() {
+  const h1 = document.getElementById('client-name');
+  return h1 ? h1.textContent.trim().slice(0, 80) : 'Untitled quotation';
+}
+
+let saveTimer = null;
+function scheduleSave() {
+  status.textContent = 'Saving…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 800);
+}
+function save() {
+  if (!quoteId) quoteId = 'qt' + Date.now();
+  try {
+    FLApp.quoteSave({
+      id: quoteId,
+      title: docTitle(),
+      html: docEl.innerHTML,
+      discountType: discountType,
+      discountValue: parseFloat(document.getElementById('discount-input').value) || 0
+    });
+    status.textContent = 'Saved ✓';
+    history.replaceState(null, '', 'quotation-editor.html?id=' + quoteId);
+  } catch (e) {
+    status.textContent = 'Not saved — storage full';
+  }
+}
+docEl.addEventListener('input', scheduleSave);
+
+function setDiscountType(type) {
+  discountType = type;
+  document.getElementById('seg-pct').classList.toggle('active', type === 'pct');
+  document.getElementById('seg-amt').classList.toggle('active', type === 'amt');
+  document.getElementById('seg-none').classList.toggle('active', type === 'none');
+  const input = document.getElementById('discount-input');
+  const unit = document.getElementById('discount-unit');
+  if (type === 'none') {
+    input.disabled = true;
+  } else {
+    input.disabled = false;
+    unit.textContent = type === 'pct' ? '%' : 'AED';
+  }
+  recalc();
+  scheduleSave();
+}
+
+function fmt(n) {
+  return 'AED ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseAED(s) {
+  return parseFloat(String(s).replace(/[^0-9.]/g, '')) || 0;
+}
+
+function addItem() {
+  const tbody = document.getElementById('items-body');
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true">New Item</td>'
+    + '<td class="num" contenteditable="true" oninput="recalc()">1</td>'
+    + '<td class="num" contenteditable="true" oninput="recalc()">AED 0.00</td>'
+    + '<td class="num">AED 0.00</td>'
+    + '<td class="num no-print"><button class="row-del" onclick="this.closest(\'tr\').remove(); recalc(); scheduleSave();" title="Remove item" type="button">&times;</button></td>';
+  tbody.appendChild(tr);
+  tr.children[0].focus();
+  recalc();
+  scheduleSave();
+}
+
+function recalc() {
+  // Unit prices already include VAT — so VAT is broken OUT of the total,
+  // never added on top of it (that would double-charge tax).
+  let subtotal = 0; // VAT-inclusive sum of line items, read live from the table
+  document.querySelectorAll('#items-body tr').forEach(tr => {
+    const qty = parseFloat(tr.children[1].textContent) || 0;
+    const price = parseAED(tr.children[2].textContent);
+    const lineTotal = qty * price;
+    tr.children[3].textContent = fmt(lineTotal);
+    subtotal += lineTotal;
+  });
+  const val = parseFloat(document.getElementById('discount-input').value) || 0;
+  let discountAmt = 0;
+  if (discountType === 'pct') discountAmt = subtotal * (val / 100);
+  else if (discountType === 'amt') discountAmt = val;
+
+  const grand = Math.max(subtotal - discountAmt, 0); // still VAT-inclusive — this is what's actually due
+  const vat = grand * (5 / 105);   // the VAT portion within that total
+  const net = grand - vat;         // the non-VAT portion within that total
+
+  document.getElementById('subtotal-amt').textContent = fmt(subtotal);
+  document.getElementById('net-amt').textContent = fmt(net);
+  document.getElementById('vat-amt').textContent = fmt(vat);
+  document.getElementById('grand-amt').textContent = fmt(grand);
+
+  const discountRow = document.getElementById('discount-row');
+  if (discountType === 'none' || discountAmt <= 0) {
+    discountRow.style.display = 'none';
+  } else {
+    discountRow.style.display = 'flex';
+    document.getElementById('discount-label').textContent = discountType === 'pct' ? 'Discount (' + val + '%)' : 'Discount';
+    document.getElementById('discount-amt').innerHTML = '&minus; ' + fmt(discountAmt);
+  }
+}
+recalc();
+</script>
+</body>
+</html>

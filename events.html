@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Event GP Sheets</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:100px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:16px 16px 0;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:21px;font-weight:700;letter-spacing:1.5px;}
+.header p{font-size:10px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 12px;}
+.tabs{display:flex;}
+.tab{flex:1;padding:11px 2px;text-align:center;font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(230,204,161,.65);cursor:pointer;border-bottom:3px solid transparent;text-transform:uppercase;}
+.tab.active{color:#fff;border-bottom-color:var(--champagne);}
+.wrap{max-width:680px;margin:0 auto;padding:14px;}
+@media (min-width:900px){ .wrap{max-width:1040px;} }
+.section{display:none;}
+.section.active{display:block;animation:fadeSlide .4s both;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.search{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:2px;font-size:14px;background:#fff;outline:none;margin-bottom:12px;font-family:'Lato',Arial,sans-serif;}
+.ev{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px 15px;margin-bottom:11px;box-shadow:0 3px 14px rgba(85,3,24,.06);cursor:pointer;transition:transform .2s;}
+.ev:active{transform:scale(.985);}
+.ev-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.ev h2{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);font-weight:700;}
+.ev .gp{font-size:14px;font-weight:700;}
+.gp.pos{color:var(--good);} .gp.neg{color:var(--bad);}
+.ev .meta{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.ev .meta b{color:var(--terra);}
+.pill{font-size:8.5px;font-weight:700;letter-spacing:1.2px;padding:3px 8px;border-radius:2px;text-transform:uppercase;}
+.pill.approved{background:#E4EFE7;color:var(--good);}
+.pill.rejected{background:#F9E9E9;color:var(--bad);}
+.pill.pending{background:#FBF6EC;color:#8a6d3b;border:1px solid var(--champagne);}
+.ev .reject-reason{width:100%;font-size:11px;color:var(--bad);font-style:italic;margin-top:2px;}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:#fff;color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.fchip.on{border-color:var(--rouge);background:var(--rouge);color:var(--champagne);}
+.year-head{font-family:'EB Garamond',Georgia,serif;font-size:20px;color:var(--rouge);margin:20px 2px 4px;letter-spacing:2px;border-bottom:2px solid var(--champagne);padding-bottom:6px;}
+.month-head{font-family:'EB Garamond',Georgia,serif;font-size:14px;color:var(--muted);margin:14px 2px 8px;letter-spacing:1.5px;}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:50px 25px;line-height:1.8;}
+.fab{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:1px solid rgba(230,204,161,.4);border-radius:2px;padding:15px 32px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;box-shadow:0 10px 30px rgba(58,2,16,.45);cursor:pointer;font-family:'Lato',Arial,sans-serif;}
+.fab:active{transform:translateX(-50%) scale(.96);}
+
+.tblwrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:3px;box-shadow:0 3px 14px rgba(85,3,24,.06);margin-bottom:8px;}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:12px;}
+th{background:var(--rouge);color:var(--champagne);padding:9px 10px;text-align:left;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+td{padding:9px 10px;border-bottom:1px solid #F1EBE4;color:var(--terra);white-space:nowrap;}
+tr.total td{font-weight:700;background:#FBF6EC;color:var(--rouge);border-top:2px solid var(--champagne);}
+td.pos{color:var(--good);font-weight:700;} td.neg{color:var(--bad);font-weight:700;}
+td input{width:100%;min-width:88px;padding:6px 7px;border:1px solid var(--border);border-radius:3px;font-size:12px;background:var(--lace);color:var(--terra);font-family:'Lato',Arial,sans-serif;}
+td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
+.mini{padding:6px 9px;border:1px solid var(--border);background:var(--lace);border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;color:var(--terra);}
+.mini.danger{color:var(--bad);border-color:#E5C9C9;}
+.note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
+
+.trk-form{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px;margin-bottom:14px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.trk-form h3{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--rouge);margin-bottom:10px;}
+.trk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;}
+.trk-grid label{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;}
+.trk-grid input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;}
+.trk-grid input:focus{border-color:var(--champagne);background:#fff;}
+.trk-add{grid-column:1/-1;padding:12px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
+
+.year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
+.chip.on{background:var(--rouge);color:var(--champagne);box-shadow:0 4px 14px rgba(85,3,24,.3);}
+#trkTable.group-event .col-placed{display:none;}
+#trkTable.group-placed .col-event{display:none;}
+#trkTable.group-placed .col-gp{display:none;}
+/* client name & mobile: admin only (the cells are not even written for anyone
+   else — see renderTracker), and never in the Placed date view */
+#trkTable.group-placed .col-client{display:none;}
+#trkTable tr.trk-flash td{background:#FBF2E2;box-shadow:inset 3px 0 0 var(--champagne);}
+
+/* year → month → events drill-down */
+.drill{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:3px;padding:17px 16px;margin-bottom:10px;cursor:pointer;box-shadow:0 3px 14px rgba(85,3,24,.06);transition:transform .2s,box-shadow .25s;animation:fadeSlide .4s both;}
+/* after the first paint, re-renders must be instant — no shaking */
+body.settled .drill,body.settled .ev,body.settled .section.active{animation:none;}
+.drill:active{transform:scale(.99);}
+.drill.year{border-left:4px solid var(--rouge);}
+.drill.year .dr-title{font-family:'EB Garamond',Georgia,serif;font-size:26px;color:var(--rouge);font-weight:700;letter-spacing:3px;}
+.drill.month{margin-left:16px;border-left:3px solid var(--champagne);padding:13px 14px;}
+.drill.month .dr-title{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--terra);font-weight:700;letter-spacing:1px;}
+.drill.dim{opacity:.4;cursor:default;}
+.dr-arrow{color:var(--champagne);font-size:15px;width:15px;flex-shrink:0;}
+.dr-meta{margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.5;}
+.dr-meta b{color:var(--rouge);font-size:12.5px;}
+.drill-events{margin-left:30px;margin-bottom:8px;}
+
+/* dashboard */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.kpi{background:#fff;border:1px solid var(--border);border-top:3px solid var(--champagne);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);animation:fadeSlide .5s both;}
+.kpi:nth-child(2){animation-delay:.07s;}.kpi:nth-child(3){animation-delay:.14s;}.kpi:nth-child(4){animation-delay:.21s;}.kpi:nth-child(5){animation-delay:.28s;}
+.kpi .kl{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700;}
+.kpi .kv{font-family:'EB Garamond',Georgia,serif;font-size:28px;color:var(--rouge);font-weight:700;margin-top:7px;line-height:1.05;}
+.kpi .kv.pos{color:var(--good);} .kpi .kv.neg{color:var(--bad);}
+.kpi .kv-sub{font-size:12.5px;color:var(--good);font-weight:700;margin-top:4px;}
+.kpi .kd{font-size:10.5px;margin-top:5px;color:var(--muted);letter-spacing:.3px;}
+.kpi .kd .hl{color:var(--rouge);font-weight:700;background:var(--champagne);padding:1px 5px;border-radius:2px;}
+.kpi.wide{grid-column:1/-1;}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);margin-bottom:16px;animation:fadeSlide .5s .3s both;}
+.chart-card h3{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);margin-bottom:12px;letter-spacing:.5px;}
+.chart-card svg{width:100%;height:auto;display:block;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','finance','ceo']);</script>
+<script src="history-data.js"></script>
+
+<div class="topbar">
+  <a href="home.html">‹ HOME</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="sync-chip" style="font-size:10px;letter-spacing:1px;color:rgba(230,204,161,.7);"></span>
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="header">
+  <h1>Event GP Sheets</h1>
+  <p>CEO &amp; finance</p>
+  <div class="tabs">
+    <div class="tab active" data-t="events" onclick="switchTab('events')">Events</div>
+    <div class="tab" data-t="tracker" onclick="switchTab('tracker')">Tracker</div>
+    <div class="tab" data-t="monthly" onclick="switchTab('monthly')">Monthly</div>
+    <div class="tab" data-t="compare" onclick="switchTab('compare')">Years</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="tab-events" class="section active">
+    <input class="search" id="evSearch" placeholder="Search event, order number…" oninput="renderEvents()">
+    <div class="filters">
+      <button class="fchip on" data-f="all" onclick="setFilter('all')">All</button>
+      <button class="fchip" data-f="pending" onclick="setFilter('pending')">Pending review</button>
+      <button class="fchip" data-f="approved" onclick="setFilter('approved')">Approved</button>
+      <button class="fchip" data-f="rejected" onclick="setFilter('rejected')">Not approved</button>
+    </div>
+    <div id="evList"></div>
+  </div>
+
+  <div id="tab-tracker" class="section">
+    <div class="trk-form" id="trkForm" style="display:none;">
+      <h3>Log an order you just placed</h3>
+      <div class="trk-grid">
+        <div><label>Order number</label><input id="t-order" inputmode="numeric" placeholder="e.g. 266934"></div>
+        <div><label>Client name</label><input id="t-client" placeholder="e.g. Khalifa Rashed"></div>
+        <div><label>Mobile number</label><input id="t-mobile" inputmode="tel" placeholder="e.g. 050 123 4567"></div>
+        <div><label>Revenue (AED)</label><input id="t-rev" type="number" inputmode="decimal" placeholder="0.00"></div>
+        <div><label>Date order placed</label><input id="t-placed" type="date"></div>
+        <div><label>Date of the event</label><input id="t-event" type="date"></div>
+        <div><label>Discount %</label><input id="t-disc" type="number" inputmode="decimal" placeholder="0"></div>
+        <div><label>Discounted amount (auto)</label><input id="t-after" disabled placeholder="—"></div>
+        <button class="trk-add" onclick="addTrack()">＋ Add to tracker</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;">
+      <span style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;">Group by</span>
+      <div id="trkGroupChips"></div>
+    </div>
+    <div class="tblwrap"><table id="trkTable">
+      <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Discounted</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <p class="note">Quick log so you never forget an order you placed in Shopify. Independent from the event sheets.</p>
+  </div>
+
+  <div id="tab-monthly" class="section">
+    <div id="monthlyBox"></div>
+  </div>
+
+  <div id="tab-compare" class="section">
+    <div class="year-chips" id="yearChips"></div>
+    <div id="compareBox"></div>
+    <p class="note">Includes your imported history from the Google/Excel sheet (Sep 2024 onwards) plus every event created in this app. Cost, profit &amp; GP show for app events only — the imported history has revenue only.</p>
+  </div>
+</div>
+
+<button class="fab" onclick="location.href='event-editor.html'">＋ New Event</button>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase() + ' · ' + FLApp.role(FLApp.currentUser()).toUpperCase();
+if (FLApp.isAdmin()) document.getElementById('trkForm').style.display = '';
+
+const AED = n => 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const COMMISSION_PCT = 10;
+const GPT = 70;   /* deliberately NOT a setting — this number is on the page Jo approves */
+
+function calcEvent(ev) {
+  const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
+  const cost = sum(ev.flowers) + sum(ev.sundries) + sum(ev.other);
+  const budget = parseFloat(ev.budget) || 0;
+  const discPct = parseFloat(ev.discountPct) || 0;
+  const discount = budget * discPct / 100;
+  const after = budget - discount;
+  const profit = after - cost;
+  const gp = after ? profit / after * 100 : 0;
+  const commission = profit > 0 ? profit * COMMISSION_PCT / 100 : 0;
+  return { cost, budget, discPct, discount, after, profit, gp, commission };
+}
+
+function fmtD(d) { return d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'; }
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.t === t));
+  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  if (t === 'tracker') renderTracker();
+  if (t === 'monthly') renderMonthly();
+  if (t === 'compare') renderCompare();
+}
+
+/* ── Events list: Year → Month → events drill-down ──
+   position is remembered, so coming back from an event lands on the same month */
+let openYear = sessionStorage.getItem('fl_drill_year') || null;
+let openMonth = sessionStorage.getItem('fl_drill_month') || null;
+function saveDrill() {
+  if (openYear) sessionStorage.setItem('fl_drill_year', openYear); else sessionStorage.removeItem('fl_drill_year');
+  if (openMonth) sessionStorage.setItem('fl_drill_month', openMonth); else sessionStorage.removeItem('fl_drill_month');
+}
+
+function apprStatus(ev) { return (ev.approval && ev.approval.status) || 'pending'; }
+function apprPill(ev) {
+  const s = apprStatus(ev);
+  if (s === 'approved') return '<span class="pill approved">✓ Approved</span>';
+  if (s === 'rejected') return '<span class="pill rejected">✕ Not approved</span>';
+  return '<span class="pill pending">Pending review</span>';
+}
+
+function evCard(ev) {
+  const c = calcEvent(ev);
+  const el = document.createElement('div');
+  el.className = 'ev';
+  el.onclick = () => location.href = 'event-editor.html?id=' + ev.id;
+  const a = ev.approval || {};
+  const rejectedReason = apprStatus(ev) === 'rejected' && a.reason
+    ? '<div class="reject-reason">Reason: ' + a.reason + '</div>'
+    : (apprStatus(ev) === 'pending' && a.priorReason
+      ? '<div class="reject-reason" style="color:var(--good);">Was: "' + a.priorReason + '"' + (a.adminNote ? ' — Resent: "' + a.adminNote + '"' : '') + '</div>'
+      : '');
+  el.innerHTML =
+    '<div class="ev-top"><h2></h2><span class="gp ' + (c.gp >= GPT ? 'pos' : 'neg') + '">' + c.gp.toFixed(1) + '%</span></div>' +
+    '<div class="meta">' +
+      '<span>' + fmtD(ev.date) + '</span>' +
+      '<span>Order <b>' + (ev.orderNo || '—') + '</b></span>' +
+      '<span>Budget <b>' + AED(c.budget) + '</b></span>' +
+      (c.discPct ? '<span>Disc <b>' + c.discPct + '%</b></span>' : '') +
+      '<span>Cost <b>' + AED(c.cost) + '</b></span>' +
+      apprPill(ev) +
+    '</div>' + rejectedReason;
+  el.querySelector('h2').textContent = ev.name || 'Untitled event';
+  return el;
+}
+
+let evFilter = 'all';
+function setFilter(f) {
+  evFilter = f;
+  document.querySelectorAll('.fchip').forEach(x => x.classList.toggle('on', x.dataset.f === f));
+  renderEvents();
+}
+function passesFilter(ev) { return evFilter === 'all' || apprStatus(ev) === evFilter; }
+
+function renderEvents() {
+  const q = (document.getElementById('evSearch').value || '').toLowerCase();
+  const box = document.getElementById('evList');
+  const all = FLApp.eventsAll().filter(passesFilter);
+  box.innerHTML = '';
+
+  /* searching → flat results across all years */
+  if (q) {
+    const hits = all.filter(e =>
+      (e.name || '').toLowerCase().includes(q) || (e.orderNo || '').toLowerCase().includes(q))
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (!hits.length) { box.innerHTML = '<div class="empty">Nothing found for "' + q + '"</div>'; return; }
+    hits.forEach(ev => box.appendChild(evCard(ev)));
+    return;
+  }
+
+  if (!all.length) {
+    box.innerHTML = evFilter === 'all'
+      ? '<div class="empty">❀<br>No events yet.<br>Tap <strong>New Event</strong> to create your first GP sheet.</div>'
+      : '<div class="empty">No events with this status.</div>';
+    return;
+  }
+
+  /* group year → month */
+  const years = {};
+  all.forEach(ev => {
+    const y = ev.date ? ev.date.slice(0, 4) : 'No date';
+    const m = ev.date ? parseInt(ev.date.slice(5, 7)) : 0;
+    ((years[y] = years[y] || {})[m] = years[y][m] || []).push(ev);
+  });
+
+  /* ── LEVEL 3: one month only — back arrow returns to the months ── */
+  if (openYear && openMonth) {
+    const m = parseInt(openMonth.split('-')[1]);
+    const list = ((years[openYear] || {})[m] || []).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const mTotal = list.reduce((s, e) => s + calcEvent(e).after, 0);
+    const crumb = document.createElement('div');
+    crumb.className = 'drill year';
+    crumb.innerHTML = '<span class="dr-arrow">‹</span>' +
+      '<span class="dr-title" style="font-size:20px;">' + MONTH_NAMES[m - 1] + ' ' + openYear + '</span>' +
+      '<span class="dr-meta">' + list.length + ' event' + (list.length !== 1 ? 's' : '') + ' · ' + AED(mTotal) + '<br><b>‹ back to months</b></span>';
+    crumb.onclick = () => { openMonth = null; saveDrill(); renderEvents(); };
+    box.appendChild(crumb);
+    if (!list.length) {
+      const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'No events in this month.'; box.appendChild(e);
+    }
+    list.forEach(ev => box.appendChild(evCard(ev)));
+    return;
+  }
+
+  /* ── LEVEL 2: months of one year — back arrow returns to the years ── */
+  if (openYear) {
+    const months = years[openYear] || {};
+    const yEvents = Object.values(months).flat();
+    const yTotal = yEvents.reduce((s, e) => s + calcEvent(e).after, 0);
+    const crumb = document.createElement('div');
+    crumb.className = 'drill year';
+    crumb.innerHTML = '<span class="dr-arrow">‹</span>' +
+      '<span class="dr-title">' + openYear + '</span>' +
+      '<span class="dr-meta">' + yEvents.length + ' event' + (yEvents.length !== 1 ? 's' : '') + ' · ' + AED(yTotal) + '<br><b>‹ back to years</b></span>';
+    crumb.onclick = () => { openYear = null; openMonth = null; saveDrill(); renderEvents(); };
+    box.appendChild(crumb);
+
+    for (let m = 12; m >= 1; m--) {
+      const list = months[m] || [];
+      const mTotal = list.reduce((s, e) => s + calcEvent(e).after, 0);
+      const mRow = document.createElement('div');
+      mRow.className = 'drill month' + (list.length ? '' : ' dim');
+      mRow.innerHTML = '<span class="dr-arrow">' + (list.length ? '▸' : '·') + '</span>' +
+        '<span class="dr-title">' + MONTH_NAMES[m - 1] + '</span>' +
+        '<span class="dr-meta">' + (list.length ? list.length + ' event' + (list.length > 1 ? 's' : '') + ' · ' + AED(mTotal) : '—') + '</span>';
+      if (list.length) mRow.onclick = () => { openMonth = openYear + '-' + m; saveDrill(); renderEvents(); };
+      box.appendChild(mRow);
+    }
+    if (months[0]) months[0].forEach(ev => box.appendChild(evCard(ev)));
+    return;
+  }
+
+  /* ── LEVEL 1: the years ── */
+  Object.keys(years).sort().reverse().forEach(y => {
+    const yEvents = Object.values(years[y]).flat();
+    const yTotal = yEvents.reduce((s, e) => s + calcEvent(e).after, 0);
+    const yRow = document.createElement('div');
+    yRow.className = 'drill year';
+    yRow.innerHTML = '<span class="dr-arrow">▸</span>' +
+      '<span class="dr-title">' + y + '</span>' +
+      '<span class="dr-meta">' + yEvents.length + ' event' + (yEvents.length > 1 ? 's' : '') + ' · ' + AED(yTotal) + '</span>';
+    yRow.onclick = () => { openYear = y; openMonth = null; saveDrill(); renderEvents(); };
+    box.appendChild(yRow);
+  });
+}
+
+/* ── Tracker (manual order log) ── */
+function trkAfter() {
+  const rev = parseFloat(document.getElementById('t-rev').value) || 0;
+  const d = parseFloat(document.getElementById('t-disc').value) || 0;
+  document.getElementById('t-after').value = rev ? AED(rev * (1 - d / 100)) : '';
+}
+document.getElementById('t-rev').addEventListener('input', trkAfter);
+document.getElementById('t-disc').addEventListener('input', trkAfter);
+
+async function addTrack() {
+  const row = {
+    id: 't' + Date.now(),
+    orderNo: document.getElementById('t-order').value.trim(),
+    client: document.getElementById('t-client').value.trim(),
+    mobile: document.getElementById('t-mobile').value.trim(),
+    placed: document.getElementById('t-placed').value,
+    eventDate: document.getElementById('t-event').value,
+    revenue: parseFloat(document.getElementById('t-rev').value) || 0,
+    discountPct: parseFloat(document.getElementById('t-disc').value) || 0
+  };
+  if (!row.orderNo) { await FLApp.flAlert('Enter the order number.'); return; }
+
+  /* Shopify order numbers are unique, so the same one twice is always a mistake —
+     and a double-counted sale. Refuse it and point at the row already there. */
+  const clash = FLApp.trackerAll().find(x => (x.orderNo || '').trim() === row.orderNo);
+  if (clash) {
+    const bits = [];
+    if (clash.placed) bits.push('added ' + fmtD(clash.placed));
+    if (clash.revenue) bits.push(AED(clash.revenue));
+    if (clash.eventDate) bits.push('event ' + fmtD(clash.eventDate));
+    await FLApp.flAlert('Order ' + row.orderNo + ' is already in the Tracker.' +
+      (bits.length ? '\n' + bits.join(' · ') : '') +
+      '\n\nNothing was added — the existing row is highlighted below.');
+    flashTrackerRow(clash.id);
+    return;
+  }
+
+  FLApp.trackerSave(row);
+  ['t-order', 't-client', 't-mobile', 't-placed', 't-event', 't-rev', 't-disc']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('t-after').value = '';
+  renderTracker();
+}
+
+/* highlight the clashing row and bring it into view */
+function flashTrackerRow(id) {
+  renderTracker();
+  const tr = document.querySelector('#trkTable tr[data-trk="' + id + '"]');
+  if (!tr) return;
+  tr.classList.add('trk-flash');
+  tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => tr.classList.remove('trk-flash'), 6000);
+}
+
+/* admin-only inline editing on already-logged rows — customers sometimes add
+   money or move the date after the order was first placed */
+/* client names are free text and go straight into an attribute — escape them */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* Start a GP sheet from a Tracker row, carrying the figures across so nothing is
+   retyped and the order numbers are guaranteed to match. */
+function makeSheet(id) {
+  const r = FLApp.trackerAll().find(x => x.id === id);
+  if (!r) return;
+  const q = new URLSearchParams();
+  if (r.orderNo) q.set('orderNo', r.orderNo);
+  if (r.eventDate) q.set('date', r.eventDate);
+  if (r.revenue) q.set('budget', String(r.revenue));
+  if (r.discountPct) q.set('discountPct', String(r.discountPct));
+  if (r.client) q.set('name', r.client);
+  if (r.mobile) q.set('mobile', r.mobile);
+  location.href = 'event-editor.html?' + q.toString();
+}
+
+function trkPatch(id, field, value) {
+  const all = FLApp.trackerAll();
+  const row = all.find(x => x.id === id);
+  if (!row) return;
+  row[field] = value;
+  FLApp.trackerSave(row);
+}
+function trkRecalcRow(id) {
+  const rev = parseFloat(document.getElementById('rev-' + id).value) || 0;
+  const disc = parseFloat(document.getElementById('disc-' + id).value) || 0;
+  document.getElementById('after-' + id).textContent = AED(rev * (1 - disc / 100));
+}
+
+/* 'event' groups by the event's own month — how commission actually works —
+   'placed' groups by when the order was placed, which is what finance needs
+   for their own bookkeeping. 'both' shows the two date columns side by side
+   (handy for seeing the gap between ordering and delivery) and totals by
+   event month, same as 'event'. Same data throughout, just organized
+   differently — the columns each view hides are set in CSS by the
+   group-<mode> class on the table. */
+const TRACKER_GROUPS = [
+  ['event',  'Event date'],
+  ['placed', 'Placed date'],
+  ['both',   'Full view']
+];
+let trackerGroupBy = 'event';
+/* Full view shows both dates at once alongside the client columns — admin only.
+   Finance and the CEO keep Event date and Placed date. */
+function trackerGroups() {
+  return FLApp.isAdmin() ? TRACKER_GROUPS : TRACKER_GROUPS.filter(([g]) => g !== 'both');
+}
+function renderTrackerChips() {
+  document.getElementById('trkGroupChips').innerHTML =
+    trackerGroups().map(([g, label]) =>
+      '<button class="chip ' + (trackerGroupBy === g ? 'on' : '') + '" onclick="trackerGroupBy=\'' + g + '\';renderTracker()">' +
+      label + '</button>').join(' ');
+}
+function renderTracker() {
+  const showClient = FLApp.isAdmin();
+  if (!showClient && trackerGroupBy === 'both') trackerGroupBy = 'event';
+  renderTrackerChips();
+  const table = document.getElementById('trkTable');
+  table.className = 'group-' + trackerGroupBy;
+  /* for anyone but admin the client columns are removed from the page outright,
+     not merely hidden — the names and numbers never reach their screen at all */
+  if (!showClient) table.querySelectorAll('thead .col-client').forEach(th => th.remove());
+  const tb = document.querySelector('#trkTable tbody');
+  const dateField = trackerGroupBy === 'placed' ? 'placed' : 'eventDate';
+  const fallbackField = trackerGroupBy === 'placed' ? 'eventDate' : 'placed';
+  const rows = FLApp.trackerAll().slice().sort((a, b) =>
+    (b[dateField] || b[fallbackField] || '').localeCompare(a[dateField] || a[fallbackField] || ''));
+  const gpOrders = new Set(FLApp.eventsAll().map(e => e.orderNo).filter(Boolean));
+  tb.innerHTML = '';
+  if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" style="color:var(--muted);font-style:italic;">Nothing logged yet</td></tr>'; return; }
+
+  function flushGroupTotal(afterTotal) {
+    /* mirrors the data rows' exact 8-column structure (incl. col-placed/col-event/
+       col-gp classes) rather than colspan, so the total lines up under Discounted
+       regardless of which columns the Event/Placed toggle currently hides */
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;border-top:1.5px solid var(--champagne);">Total so far</td>' +
+      (showClient ? '<td class="col-client" style="border-top:1.5px solid var(--champagne);"></td>' +
+                    '<td class="col-client" style="border-top:1.5px solid var(--champagne);"></td>' : '') +
+      '<td class="col-placed" style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td class="col-event" style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td style="font-weight:700;color:var(--rouge);border-top:1.5px solid var(--champagne);">' + AED(afterTotal) + '</td>' +
+      '<td class="col-gp" style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td style="border-top:1.5px solid var(--champagne);"></td>';
+    tb.appendChild(tr);
+  }
+
+  let lastGroup = undefined, groupAfter = 0;
+  rows.forEach(r => {
+    const groupKey = (r[dateField] || r[fallbackField] || '').slice(0, 7);
+    if (groupKey !== lastGroup) {
+      if (lastGroup !== undefined) flushGroupTotal(groupAfter);
+      groupAfter = 0;
+      lastGroup = groupKey;
+      const [y, m] = groupKey ? groupKey.split('-').map(Number) : [null, null];
+      const label = (y && m) ? MONTH_NAMES[m - 1].toUpperCase() + ' ' + y : 'NO DATE YET';
+      const head = document.createElement('tr');
+      head.innerHTML = '<td colspan="10" style="background:var(--lace);font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
+      tb.appendChild(head);
+    }
+    const after = (r.revenue || 0) * (1 - (r.discountPct || 0) / 100);
+    groupAfter += after;
+    const onGP = gpOrders.has(r.orderNo);
+    const isAdmin = FLApp.isAdmin();
+    const tr = document.createElement('tr');
+    tr.dataset.trk = r.id;
+    tr.innerHTML =
+      '<td><b>' + r.orderNo + '</b></td>' +
+      (showClient
+        ? '<td class="col-client"><input value="' + esc(r.client || '') + '" placeholder="—" onchange="trkPatch(\'' + r.id + '\',\'client\',this.value)"></td>' +
+          '<td class="col-client"><input inputmode="tel" value="' + esc(r.mobile || '') + '" placeholder="—" onchange="trkPatch(\'' + r.id + '\',\'mobile\',this.value)"></td>'
+        : '') +
+      '<td class="col-placed">' + (isAdmin ? '<input type="date" value="' + (r.placed || '') + '" onchange="trkPatch(\'' + r.id + '\',\'placed\',this.value)">' : fmtD(r.placed)) + '</td>' +
+      '<td class="col-event">' + (isAdmin ? '<input type="date" value="' + (r.eventDate || '') + '" onchange="trkPatch(\'' + r.id + '\',\'eventDate\',this.value);renderTracker()">' : fmtD(r.eventDate)) + '</td>' +
+      '<td>' + (isAdmin ? '<input type="number" id="rev-' + r.id + '" value="' + (r.revenue || 0) + '" oninput="trkPatch(\'' + r.id + '\',\'revenue\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : AED(r.revenue || 0)) + '</td>' +
+      '<td>' + (isAdmin ? '<input type="number" id="disc-' + r.id + '" value="' + (r.discountPct || 0) + '" oninput="trkPatch(\'' + r.id + '\',\'discountPct\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : (r.discountPct || 0) + '%') + '</td>' +
+      '<td><b id="after-' + r.id + '">' + AED(after) + '</b></td>' +
+      '<td class="col-gp" style="text-align:center;">' +
+        (onGP ? '✅'
+              : isAdmin ? '<button class="mini" onclick="makeSheet(\'' + r.id + '\')">Make sheet</button>'
+                        : '<span style="color:var(--muted);">—</span>') + '</td>' +
+      '<td>' + (isAdmin ? '<button class="mini danger">✕</button>' : '') + '</td>';
+    if (isAdmin) {
+      /* must be .mini.danger — the "Make sheet" button is also .mini and comes first */
+      tr.querySelector('.mini.danger').onclick = async () => { if (await FLApp.flConfirm('Remove order ' + r.orderNo + ' from tracker?')) { FLApp.trackerDelete(r.id); renderTracker(); } };
+    }
+    tb.appendChild(tr);
+  });
+  flushGroupTotal(groupAfter);
+}
+
+/* ── Monthly: luxe dashboard for one selected year ── */
+let dashYear = null;
+let dashMonth = 'all';
+
+function barChart(perMonth, year) {
+  /* single-series revenue-by-month bars, rouge on white, recessive grid */
+  const W = 620, H = 250, padL = 10, padR = 10, padT = 26, padB = 26;
+  const max = Math.max(...perMonth, 1);
+  const bw = (W - padL - padR) / 12;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sales by month ' + year + '">';
+  /* gridlines */
+  for (let g = 1; g <= 3; g++) {
+    const gy = padT + (H - padT - padB) * g / 4;
+    s += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#F1EBE4" stroke-width="1"/>';
+  }
+  /* baseline */
+  s += '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  perMonth.forEach((v, i) => {
+    const x = padL + i * bw + bw * 0.18;
+    const w = bw * 0.64;
+    const h = v ? Math.max(3, (H - padT - padB) * v / max) : 0;
+    const y = H - padB - h;
+    if (v) {
+      s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 4) + ' Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y +
+        ' L' + (x + w - 4) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 4) +
+        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="#550318"><title>' + MONTH_NAMES[i] + ' ' + year + ': ' + AED(v) + '</title></path>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#550318" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
+    }
+    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9.5" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTH_NAMES[i].slice(0, 3).toUpperCase() + '</text>';
+  });
+  return s + '</svg>';
+}
+
+function renderMonthly() {
+  const box = document.getElementById('monthlyBox');
+  const evs = FLApp.eventsAll().filter(e => e.date);
+  if (!evs.length) { box.innerHTML = '<div class="empty">No events yet.</div>'; return; }
+  const years = [...new Set(evs.map(e => e.date.slice(0, 4)))].sort().reverse();
+  if (!dashYear || !years.includes(dashYear)) dashYear = years[0];
+
+  const list = evs.filter(e => e.date.slice(0, 4) === dashYear);
+  let yB = 0, yD = 0, yA = 0, yC = 0, yP = 0, yCom = 0;
+  const perMonth = Array(12).fill(0);
+  const byMonth = {};
+  list.forEach(ev => {
+    const c = calcEvent(ev);
+    yB += c.budget; yD += c.discount; yA += c.after; yC += c.cost; yP += c.profit; yCom += c.commission;
+    const m = parseInt(ev.date.slice(5, 7));
+    perMonth[m - 1] += c.after;
+    (byMonth[m] = byMonth[m] || []).push(ev);
+  });
+  const yGp = yA ? yP / yA * 100 : 0;
+
+  if (dashMonth !== 'all' && !byMonth[dashMonth]) dashMonth = 'all';
+  let kB = yB, kA = yA, kC = yC, kP = yP, kGp = yGp, kCount = list.length, kLabel = dashYear;
+  if (dashMonth !== 'all') {
+    const mList = byMonth[dashMonth] || [];
+    let mB = 0, mA = 0, mC = 0, mP = 0;
+    mList.forEach(ev => { const c = calcEvent(ev); mB += c.budget; mA += c.after; mC += c.cost; mP += c.profit; });
+    kB = mB; kA = mA; kC = mC; kP = mP; kGp = mA ? mP / mA * 100 : 0; kCount = mList.length;
+    kLabel = MONTH_NAMES[dashMonth - 1] + ' ' + dashYear;
+  }
+
+  let html = '<div class="year-chips">' + years.map(y =>
+    '<button class="chip ' + (y === dashYear ? 'on' : '') + '" onclick="dashYear=\'' + y + '\';dashMonth=\'all\';renderMonthly()">' + y + '</button>').join('') + '</div>';
+
+  const monthChipList = ['all'].concat(Object.keys(byMonth).map(Number).sort((a, b) => a - b));
+  html += '<div class="year-chips" style="margin-top:-4px;">' + monthChipList.map(m =>
+    '<button class="chip ' + (String(m) === String(dashMonth) ? 'on' : '') + '" onclick="dashMonth=\'' + m + '\';renderMonthly()">' + (m === 'all' ? 'All Year' : MONTH_NAMES[m - 1]) + '</button>').join('') + '</div>';
+
+  html += '<div class="kpis">' +
+    '<div class="kpi"><div class="kl">Sales</div><div class="kv">' + AED(kB) + '</div><div class="kv-sub">(After discounts ' + AED(kA) + ')</div><div class="kd">' + kCount + ' events in ' + kLabel + '</div></div>' +
+    '<div class="kpi"><div class="kl">Total cost</div><div class="kv">' + AED(kC) + '</div><div class="kd">flowers · sundries · other</div></div>' +
+    '<div class="kpi"><div class="kl">Profit</div><div class="kv ' + (kP >= 0 ? 'pos' : 'neg') + '">' + AED(kP) + '</div><div class="kd">commission ' + AED(kP > 0 ? kP * 0.1 : 0) + '</div></div>' +
+    '<div class="kpi"><div class="kl">GP margin</div><div class="kv ' + (kGp >= GPT ? 'pos' : 'neg') + '">' + kGp.toFixed(1) + '%</div><div class="kd"><b class="hl">of after-discount sales</b> &middot; vs ' + GPT + '% target: ' + (kGp - GPT >= 0 ? '+' : '') + (kGp - GPT).toFixed(1) + '%</div></div>' +
+    '</div>';
+
+  html += '<div class="chart-card"><h3>Sales by Month — ' + dashYear + '</h3>' + barChart(perMonth, dashYear) + '</div>';
+
+  html += Object.keys(byMonth).map(Number).sort((a, b) => b - a).map(m => {
+    const mlist = byMonth[m];
+    let tB = 0, tD = 0, tA = 0, tC = 0, tP = 0, tCom = 0;
+    const rows = mlist.map(ev => {
+      const c = calcEvent(ev);
+      tB += c.budget; tD += c.discount; tA += c.after; tC += c.cost; tP += c.profit; tCom += c.commission;
+      return '<tr><td><b>' + (ev.orderNo || '—') + '</b></td><td>' + (ev.name || '') + '</td><td>' + AED(c.budget) + '</td>' +
+        '<td>' + (c.discPct ? c.discPct + '%' : '—') + '</td><td>' + AED(c.after) + '</td><td>' + AED(c.cost) + '</td>' +
+        '<td class="' + (c.profit >= 0 ? 'pos' : 'neg') + '">' + AED(c.profit) + '</td>' +
+        '<td class="' + (c.gp >= GPT ? 'pos' : 'neg') + '">' + c.gp.toFixed(2) + '%</td>' +
+        (FLApp.isAdmin() ? '<td>' + AED(c.commission) + '</td>' : '') + '</tr>';
+    }).join('');
+    const tGp = tA ? tP / tA * 100 : 0;
+    const comTh = FLApp.isAdmin() ? '<th>Commission</th>' : '';
+    const comTd = FLApp.isAdmin() ? '<td>' + AED(tCom) + '</td>' : '';
+    return '<div class="month-head">' + MONTH_NAMES[m - 1].toUpperCase() + ' ' + dashYear + '</div>' +
+      '<div class="tblwrap"><table><thead><tr><th>Order #</th><th>Event name</th><th>Budget</th><th>Discount</th><th>After discount</th><th>Cost</th><th>Profit</th><th>GP</th>' + comTh + '</tr></thead><tbody>' +
+      rows +
+      '<tr class="total"><td>TOTAL</td><td>' + mlist.length + ' events</td><td>' + AED(tB) + '</td><td>' + (tB ? (tD / tB * 100).toFixed(1) + '%' : '—') + '</td><td>' + AED(tA) + '</td><td>' + AED(tC) + '</td><td>' + AED(tP) + '</td><td>' + tGp.toFixed(2) + '%</td>' + comTd + '</tr>' +
+      '</tbody></table></div>';
+  }).join('');
+
+  box.innerHTML = html;
+}
+
+/* ── Years comparison (app events + imported history) ── */
+let yearSel = null;
+let editMonths = false;
+
+function toggleEditMonths() {
+  editMonths = !editMonths;
+  renderCompare();
+}
+function saveMonthOverride(ym, val) {
+  FLApp.setMonthlyOverride(ym, val.trim() === '' ? null : val.replace(/,/g, ''));
+  renderCompare();
+}
+
+function allSalesRows() {
+  /* {y, m(1-12), amount} from imported history + monthly aggregates + app events (after-discount) */
+  let rows = (typeof FL_HISTORY !== 'undefined' ? FL_HISTORY : []).map(h => ({
+    y: h.m.slice(0, 4), m: parseInt(h.m.slice(5, 7)), amount: h.a, src: 'history'
+  }));
+  const aggMonths = new Set();
+  (typeof FL_HISTORY_MONTHLY !== 'undefined' ? FL_HISTORY_MONTHLY : []).forEach(h => {
+    rows.push({ y: h.m.slice(0, 4), m: parseInt(h.m.slice(5, 7)), amount: h.a, src: 'monthly' });
+    aggMonths.add(h.m);
+  });
+  /* months with an official sheet total are authoritative — app events there would double-count */
+  FLApp.eventsAll().filter(e => e.date && !aggMonths.has(e.date.slice(0, 7))).forEach(e => {
+    rows.push({ y: e.date.slice(0, 4), m: parseInt(e.date.slice(5, 7)), amount: calcEvent(e).after, src: 'app', ev: e });
+  });
+  /* admin's manual monthly totals beat everything for that month */
+  Object.entries(FLApp.monthlyOverrides()).forEach(([ym, amt]) => {
+    const y = ym.slice(0, 4), m = parseInt(ym.slice(5, 7));
+    rows = rows.filter(r => !(r.y === y && r.m === m));
+    rows.push({ y, m, amount: amt, src: 'manual' });
+  });
+  return rows;
+}
+
+function renderCompare() {
+  const rows = allSalesRows();
+  const box = document.getElementById('compareBox');
+  if (!rows.length) { box.innerHTML = '<div class="empty">No sales data yet.</div>'; return; }
+  const allYears = [...new Set(rows.map(r => r.y))].sort();
+  if (!yearSel) yearSel = new Set(allYears);
+  /* year chips */
+  document.getElementById('yearChips').innerHTML = allYears.map(y =>
+    '<button class="chip ' + (yearSel.has(y) ? 'on' : '') + '" onclick="toggleYear(\'' + y + '\')">' + y + '</button>').join('');
+  const years = allYears.filter(y => yearSel.has(y));
+  if (!years.length) { box.innerHTML = '<div class="empty">Select at least one year above.</div>'; return; }
+
+  const monthTotal = (y, m) => rows.filter(r => r.y === y && r.m === m).reduce((s, r) => s + r.amount, 0);
+  const yearTotal = y => rows.filter(r => r.y === y).reduce((s, r) => s + r.amount, 0);
+  /* YoY % column compares the last two selected years, like the sheet */
+  const yoy = years.length >= 2 ? [years[years.length - 2], years[years.length - 1]] : null;
+  const pct = (prev, cur) => {
+    if (!prev || !cur) return '—';
+    const p = (cur - prev) / prev * 100;
+    return '<span class="' + (p >= 0 ? 'pos' : 'neg') + '" style="font-weight:700;">' + p.toFixed(2) + '%</span>';
+  };
+
+  const overrides = FLApp.monthlyOverrides();
+  let html = '';
+  if (FLApp.isAdmin()) {
+    html += '<div style="margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
+      '<button class="chip ' + (editMonths ? 'on' : '') + '" onclick="toggleEditMonths()">' + (editMonths ? '✓ DONE EDITING' : '✎ EDIT MONTHLY TOTALS') + '</button>' +
+      (editMonths ? '<span class="note" style="margin:0;">Type the official total for a month — it replaces the automatic number everywhere. Clear the box to go back to automatic.</span>' : '') +
+      '</div>';
+  }
+  html += '<div class="tblwrap"><table><thead><tr><th>Month</th>' +
+    years.map(y => '<th>' + y + '</th>').join('') +
+    (yoy ? '<th>' + yoy[1] + ' vs ' + yoy[0] + '</th>' : '') + '</tr></thead><tbody>';
+  for (let m = 1; m <= 12; m++) {
+    const mm = String(m).padStart(2, '0');
+    html += '<tr><td><b>' + MONTH_NAMES[m - 1].slice(0, 3) + '</b></td>' + years.map(y => {
+      const ym = y + '-' + mm;
+      const v = monthTotal(y, m);
+      if (editMonths) {
+        return '<td><input type="text" inputmode="decimal" value="' + (overrides[ym] != null ? overrides[ym] : '') + '"' +
+          ' placeholder="' + (v ? Math.round(v).toLocaleString() : 'auto') + '"' +
+          ' onchange="saveMonthOverride(\'' + ym + '\', this.value)"' +
+          ' style="width:110px;padding:8px;border:1px solid var(--champagne);border-radius:2px;background:#FBF6EC;font-size:12px;font-family:Lato,Arial;"></td>';
+      }
+      return '<td>' + (v ? AED(v) : '—') + (overrides[ym] != null ? ' <span title="manually set" style="color:#8a6d33;font-size:10px;">✎</span>' : '') + '</td>';
+    }).join('') +
+    (yoy ? '<td>' + pct(monthTotal(yoy[0], m), monthTotal(yoy[1], m)) + '</td>' : '') + '</tr>';
+  }
+  html += '<tr class="total"><td>TOTAL</td>' + years.map(y => '<td>' + AED(yearTotal(y)) + '</td>').join('') +
+    (yoy ? '<td>' + pct(yearTotal(yoy[0]), yearTotal(yoy[1])) + '</td>' : '') + '</tr></tbody></table></div>';
+
+  /* year totals incl. profit for app events */
+  html += '<div class="month-head" style="margin-top:16px;">YEAR TOTALS</div><div class="tblwrap"><table><thead><tr><th>Year</th><th>Orders</th><th>Sales</th><th>Cost*</th><th>Profit*</th><th>GP*</th></tr></thead><tbody>' +
+    years.map(y => {
+      const sales = rows.filter(r => r.y === y).reduce((s, r) => s + r.amount, 0);
+      const n = rows.filter(r => r.y === y).length;
+      const appEvs = FLApp.eventsAll().filter(e => e.date && e.date.slice(0, 4) === y);
+      let a = 0, c = 0, p = 0;
+      appEvs.forEach(e => { const x = calcEvent(e); a += x.after; c += x.cost; p += x.profit; });
+      return '<tr><td><b>' + y + '</b></td><td>' + n + '</td><td>' + AED(sales) + '</td>' +
+        '<td>' + (appEvs.length ? AED(c) : '—') + '</td>' +
+        '<td class="' + (p >= 0 ? 'pos' : 'neg') + '">' + (appEvs.length ? AED(p) : '—') + '</td>' +
+        '<td>' + (a ? (p / a * 100).toFixed(2) + '%' : '—') + '</td></tr>';
+    }).join('') + '</tbody></table></div>';
+  box.innerHTML = html;
+}
+function toggleYear(y) {
+  if (yearSel.has(y)) yearSel.delete(y); else yearSel.add(y);
+  renderCompare();
+}
+
+if (FLApp.isCeo()) document.querySelector('.fab').style.display = 'none';
+
+/* live sync indicator + refresh views ONLY when new data actually arrived */
+if (FLApp.syncEnabled()) {
+  const chip = document.getElementById('sync-chip');
+  const fp = () => ['fl_events', 'fl_tracker', 'fl_meta_monthly'].map(k => (localStorage.getItem(k) || '').length).join(':');
+  let lastFp = fp();
+  FLApp.onSync(state => {
+    chip.textContent = state === 'syncing' ? '⟳ SYNCING…' : state === 'synced' ? '☁ SYNCED' : '⚠ OFFLINE';
+    if (state === 'synced' && fp() !== lastFp) {
+      lastFp = fp();
+      const active = document.querySelector('.section.active').id;
+      if (active === 'tab-events') renderEvents();
+      if (active === 'tab-tracker') renderTracker();
+      if (active === 'tab-monthly') renderMonthly();
+      if (active === 'tab-compare') renderCompare();
+    }
+  });
+  FLApp.syncNow();
+}
+
+/* first paint done — freeze entry animations so later re-renders don't shake */
+setTimeout(() => document.body.classList.add('settled'), 700);
+
+renderEvents();
+</script>
+</body>
+</html>

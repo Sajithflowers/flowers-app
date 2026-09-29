@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Flowers.ae — Dashboard</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--plum:#4B0D24;--plum-deep:#36081a;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:50px;}
+
+.hero{background:linear-gradient(160deg,var(--plum-deep),var(--plum) 65%,#5d1230);color:#fff;padding:20px 16px 56px;position:relative;overflow:hidden;}
+.hero::after{content:'❀';position:absolute;right:-16px;bottom:-40px;font-size:150px;opacity:.06;color:var(--champagne);}
+.hero-top{display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:0 auto;}
+.hero-links{display:flex;gap:8px;align-items:center;}
+.hero-links a,.hero-links button{background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:var(--champagne);padding:9px 14px;border-radius:3px;font-size:10.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-decoration:none;font-family:'Lato',Arial,sans-serif;min-height:36px;display:inline-flex;align-items:center;}
+.wordmark{font-weight:300;font-size:19px;letter-spacing:6px;color:#fff;}
+.wordmark small{display:block;font-size:7px;letter-spacing:4px;color:rgba(255,255,255,.7);margin-top:4px;text-transform:uppercase;font-weight:300;}
+.greet{margin-top:24px;text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:22px;color:var(--champagne);animation:rise .7s both;}
+.date-line{text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:2px;margin-top:5px;text-transform:uppercase;}
+@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.wrap{max-width:640px;margin:0 auto;padding:0 14px;}
+@media (min-width:900px){ .hero-top,.wrap{max-width:960px;} }
+
+.pending-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-34px 0 16px;position:relative;}
+.pending-row .pending{grid-column:1/-1;}
+.pending-row.split .pending{grid-column:auto;}
+@media (max-width:480px){ .pending-row.split .pending{grid-column:1/-1;} }
+.pending{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#F3E3C3,var(--champagne));border:none;border-radius:4px;padding:17px 16px;width:100%;cursor:pointer;box-shadow:0 8px 26px rgba(75,13,36,.25);animation:rise .7s .1s both;font-family:'Lato',Arial,sans-serif;}
+.pending .num{font-family:'EB Garamond',Georgia,serif;font-size:38px;font-weight:700;color:var(--plum);line-height:1;}
+.pending .txt{text-align:left;}
+.pending .t1{font-size:13.5px;font-weight:700;color:var(--plum);letter-spacing:.4px;}
+.pending .t2{font-size:11px;color:#7a5c33;margin-top:2px;}
+.pending .go{margin-left:auto;font-family:'EB Garamond',Georgia,serif;font-size:26px;color:var(--plum);}
+.pending.allclear{background:#fff;border:1px solid var(--border);box-shadow:0 4px 18px rgba(75,13,36,.08);cursor:default;}
+.pending.allclear .t1{color:var(--good);}
+.pending.allclear .num{color:var(--good);}
+
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.kpi{background:#fff;border:1px solid var(--border);border-top:3px solid var(--champagne);border-radius:4px;padding:17px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);animation:rise .6s both;}
+.kpi:nth-child(2){animation-delay:.07s;}.kpi:nth-child(3){animation-delay:.14s;}.kpi:nth-child(4){animation-delay:.21s;}
+.kpi .kl{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700;}
+.kpi .kv{font-family:'EB Garamond',Georgia,serif;font-size:25px;color:var(--plum);font-weight:700;margin-top:7px;line-height:1.05;}
+.kpi .kv.pos{color:var(--good);} .kpi .kv.neg{color:var(--bad);}
+.kpi .kd{font-size:10.5px;margin-top:5px;color:var(--muted);}
+.kpi .kd b.up{color:var(--good);} .kpi .kd b.down{color:var(--bad);}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:4px;padding:17px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);margin-bottom:14px;animation:rise .6s .25s both;}
+
+/* Booked & pipeline — navy so it reads as a different kind of number from the
+   rouge history above it. Collapsed every time the page loads. */
+.booked-strip{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:#fff;border:1px solid var(--border);border-left:3px solid #1F3864;border-radius:4px;
+  padding:15px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);font-family:'Lato',Arial,sans-serif;
+  animation:rise .6s .3s both;}
+.booked-strip .bs-t1{display:block;font-size:13.5px;font-weight:700;color:#1F3864;letter-spacing:.3px;}
+.booked-strip .bs-t2{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+.booked-strip .bs-ch{margin-left:auto;color:#1F3864;font-size:19px;font-family:'EB Garamond',Georgia,serif;
+  transition:transform .25s;}
+.booked-strip.on{border-radius:4px 4px 0 0;border-bottom-color:transparent;}
+.booked-strip.on .bs-ch{transform:rotate(90deg);}
+.booked-open{background:#fff;border:1px solid var(--border);border-left:3px solid #1F3864;border-top:none;
+  border-radius:0 0 4px 4px;padding:2px 16px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);margin-bottom:14px;}
+.bk-month{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--rouge);font-weight:700;
+  margin:14px 0 2px;padding-bottom:6px;border-bottom:1px solid #F1EBE4;}
+.bk-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;padding:8px 0;}
+.bk-row .bk-k{color:var(--muted);}
+.bk-row .bk-k b{color:var(--terra);font-weight:700;}
+.bk-row .bk-n{font-size:10.5px;color:var(--muted);}
+.bk-row .bk-v{font-weight:700;color:var(--terra);white-space:nowrap;}
+.bk-row.hi .bk-v{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:#1F3864;}
+.bk-quote{background:#FBF6EC;border-radius:3px;padding:12px 13px;margin-top:14px;}
+.bk-quote .bk-qr{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;}
+.bk-quote .bk-qk{color:#8a6d3b;}
+.bk-quote .bk-qv{font-family:'EB Garamond',Georgia,serif;font-size:16px;font-weight:700;color:#8a6d3b;}
+.bk-quote .bk-qs{font-size:10.5px;color:#a8906a;margin-top:5px;}
+.card h3{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--plum);margin-bottom:12px;letter-spacing:.5px;}
+.card svg{width:100%;height:auto;display:block;}
+.year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:7px 15px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--plum);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;font-family:'Lato',Arial,sans-serif;}
+.chip.on{background:var(--plum);color:var(--champagne);box-shadow:0 4px 14px rgba(75,13,36,.3);}
+.legend{display:flex;gap:16px;margin-bottom:10px;font-size:11px;color:var(--terra);align-items:center;}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+
+.client{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F1EBE4;}
+.client:last-child{border-bottom:none;}
+.client .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--plum),#7d1b45);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:16px;font-weight:700;flex-shrink:0;}
+.client .cn{font-weight:700;color:var(--terra);font-size:14px;}
+.client .cm{font-size:11px;color:var(--muted);margin-top:1px;}
+.client .cv{margin-left:auto;text-align:right;}
+.client .amt{font-family:'EB Garamond',Georgia,serif;font-size:15.5px;font-weight:700;color:var(--plum);}
+.client .gp{font-size:10.5px;font-weight:700;}
+.client .gp.pos{color:var(--good);} .client .gp.neg{color:var(--bad);}
+.empty-line{color:var(--muted);font-size:12.5px;font-style:italic;}
+.foot{text-align:center;font-size:9.5px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;padding:20px 0 8px;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','finance','ceo']);</script>
+<script src="history-data.js"></script>
+
+<div class="hero">
+  <div class="hero-top">
+    <div class="wordmark">FLOWERS.AE<small>The Art of Gifting</small></div>
+    <div class="hero-links">
+      <a href="events.html">EVENTS</a>
+      <a href="tools.html">TOOLS</a>
+      <a href="home.html" id="home-link">HOME</a>
+      <button onclick="FLApp.logout()">LOG OUT</button>
+    </div>
+  </div>
+  <div class="greet" id="greet"></div>
+  <div class="date-line" id="dateline"></div>
+</div>
+
+<div class="wrap">
+  <div class="pending-row">
+    <button class="pending" id="pendingBanner" style="display:none;"></button>
+    <button class="pending" id="expensePendingBanner" style="display:none;"></button>
+    <button class="pending" id="financeReadyBanner" style="display:none;"></button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h3>Sales by Month</h3>
+    <div class="year-chips" id="salesYears"></div>
+    <div id="salesChart"></div>
+  </div>
+
+  <div class="card">
+    <h3>Year vs Year</h3>
+    <div class="legend" id="yoyLegend"></div>
+    <div id="yoyChart"></div>
+  </div>
+
+  <!-- what is coming. Collapsed by default so it can never get between the CEO
+       and her approvals, and hidden entirely when there is nothing in it. -->
+  <div id="bookedWrap" style="display:none;">
+    <button class="booked-strip" id="bookedStrip" onclick="toggleBooked()">
+      <span class="bs-txt"><span class="bs-t1">Booked &amp; pipeline</span>
+        <span class="bs-t2" id="bookedSummary"></span></span>
+      <span class="bs-ch" id="bookedChev">›</span>
+    </button>
+    <div class="booked-open" id="bookedOpen" style="display:none;"></div>
+  </div>
+
+</div>
+
+<div class="foot">Flowers.ae · The Art of Gifting</div>
+
+<script>
+const me = FLApp.currentUser();
+if (FLApp.isCeo()) document.getElementById('home-link').style.display = 'none';
+
+const AED = n => 'AED ' + Math.round(n).toLocaleString('en-US');
+const AEDf = n => 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', {minimumFractionDigits: 2});
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now = new Date();
+const CY = String(now.getFullYear());
+const CM = now.getMonth() + 1;
+
+/* greeting */
+const h = now.getHours();
+document.getElementById('greet').textContent =
+  (h < 12 ? 'Good morning, ' : h < 17 ? 'Good afternoon, ' : 'Good evening, ') + me.name;
+document.getElementById('dateline').textContent =
+  now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+/* ── data ── */
+const COMMISSION_PCT = 10;
+const GPT = 70;   /* deliberately NOT a setting — see event-editor: Jo approves on that page */
+function calcEvent(ev) {
+  const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
+  const cost = sum(ev.flowers) + sum(ev.sundries) + sum(ev.other);
+  const budget = parseFloat(ev.budget) || 0;
+  const discount = budget * (parseFloat(ev.discountPct) || 0) / 100;
+  const after = budget - discount;
+  const profit = after - cost;
+  return { cost, budget, after, profit, gp: after ? profit / after * 100 : 0, commission: profit > 0 ? profit * COMMISSION_PCT / 100 : 0 };
+}
+/* merged monthly sales: order history + official monthly totals + app events (skipping aggregate months) */
+function salesRows() {
+  let rows = (typeof FL_HISTORY !== 'undefined' ? FL_HISTORY : []).map(x => ({ y: x.m.slice(0, 4), m: +x.m.slice(5, 7), amount: x.a }));
+  const agg = new Set();
+  (typeof FL_HISTORY_MONTHLY !== 'undefined' ? FL_HISTORY_MONTHLY : []).forEach(x => {
+    rows.push({ y: x.m.slice(0, 4), m: +x.m.slice(5, 7), amount: x.a });
+    agg.add(x.m);
+  });
+  FLApp.eventsAll().filter(e => e.date && !agg.has(e.date.slice(0, 7))).forEach(e => {
+    rows.push({ y: e.date.slice(0, 4), m: +e.date.slice(5, 7), amount: calcEvent(e).after });
+  });
+  /* admin's manual monthly totals beat everything for that month */
+  Object.entries(FLApp.monthlyOverrides()).forEach(([ym, amt]) => {
+    const y = ym.slice(0, 4), m = parseInt(ym.slice(5, 7));
+    rows = rows.filter(r => !(r.y === y && r.m === m));
+    rows.push({ y, m, amount: amt });
+  });
+  return rows;
+}
+const ROWS = salesRows();
+const monthTotal = (y, m) => ROWS.filter(r => r.y === y && r.m === m).reduce((s, r) => s + r.amount, 0);
+const yearToMonth = (y, upTo) => ROWS.filter(r => r.y === y && r.m <= upTo).reduce((s, r) => s + r.amount, 0);
+const YEARS = [...new Set(ROWS.map(r => r.y))].sort();
+
+/* ── pending approvals banner ── */
+const evs = FLApp.eventsAll();
+const pending = evs.filter(e => !(e.approval && ['approved', 'rejected'].includes(e.approval.status)));
+const banner = document.getElementById('pendingBanner');
+banner.style.display = '';
+if (pending.length) {
+  const oldest = pending.slice().sort((a, b) => (a.updated || '').localeCompare(b.updated || ''))[0];
+  banner.innerHTML = '<span class="num">' + pending.length + '</span>' +
+    '<span class="txt"><span class="t1">event' + (pending.length > 1 ? 's' : '') + ' waiting for review</span><br>' +
+    '<span class="t2">' + (oldest && oldest.name ? '“' + oldest.name + '”' : '') + '</span></span><span class="go">›</span>';
+  banner.onclick = () => location.href = 'events.html';
+} else {
+  banner.className = 'pending allclear';
+  banner.innerHTML = '<span class="num">✓</span><span class="txt"><span class="t1">All events reviewed</span><br><span class="t2">Nothing waiting for approval</span></span>';
+}
+
+/* ── expense sheets awaiting CEO's approval — surfaced here so she never
+   has to go looking for them under Tools ── */
+if (FLApp.isCeo()) {
+  const MONTH_NAMES_X = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dueExpenses = FLApp.expensesAll().filter(s => !(s.ceoApproval && s.ceoApproval.approved));
+  const expBanner = document.getElementById('expensePendingBanner');
+  if (dueExpenses.length) {
+    const oldestExp = dueExpenses.slice().sort((a, b) => (a.submittedAt || '').localeCompare(b.submittedAt || ''))[0];
+    const oldestLbl = oldestExp ? oldestExp.staffName + ' — ' + MONTH_NAMES_X[+oldestExp.month.slice(5, 7) - 1] + ' ' + oldestExp.month.slice(0, 4) : '';
+    expBanner.style.display = '';
+    expBanner.innerHTML = '<span class="num">' + dueExpenses.length + '</span>' +
+      '<span class="txt"><span class="t1">expense sheet' + (dueExpenses.length > 1 ? 's' : '') + ' waiting for approval</span><br>' +
+      '<span class="t2">' + oldestLbl + '</span></span><span class="go">›</span>';
+    expBanner.onclick = () => location.href = 'expenses.html';
+    document.querySelector('.pending-row').classList.add('split');
+  }
+}
+
+/* ── expense sheets Jo just approved — surfaced to finance for a week so
+   a fresh approval doesn't go unnoticed sitting in the Tools list ── */
+if (FLApp.role(me) === 'finance') {
+  const READY_WINDOW_DAYS = 7;
+  const cutoff = Date.now() - READY_WINDOW_DAYS * 86400000;
+  const readySheets = FLApp.expensesAll().filter(s =>
+    s.ceoApproval && s.ceoApproval.approved && s.ceoApproval.approvedAt && new Date(s.ceoApproval.approvedAt).getTime() >= cutoff);
+  const readyBanner = document.getElementById('financeReadyBanner');
+  if (readySheets.length) {
+    const newest = readySheets.slice().sort((a, b) => (b.ceoApproval.approvedAt || '').localeCompare(a.ceoApproval.approvedAt || ''))[0];
+    readyBanner.style.display = '';
+    readyBanner.innerHTML = '<span class="num">' + readySheets.length + '</span>' +
+      '<span class="txt"><span class="t1">expense sheet' + (readySheets.length > 1 ? 's' : '') + ' approved &amp; ready to share</span><br>' +
+      '<span class="t2">' + (newest.staffName || '') + ' — ' + MONTHS[+newest.month.slice(5, 7) - 1] + ' ' + newest.month.slice(0, 4) + '</span></span><span class="go">›</span>';
+    readyBanner.onclick = () => location.href = 'expenses.html';
+    document.querySelector('.pending-row').classList.add('split');
+  }
+}
+
+/* ── KPIs ── */
+const monthEvs = evs.filter(e => e.date && e.date.slice(0, 4) === CY && +e.date.slice(5, 7) === CM);
+let mAfter = 0, mProfit = 0;
+monthEvs.forEach(e => { const c = calcEvent(e); mAfter += c.after; mProfit += c.profit; });
+const mSales = monthTotal(CY, CM) || mAfter;
+const mGp = mAfter ? mProfit / mAfter * 100 : null;
+const prevY = String(+CY - 1);
+const ytd = yearToMonth(CY, CM);
+const ytdPrev = yearToMonth(prevY, CM);
+const ytdDelta = ytdPrev ? (ytd - ytdPrev) / ytdPrev * 100 : null;
+const mPrevYear = monthTotal(prevY, CM);
+const mDelta = mPrevYear ? (mSales - mPrevYear) / mPrevYear * 100 : null;
+const approvedCount = monthEvs.filter(e => e.approval && e.approval.status === 'approved').length;
+
+const deltaHtml = d => d == null ? '' :
+  '<b class="' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(0) + '%</b> vs last year';
+document.getElementById('kpis').innerHTML =
+  '<div class="kpi"><div class="kl">Sales — ' + MONTHS[CM - 1] + '</div><div class="kv">' + AED(mSales) + '</div><div class="kd">' + (mSales ? deltaHtml(mDelta) : 'no sales yet this month') + '</div></div>' +
+  '<div class="kpi"><div class="kl">GP margin — ' + MONTHS[CM - 1] + '</div><div class="kv ' + (mGp == null ? '' : mGp >= GPT ? 'pos' : 'neg') + '">' + (mGp == null ? '—' : mGp.toFixed(1) + '%') + '</div><div class="kd">' + (mGp == null ? 'no event sheets yet this month' : 'target ' + GPT + '% → ' + (mGp - GPT >= 0 ? '+' : '') + (mGp - GPT).toFixed(1) + '%') + '</div></div>' +
+  '<div class="kpi"><div class="kl">Events — ' + MONTHS[CM - 1] + '</div><div class="kv">' + monthEvs.length + '</div><div class="kd">' + approvedCount + ' approved · ' + pending.filter(e => monthEvs.includes(e)).length + ' pending</div></div>' +
+  '<div class="kpi"><div class="kl">Sales — ' + CY + ' so far</div><div class="kv">' + AED(ytd) + '</div><div class="kd">' + deltaHtml(ytdDelta) + '</div></div>';
+
+/* ── sales by month chart ── */
+let salesYear = YEARS.includes(CY) ? CY : YEARS[YEARS.length - 1];
+function barChart(perMonth, highlightM) {
+  const W = 620, H = 240, padT = 28, padB = 26;
+  const max = Math.max(...perMonth, 1);
+  const bw = W / 12;
+  const maxIdx = perMonth.indexOf(Math.max(...perMonth));
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+  for (let g = 1; g <= 3; g++) {
+    const gy = padT + (H - padT - padB) * g / 4;
+    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="#F1EBE4"/>';
+  }
+  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  perMonth.forEach((v, i) => {
+    const x = i * bw + bw * 0.2, w = bw * 0.6;
+    if (v) {
+      const hh = Math.max(3, (H - padT - padB) * v / max);
+      const y = H - padB - hh;
+      const col = (i + 1) === highlightM ? '#E6CCA1' : '#4B0D24';
+      s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 4) + ' Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y +
+        ' L' + (x + w - 4) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 4) +
+        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="' + col + '"><title>' + MONTHS[i] + ': ' + AEDf(v) + '</title></path>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + (i === maxIdx ? 11 : 9) + '" font-weight="' + (i === maxIdx ? 700 : 600) + '" fill="#4B0D24" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
+    }
+    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+  });
+  return s + '</svg>';
+}
+function renderSales() {
+  document.getElementById('salesYears').innerHTML = YEARS.map(y =>
+    '<button class="chip ' + (y === salesYear ? 'on' : '') + '" onclick="salesYear=\'' + y + '\';renderSales()">' + y + '</button>').join('');
+  const perMonth = Array.from({ length: 12 }, (_, i) => monthTotal(salesYear, i + 1));
+  document.getElementById('salesChart').innerHTML = barChart(perMonth, salesYear === CY ? CM : 0);
+}
+renderSales();
+
+/* ── year vs year grouped bars (last two years with data) ── */
+function renderYoy() {
+  const ys = YEARS.slice(-2);
+  if (ys.length < 2) { document.getElementById('yoyChart').innerHTML = '<div class="empty-line">Needs two years of data.</div>'; return; }
+  const [ya, yb] = ys;
+  document.getElementById('yoyLegend').innerHTML =
+    '<span><span class="sw" style="background:#D9C09A;"></span>' + ya + '</span>' +
+    '<span><span class="sw" style="background:#4B0D24;"></span>' + yb + '</span>';
+  const A = Array.from({ length: 12 }, (_, i) => monthTotal(ya, i + 1));
+  const B = Array.from({ length: 12 }, (_, i) => monthTotal(yb, i + 1));
+  const W = 620, H = 240, padT = 20, padB = 26;
+  const max = Math.max(...A, ...B, 1);
+  const gw = W / 12;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+  for (let g = 1; g <= 3; g++) {
+    const gy = padT + (H - padT - padB) * g / 4;
+    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="#F1EBE4"/>';
+  }
+  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  for (let i = 0; i < 12; i++) {
+    const base = i * gw;
+    [[A[i], '#D9C09A', ya], [B[i], '#4B0D24', yb]].forEach(([v, col, yr], k) => {
+      if (!v) return;
+      const w = gw * 0.32, x = base + gw * 0.14 + k * (w + 2);
+      const hh = Math.max(3, (H - padT - padB) * v / max), y = H - padB - hh;
+      s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 3) + ' Q' + x + ' ' + y + ' ' + (x + 3) + ' ' + y +
+        ' L' + (x + w - 3) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 3) +
+        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="' + col + '"><title>' + MONTHS[i] + ' ' + yr + ': ' + AEDf(v) + '</title></path>';
+    });
+    s += '<text x="' + (base + gw / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+  }
+  document.getElementById('yoyChart').innerHTML = s + '</svg>';
+}
+renderYoy();
+
+/* live refresh only when sync actually brings new data */
+if (FLApp.syncEnabled()) {
+  const fingerprint = () => String((localStorage.getItem('fl_events') || '').length) + ':' + FLApp.eventsAll().length + ':' + (localStorage.getItem('fl_meta_monthly') || '').length;
+  const initialFp = fingerprint();
+  FLApp.onSync(state => { if (state === 'synced' && fingerprint() !== initialFp) location.reload(); });
+  FLApp.syncNow();
+}
+
+/* ── Booked & pipeline ────────────────────────────────────────────────────────
+   Money that has not happened yet: confirmed orders from the Tracker, and quotes
+   still genuinely live. Deliberately NOT shown to finance — they cannot open
+   Enquiries, so the quoted figure would be a number they can never look into. */
+function toggleBooked() {
+  const open = document.getElementById('bookedOpen');
+  const strip = document.getElementById('bookedStrip');
+  const showing = open.style.display !== 'none';
+  open.style.display = showing ? 'none' : '';
+  strip.classList.toggle('on', !showing);
+}
+
+(function renderBooked() {
+  if (!(FLApp.isAdmin() || FLApp.isCeo())) return;
+
+  const months = FLApp.bookedByMonth();
+  const enq = FLApp.enquiryBuckets();
+  const toCome = months.reduce((s, m) => s + m.todo, 0);
+  if (!toCome && !enq.liveValue && !enq.undatedValue) return;   /* nothing to say */
+
+  const MON = ['January','February','March','April','May','June','July','August',
+               'September','October','November','December'];
+  const label = ym => MON[+ym.slice(5, 7) - 1] + (ym.slice(0, 4) === CY ? '' : ' ' + ym.slice(0, 4));
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+  let html = '';
+  months.forEach(m => {
+    if (!m.done && !m.todo) return;
+    html += '<div class="bk-month">' + label(m.month) + '</div>';
+    if (m.done) {
+      html += '<div class="bk-row"><span class="bk-k">Done ' +
+        '<span class="bk-n">· ' + plural(m.doneCount, 'order') + '</span></span>' +
+        '<span class="bk-v">' + AED(m.done) + '</span></div>';
+    }
+    if (m.todo) {
+      html += '<div class="bk-row hi"><span class="bk-k"><b>Still to come</b> ' +
+        '<span class="bk-n">· ' + plural(m.todoCount, 'order') + '</span></span>' +
+        '<span class="bk-v">' + AED(m.todo) + '</span></div>';
+    }
+  });
+
+  if (enq.liveValue || enq.undatedValue) {
+    html += '<div class="bk-quote"><div class="bk-qr">' +
+      '<span class="bk-qk">Quoted, still to come ' +
+      '<span class="bk-n">· ' + enq.live.length + (enq.live.length === 1 ? ' enquiry' : ' enquiries') + '</span></span>' +
+      '<span class="bk-qv">' + AED(enq.liveValue) + '</span></div>' +
+      (enq.undated.length
+        ? '<div class="bk-qs">' + enq.undated.length + ' more with no event date set — ' +
+          AED(enq.undatedValue) + '</div>'
+        : '') +
+      '</div>';
+  }
+
+  document.getElementById('bookedOpen').innerHTML = html;
+  document.getElementById('bookedSummary').textContent =
+    AED(toCome) + ' still to come · ' + AED(enq.liveValue) + ' quoted';
+  document.getElementById('bookedWrap').style.display = '';
+})();
+</script>
+</body>
+</html>

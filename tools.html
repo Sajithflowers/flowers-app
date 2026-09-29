@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Event Tools</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:26px 20px 30px;position:relative;overflow:hidden;}
+.header::after{content:'❀';position:absolute;right:-14px;bottom:-32px;font-size:130px;opacity:.07;color:var(--champagne);}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:24px;font-weight:700;letter-spacing:2px;animation:fadeSlide .7s cubic-bezier(.2,.7,.3,1) both;}
+.gold-rule{width:44px;height:2px;background:var(--champagne);margin:12px 0 10px;}
+.header p{font-size:13px;color:var(--champagne);letter-spacing:.5px;animation:fadeSlide .7s .15s cubic-bezier(.2,.7,.3,1) both;}
+
+.tools{padding:22px 16px;display:flex;flex-direction:column;gap:16px;max-width:520px;margin:0 auto;}
+@media (min-width:900px){ .tools{max-width:680px;} }
+.tool{display:flex;align-items:center;gap:17px;background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:20px 18px;box-shadow:0 3px 20px rgba(85,3,24,.07);text-decoration:none;color:inherit;transition:transform .25s ease,box-shadow .25s ease;animation:fadeSlide .6s cubic-bezier(.2,.7,.3,1) both;}
+.tool:nth-child(1){animation-delay:.15s;}
+.tool:nth-child(2){animation-delay:.24s;}
+.tool:nth-child(3){animation-delay:.33s;}
+.tool:nth-child(4){animation-delay:.42s;}
+.tool:active{transform:scale(.98);}
+@media(hover:hover){.tool:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(85,3,24,.14);}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.tool .icon{width:56px;height:56px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;background:linear-gradient(135deg,var(--rouge-deep),#7d1b35);}
+.tool h2{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:700;color:var(--rouge);letter-spacing:.5px;}
+.tool p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.tool .arrow{margin-left:auto;color:var(--champagne);font-size:24px;font-family:'EB Garamond',Georgia,serif;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guard();</script>
+
+<div class="topbar">
+  <a href="home.html">‹ HOME</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="header">
+  <h1>Event Tools</h1>
+  <div class="gold-rule"></div>
+  <p>Pricing, timelines &amp; client documents</p>
+</div>
+
+<div class="tools">
+  <a class="tool tool-standard" href="calculator.html">
+    <div class="icon">📊</div>
+    <div>
+      <h2>Event GP Calculator</h2>
+      <p>Price an event and see the gross profit instantly</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool tool-standard" href="timelines.html">
+    <div class="icon">📋</div>
+    <div>
+      <h2>Event Timelines</h2>
+      <p>Create and edit on-the-day timelines from the VIP template</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool tool-standard" href="quotations.html">
+    <div class="icon">🧾</div>
+    <div>
+      <h2>Quotation</h2>
+      <p>Build a priced quotation with discount and VAT handled for you</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool tool-standard" href="proposals.html">
+    <div class="icon">📜</div>
+    <div>
+      <h2>Proposal</h2>
+      <p>Put together a tailored client proposal from your brief</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="events.html" id="tool-gpsheets" style="display:none;">
+    <div class="icon">💐</div>
+    <div>
+      <h2>Event GP Sheets</h2>
+      <p>Budgets, costs, invoices, commission, tracker &amp; yearly reports</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="expenses.html" id="tool-expenses" style="display:none;">
+    <div class="icon">🧮</div>
+    <div>
+      <h2>Expense Sheet</h2>
+      <p>Monthly event commission — review, approve &amp; share</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="occasions.html" id="tool-occasions" style="display:none;">
+    <div class="icon">🎉</div>
+    <div>
+      <h2>Client Occasions</h2>
+      <p>Birthdays, anniversaries &amp; repeat-client reminders</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="enquiries.html" id="tool-enquiries" style="display:none;">
+    <div class="icon">🎯</div>
+    <div>
+      <h2>Event Enquiries</h2>
+      <p>New leads, quote status &amp; chance of sale</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="event-calendar.html" id="tool-calendar" style="display:none;">
+    <div class="icon">📅</div>
+    <div>
+      <h2>Event Calendar</h2>
+      <p>Confirmed dates, tentative leads &amp; availability at a glance</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+</div>
+
+<script>
+const _u = FLApp.currentUser();
+document.getElementById('user-chip').textContent = _u ? _u.name.toUpperCase() : '';
+if (_u) {
+  const _role = FLApp.role(_u);
+  const isCeoOrFinance = FLApp.isCeo() || _role === 'finance';
+  if (FLApp.isAdmin() || isCeoOrFinance) {
+    document.getElementById('tool-expenses').style.display = '';
+  }
+  if (isCeoOrFinance) {
+    document.getElementById('tool-gpsheets').style.display = '';
+  }
+  if (FLApp.isAdmin()) {
+    document.getElementById('tool-occasions').style.display = '';
+  }
+  if (FLApp.isAdmin() || FLApp.isCeo()) {
+    document.getElementById('tool-enquiries').style.display = '';
+    document.getElementById('tool-calendar').style.display = '';
+  }
+  if (isCeoOrFinance) {
+    document.querySelectorAll('.tool-standard').forEach(t => t.style.display = 'none');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Admin Panel</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#b02a2a;--warn:#8a6d3b;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:40px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:18px 16px 22px;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:1.5px;}
+.header .gold-rule{width:40px;height:2px;background:var(--champagne);margin:10px auto 8px;}
+.header p{font-size:11px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px;}
+@media (min-width:900px){ .wrap{max-width:880px;} }
+.card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:17px;margin-bottom:15px;box-shadow:0 3px 16px rgba(85,3,24,.06);animation:fadeSlide .5s both;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.card h2{font-family:'EB Garamond',Georgia,serif;font-size:18px;color:var(--rouge);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.card h2 .when{font-family:'Lato',Arial,sans-serif;font-size:10px;font-weight:400;color:var(--muted);letter-spacing:.5px;}
+
+/* summary strip */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px;}
+@media (max-width:620px){ .tiles{grid-template-columns:repeat(2,1fr);} }
+.tile{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:11px 12px;animation:fadeSlide .5s both;}
+.tile .t{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.tile .b{font-family:'EB Garamond',Georgia,serif;font-size:20px;color:var(--rouge);font-weight:700;line-height:1.15;margin-top:2px;}
+.tile .s{font-size:9.5px;color:var(--muted);margin-top:1px;}
+.tile.alert{border-left-color:var(--bad);}
+.tile.alert .b{color:var(--bad);}
+
+/* section headings */
+.grp{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+/* label/value rows */
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:7px 0;border-bottom:1px solid #F1EBE4;}
+.kv:last-of-type{border-bottom:none;}
+.kv .k{color:var(--muted);}
+.kv .v{color:var(--terra);font-weight:700;text-align:right;}
+.ok{color:var(--good);} .bad{color:var(--bad);} .mid{color:var(--warn);}
+.bar{height:9px;background:#EFE7E2;border-radius:5px;overflow:hidden;margin:7px 0 3px;}
+.bar i{display:block;height:100%;background:var(--good);transition:width .4s;}
+.bar.amber i{background:var(--warn);} .bar.red i{background:var(--bad);}
+
+.user-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #F1EBE4;flex-wrap:wrap;}
+.user-row:last-child{border-bottom:none;}
+.user-row .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--rouge),#7d1b35);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:15px;font-weight:700;flex-shrink:0;}
+.user-row .uname{font-weight:700;color:var(--terra);font-size:14px;}
+.user-row .seen{font-size:10.5px;color:var(--muted);margin-top:2px;}
+.user-row .seen b{color:var(--terra);}
+.badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.badge.admin{background:var(--rouge);color:var(--champagne);}
+.badge.finance{background:var(--champagne);color:var(--rouge);}
+.badge.ceo{background:#1F3864;color:#fff;}
+.badge.staff{background:#EDE6DC;color:var(--muted);}
+.badge.locked{background:#8f1d1d;color:#fff;}
+.user-actions{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+select.role-sel{padding:7px 8px;border:1px solid var(--border);border-radius:2px;font-size:11px;background:var(--lace);font-family:'Lato',Arial,sans-serif;color:var(--terra);}
+.mini{padding:7px 10px;border:1px solid var(--border);background:var(--lace);border-radius:2px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;color:var(--terra);}
+.mini.danger{color:#8f1d1d;border-color:#E5C9C9;}
+.mini.go{background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border-color:transparent;}
+.log-row{padding:9px 0;border-bottom:1px solid #F1EBE4;font-size:12.5px;color:var(--terra);}
+.log-row:last-child{border-bottom:none;}
+.log-row .lt{font-weight:700;}
+.log-row .lm{color:var(--muted);font-size:11px;margin-top:2px;}
+.log-row.warn .lt{color:#8f1d1d;}
+.empty{color:var(--muted);font-size:13px;font-style:italic;padding:10px 0;}
+.note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px;}
+.filter{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:var(--lace);outline:none;margin-bottom:10px;font-family:'Lato',Arial,sans-serif;}
+
+/* device rows */
+.dev-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #F1EBE4;font-size:12.5px;}
+.dev-row:last-child{border-bottom:none;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--good);}
+.dot.bad{background:var(--bad);} .dot.old{background:#c9bfb8;}
+.dev-row .nm{font-weight:700;color:var(--terra);}
+.dev-row .rt{margin-left:auto;text-align:right;color:var(--muted);font-size:10.5px;display:flex;align-items:center;gap:7px;}
+.pill{font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:9px;letter-spacing:.4px;white-space:nowrap;}
+.pill.ok{background:#E3EFE7;color:var(--good);}
+.pill.bad{background:#F8E9E9;color:var(--bad);}
+.pill.gr{background:var(--lace);color:var(--muted);border:1px solid var(--border);}
+
+/* checks */
+.chk{display:flex;gap:9px;font-size:12.5px;padding:6px 0;align-items:flex-start;border-bottom:1px solid #F1EBE4;}
+.chk:last-child{border-bottom:none;}
+.chk .m{flex-shrink:0;font-weight:800;width:14px;}
+.chk .d{color:var(--muted);font-size:11px;}
+
+/* settings */
+.srow{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #F1EBE4;}
+.srow:last-of-type{border-bottom:none;}
+.srow .lb{flex:1;min-width:0;}
+.srow .lb b{font-size:12.5px;color:var(--terra);display:block;}
+.srow .lb small{font-size:10.5px;color:var(--muted);}
+.inp{width:66px;border:1px solid var(--border);border-radius:2px;padding:8px;font-size:13px;text-align:center;background:var(--lace);color:var(--terra);font-weight:700;font-family:'Lato',Arial,sans-serif;}
+.inp:disabled{border-style:dashed;color:var(--muted);background:#FAF8F6;}
+.lockmsg{font-size:9.5px;color:var(--muted);text-align:right;line-height:1.35;max-width:96px;}
+.radio{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F1EBE4;cursor:pointer;}
+.radio:last-of-type{border-bottom:none;}
+.radio input{margin-top:3px;flex-shrink:0;}
+.radio b{font-size:12.5px;color:var(--terra);display:block;}
+.radio small{font-size:10.5px;color:var(--muted);}
+
+table.perm{width:100%;border-collapse:collapse;font-size:11.5px;}
+table.perm th{background:var(--rouge);color:var(--champagne);padding:7px 6px;text-align:left;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;}
+table.perm th.c,table.perm td.c{text-align:center;}
+table.perm td{padding:7px 6px;border-bottom:1px solid #F1EBE4;}
+table.perm tr:last-child td{border-bottom:none;}
+.tick{color:var(--good);font-weight:700;}
+.cross{color:#d8cfc9;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin']);</script>
+
+<div class="topbar">
+  <a href="home.html">‹ HOME</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button class="mini" onclick="FLApp.logout()">Log out</button>
+  </span>
+</div>
+
+<div class="header">
+  <h1>Admin Panel</h1>
+  <div class="gold-rule"></div>
+  <p>Accounts, devices &amp; app health</p>
+</div>
+
+<div class="wrap">
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grp">The App</div>
+
+  <div class="card">
+    <h2>Version <span class="when" id="verWhen"></span></h2>
+    <div id="verBox"><div class="empty">Checking…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Syncing</h2>
+    <div id="syncBox"></div>
+    <div style="margin-top:11px;"><button class="mini" onclick="syncNowClicked(this)">↻ Sync now</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Storage</h2>
+    <div id="storeBox"><div class="empty">Measuring…</div></div>
+    <p class="note">The working store is the one that filled up in August and stopped the tablet
+      syncing. Photos live separately and have hundreds of megabytes of room.</p>
+  </div>
+
+  <div class="card">
+    <h2>Data check <span class="when" id="checkWhen"></span></h2>
+    <div id="checkBox"><div class="empty">Not run yet.</div></div>
+    <div style="margin-top:12px;display:flex;gap:7px;flex-wrap:wrap;">
+      <button class="mini go" onclick="runCheck()">Run check</button>
+      <button class="mini" onclick="downloadBackup(this)">Download backup</button>
+    </div>
+    <p class="note">The backup is one file holding everything on this device, photos included —
+      keep it somewhere safe. It is a safety net, not a replacement for the cloud.</p>
+  </div>
+
+  <div class="card">
+    <h2>Business settings</h2>
+    <div id="setBox"></div>
+    <p class="note">Shown so you can see the rules, not change them. All three affect what the
+      CEO approves, so changing any of them is a job for me &mdash; ask and I will do it properly.</p>
+  </div>
+
+  <div class="card">
+    <h2>Email alerts</h2>
+    <div id="mailBox"></div>
+  </div>
+
+  <div class="grp">People &amp; Devices</div>
+
+  <div class="card">
+    <h2>Team Accounts</h2>
+    <div id="userList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Devices</h2>
+    <div class="kv"><span class="k">This device is called</span>
+      <span class="v"><span id="thisDeviceName"></span>
+        <button class="mini" style="margin-left:7px;" onclick="renameThisDevice()">Rename</button></span></div>
+    <div id="deviceList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Who can see what</h2>
+    <div id="permBox"></div>
+    <p class="note">Roles are enforced by the app and the database, not just hidden on screen.</p>
+  </div>
+
+  <div class="card">
+    <h2>Activity Log</h2>
+    <input class="filter" id="logFilter" placeholder="Filter by name, device or action…" oninput="renderLog()">
+    <div id="logList"></div>
+    <p class="note" id="logNote"></p>
+  </div>
+
+</div>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase() + ' · ADMIN';
+
+const KB = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function timeAgo(iso) {
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.round(hrs / 24) + 'd ago';
+}
+
+/* ── summary strip ─────────────────────────────────────────────── */
+const summary = { version: '…', team: '…', devices: '…', behind: 0, storage: '…', storeAlert: false };
+function renderTiles() {
+  document.getElementById('tiles').innerHTML =
+    tile('Version', summary.version, summary.versionSub || '', false) +
+    tile('Team', summary.team, summary.teamSub || '', false) +
+    tile('Devices', summary.devices, summary.behind ? summary.behind + ' behind' : 'all current', !!summary.behind) +
+    tile('Storage', summary.storage, summary.storeSub || '', summary.storeAlert);
+}
+function tile(t, b, s, alert) {
+  return '<div class="tile' + (alert ? ' alert' : '') + '"><div class="t">' + t + '</div>' +
+    '<div class="b">' + b + '</div><div class="s">' + s + '</div></div>';
+}
+
+/* ── version ───────────────────────────────────────────────────── */
+async function renderVersion() {
+  const box = document.getElementById('verBox');
+  const mine = FLApp.appVersion();
+  summary.version = mine;
+  let html = '<div class="kv"><span class="k">This device</span><span class="v">' + mine + '</span></div>';
+  try {
+    const p = await FLApp.publishedVersion();
+    html += '<div class="kv"><span class="k">Latest published</span><span class="v ' +
+      (p.upToDate ? 'ok">' + p.version + ' — up to date' : 'bad">' + p.version + ' — update waiting') +
+      '</span></div>';
+    if (p.notes) html += '<div class="kv"><span class="k">What changed</span><span class="v" style="font-weight:400;max-width:62%;">' + esc(p.notes) + '</span></div>';
+    summary.versionSub = p.upToDate ? 'up to date' : p.version + ' waiting';
+  } catch (e) {
+    html += '<div class="kv"><span class="k">Latest published</span><span class="v mid">could not check — offline?</span></div>';
+    summary.versionSub = '';
+  }
+  box.innerHTML = html;
+  document.getElementById('verWhen').textContent = 'checked ' + new Date().toLocaleTimeString('en-GB');
+  renderTiles();
+}
+
+/* ── syncing ───────────────────────────────────────────────────── */
+let devicesCache = [];
+function renderSync() {
+  const waiting = JSON.parse(localStorage.getItem('fl_dirty') || '[]').length;
+  const stamp = localStorage.getItem('fl_sync_stamp');
+  let oldest = null;
+  devicesCache.forEach(d => { if (!oldest || new Date(d.time) < new Date(oldest.time)) oldest = d; });
+  const oldStale = oldest && (Date.now() - new Date(oldest.time).getTime()) > 24 * 3600 * 1000;
+  document.getElementById('syncBox').innerHTML =
+    '<div class="kv"><span class="k">Status</span><span class="v ' + (waiting ? 'bad">' + waiting + ' waiting to upload' : 'ok">Up to date') + '</span></div>' +
+    '<div class="kv"><span class="k">Last synced</span><span class="v">' + (stamp ? timeAgo(stamp) : 'never') + '</span></div>' +
+    (oldest ? '<div class="kv"><span class="k">Furthest behind</span><span class="v ' + (oldStale ? 'bad' : '') + '">' +
+      esc(oldest.device) + ' — ' + timeAgo(oldest.time) + '</span></div>' : '');
+}
+async function syncNowClicked(btn) {
+  btn.disabled = true; btn.textContent = 'Syncing…';
+  try { await FLApp.syncNow(); } catch (e) {}
+  await renderDevices();
+  renderSync();
+  btn.disabled = false; btn.textContent = '↻ Sync now';
+}
+
+/* ── storage ───────────────────────────────────────────────────── */
+const PRETTY = { fl_events: 'Event sheets', fl_expenses: 'Expense sheets', fl_quotes: 'Quotations',
+  fl_proposals: 'Proposals', fl_activity_log: 'Activity log', fl_admin_signature: 'Your signature',
+  fl_tracker: 'Tracker', fl_enquiries: 'Enquiries', fl_calendar: 'Calendar', fl_mailq: 'Queued emails' };
+async function renderStorage() {
+  const s = await FLApp.storageStats();
+  const cls = s.pct >= 85 ? 'red' : s.pct >= 70 ? 'amber' : '';
+  const word = s.pct >= 85 ? 'bad' : s.pct >= 70 ? 'mid' : 'ok';
+  let html = '<div class="kv"><span class="k">Working store</span><span class="v ' + word + '">' +
+    KB(s.used) + ' of 5,120 KB</span></div>' +
+    '<div class="bar ' + cls + '"><i style="width:' + Math.min(100, s.pct).toFixed(1) + '%"></i></div>' +
+    '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">' + s.pct.toFixed(1) + '% used — ' +
+    (s.pct >= 85 ? 'nearly full, tell me' : s.pct >= 70 ? 'getting full' : 'healthy') + '</div>' +
+    '<div class="kv"><span class="k">Photos</span><span class="v">' + KB(s.photoBytes) +
+    (s.photos ? ' · ' + s.photos + ' photos' : '') + '</span></div>';
+  s.items.slice(0, 4).forEach(it => {
+    html += '<div class="kv"><span class="k">' + (PRETTY[it.key] || it.key.replace(/^fl_/, '')) +
+      '</span><span class="v" style="font-weight:400;">' + KB(it.bytes) + '</span></div>';
+  });
+  document.getElementById('storeBox').innerHTML = html;
+  summary.storage = Math.round(s.pct) + '%';
+  summary.storeSub = s.pct >= 85 ? 'nearly full' : s.pct >= 70 ? 'getting full' : 'healthy';
+  summary.storeAlert = s.pct >= 70;
+  renderTiles();
+}
+
+/* ── data check ────────────────────────────────────────────────── */
+function runCheck() {
+  const rows = FLApp.dataCheck();
+  document.getElementById('checkBox').innerHTML = rows.map(r =>
+    '<div class="chk"><span class="m ' + (r.ok ? 'ok">✓' : 'bad">!') + '</span>' +
+    '<span><b>' + esc(r.text) + '</b>' + (r.detail ? '<div class="d">' + esc(r.detail) + '</div>' : '') +
+    '</span></div>').join('');
+  document.getElementById('checkWhen').textContent = 'run ' + new Date().toLocaleTimeString('en-GB');
+}
+
+async function downloadBackup(btn) {
+  btn.disabled = true; btn.textContent = 'Preparing…';
+  try {
+    const data = await FLApp.exportBackup();
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'flowers-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (e) { await FLApp.flAlert('Could not build the backup: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Download backup';
+}
+
+/* ── settings ──────────────────────────────────────────────────── */
+/* All three are shown but none can be edited here. Each one either appears on, or
+   decides, a document the CEO approves — so they stay in the code where changing
+   one is a deliberate job, not a stray keystroke. */
+function renderSettings() {
+  document.getElementById('setBox').innerHTML =
+    '<div class="srow"><span class="lb"><b>Cut-off day</b>' +
+      '<small>Sheets for a month must be approved by this day of the next month. ' +
+      'September closes 19 October.</small></span>' +
+      '<input class="inp" value="19" disabled>' +
+      '<span class="lockmsg">fixed — decides when Jo&rsquo;s sheet appears</span></div>' +
+    '<div class="srow"><span class="lb"><b>GP target</b>' +
+      '<small>At or above shows green, below shows red. Printed on the Event GP Sheet ' +
+      'Jo reads when approving.</small></span>' +
+      '<input class="inp" value="70" disabled>' +
+      '<span class="lockmsg">fixed — Jo sees this line</span></div>' +
+    '<div class="srow"><span class="lb"><b>Commission</b>' +
+      '<small>Your 10% of profit on every approved event.</small></span>' +
+      '<input class="inp" value="10" disabled>' +
+      '<span class="lockmsg">fixed — used in signed sheets</span></div>';
+}
+
+/* ── email alerts ──────────────────────────────────────────────── */
+function renderMail() {
+  const mode = FLApp.appSettings().emailMode || 'off';
+  const queued = JSON.parse(localStorage.getItem('fl_mailq') || '[]').length;
+  const opts = [
+    ['off', 'Off', 'Nothing is emailed. The Activity Log below still records everything.'],
+    ['important', 'Important only', 'Something deleted · the CEO approving a sheet · a login from a device not seen before. Roughly one or two a week.'],
+    ['all', 'Everything', 'Every login and every change — around a dozen emails a day.']
+  ];
+  document.getElementById('mailBox').innerHTML =
+    opts.map(o =>
+      '<label class="radio"><input type="radio" name="mailmode" value="' + o[0] + '"' +
+      (mode === o[0] ? ' checked' : '') + ' onchange="saveMail(this.value)">' +
+      '<span><b>' + o[1] + '</b><small>' + o[2] + '</small></span></label>').join('') +
+    '<div class="kv" style="margin-top:8px;"><span class="k">Waiting to send</span><span class="v ' +
+      (queued ? 'mid' : 'ok') + '">' + (queued ? queued + ' message' + (queued > 1 ? 's' : '') : 'none') + '</span></div>' +
+    (mode !== 'off'
+      ? '<p class="note"><b>Not sending yet.</b> Alerts need a free EmailJS account to actually deliver — ' +
+        'you create it and paste the three settings in yourself. Until then messages just queue up. ' +
+        'Tell me when you have it and I will add the boxes.</p>'
+      : '<p class="note">Off is a perfectly good answer — you check the app daily and the Activity Log ' +
+        'keeps the full history either way.</p>');
+}
+function saveMail(v) { FLApp.setAppSetting('emailMode', v); renderMail(); }
+
+/* ── permissions ───────────────────────────────────────────────── */
+function renderPerms() {
+  const roles = ['admin', 'finance', 'ceo', 'staff'];
+  document.getElementById('permBox').innerHTML =
+    '<div style="overflow-x:auto;"><table class="perm"><thead><tr><th>Page</th>' +
+    roles.map(r => '<th class="c">' + r + '</th>').join('') + '</tr></thead><tbody>' +
+    FLApp.permissions().map(p => '<tr><td>' + esc(p.page) + '</td>' +
+      roles.map(r => '<td class="c">' + (p.roles.indexOf(r) !== -1
+        ? '<span class="tick">✓</span>' : '<span class="cross">—</span>') + '</td>').join('') +
+      '</tr>').join('') + '</tbody></table></div>';
+}
+
+/* ── this device ───────────────────────────────────────────────── */
+function renderDeviceName() {
+  document.getElementById('thisDeviceName').textContent = FLApp.deviceName();
+}
+async function renameThisDevice() {
+  const cur = FLApp.deviceName();
+  const next = await FLApp.flPrompt('Name for this device (e.g. "ADMIN PC"):', /^device-/.test(cur) ? '' : cur);
+  if (next === null) return;
+  FLApp.setDeviceName(next);
+  renderDeviceName();
+}
+
+/* most recent "Logged in" entry for this name, across ALL devices */
+function lastSeen(name) {
+  const hit = FLApp.activityLog().find(e => e.who === name && /^Logged in/.test(e.type));
+  return hit || null;
+}
+
+async function renderUsers() {
+  const me = FLApp.currentUser();
+  const box = document.getElementById('userList');
+  let profiles;
+  try { profiles = await FLApp.fetchAllProfiles(); }
+  catch (e) { box.innerHTML = '<div class="empty">Could not load team accounts — check your connection.<br><button class="mini" style="margin-top:10px;" onclick="renderUsers()">↻ Retry</button></div>'; return; }
+  box.innerHTML = '';
+  const counts = {};
+  profiles.forEach(u => { const r = u.role || 'staff'; counts[r] = (counts[r] || 0) + 1; });
+  summary.team = profiles.length;
+  summary.teamSub = (counts.admin || 0) + ' admin · ' + (counts.ceo || 0) + ' CEO';
+  renderTiles();
+
+  profiles.forEach(u => {
+    const r = u.role || 'staff';
+    const seen = lastSeen(u.name);
+    const row = document.createElement('div');
+    row.className = 'user-row';
+    row.innerHTML =
+      '<span class="avatar">' + esc((u.name || u.email).charAt(0).toUpperCase()) + '</span>' +
+      '<span><div class="uname">' + esc(u.name || u.email) + (u.id === me.id ? ' (you)' : '') + '</div>' +
+      '<div class="seen">' + esc(u.email || '') + '</div>' +
+      '<div class="seen">' + (seen ? 'Last used on <b>' + esc(seen.device) + '</b> · ' + timeAgo(seen.time) : 'Never logged in on any device') + '</div></span>' +
+      '<span class="badge ' + r + '">' + r + '</span>' +
+      (u.disabled ? '<span class="badge locked">disabled</span>' : '') +
+      '<span class="user-actions"></span>';
+    const actions = row.querySelector('.user-actions');
+    if (u.id !== me.id) {
+      const sel = document.createElement('select');
+      sel.className = 'role-sel';
+      ['staff', 'finance', 'ceo', 'admin'].forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt; o.textContent = opt.toUpperCase();
+        if (opt === r) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.onchange = async () => {
+        try { await FLApp.adminSetRole(u.id, sel.value); renderUsers(); }
+        catch (e) { await FLApp.flAlert(e.message); renderUsers(); }
+      };
+      actions.appendChild(sel);
+
+      const reset = document.createElement('button');
+      reset.className = 'mini'; reset.textContent = 'Send reset email';
+      reset.onclick = async () => {
+        await FLApp.requestPasswordReset(u.email);
+        await FLApp.flAlert('A password reset code has been emailed to ' + u.email + '.');
+      };
+      actions.appendChild(reset);
+
+      const toggle = document.createElement('button');
+      toggle.className = 'mini' + (u.disabled ? '' : ' danger'); toggle.textContent = u.disabled ? 'Enable' : 'Disable';
+      toggle.onclick = async () => {
+        const msg = u.disabled ? 'Re-enable this account?' : 'Disable "' + (u.name || u.email) + '"? They will not be able to log in until re-enabled.';
+        if (await FLApp.flConfirm(msg)) {
+          try { await FLApp.adminSetDisabled(u.id, !u.disabled); renderUsers(); }
+          catch (e) { await FLApp.flAlert(e.message); }
+        }
+      };
+      actions.appendChild(toggle);
+
+      const del = document.createElement('button');
+      del.className = 'mini danger'; del.textContent = 'Delete';
+      del.onclick = async () => {
+        const typed = await FLApp.flPrompt('This permanently deletes "' + (u.name || u.email) + '" — this cannot be undone.\n\nType their email to confirm:');
+        if (typed === null) return;
+        if (typed.trim().toLowerCase() !== (u.email || '').toLowerCase()) { await FLApp.flAlert('Email did not match — nothing was deleted.'); return; }
+        try { await FLApp.adminDeleteUser(u.id, u.name); renderUsers(); }
+        catch (e) { await FLApp.flAlert(e.message); }
+      };
+      actions.appendChild(del);
+    }
+    box.appendChild(row);
+  });
+}
+
+async function renderDevices() {
+  const box = document.getElementById('deviceList');
+  let devices;
+  try { devices = await FLApp.fetchAllDevices(); }
+  catch (e) { box.innerHTML = '<div class="empty">Could not load devices — check your connection.<br><button class="mini" style="margin-top:10px;" onclick="renderDevices()">↻ Retry</button></div>'; return; }
+  devicesCache = devices;
+  if (!devices.length) { box.innerHTML = '<div class="empty">No devices have synced yet.</div>'; renderSync(); return; }
+
+  const mine = FLApp.appVersion();
+  /* match on the device's own id, not its name — a reinstall leaves an old row
+     behind with the SAME name, and matching by name badged both as "this one" */
+  const hereId = FLApp.deviceId();
+  let behind = 0, live = 0;
+  box.innerHTML = devices.map(d => {
+    const age = Date.now() - new Date(d.time).getTime();
+    const dead = age > 7 * 24 * 3600 * 1000;
+    const stale = age > 24 * 3600 * 1000;
+    if (!dead) live++;
+    let pill = '<span class="pill gr">version unknown</span>';
+    if (d.version) {
+      const old = d.version !== mine;
+      if (old && !dead) behind++;
+      pill = '<span class="pill ' + (old ? 'bad">' + esc(d.version) + ' — behind' : 'ok">' + esc(d.version)) + '</span>';
+    }
+    return '<div class="dev-row">' +
+      '<span class="dot' + (dead ? ' old' : stale ? ' bad' : '') + '"></span>' +
+      '<span class="nm">' + esc(d.device) + (d._id === hereId ? ' <span class="pill gr">this one</span>' : '') + '</span>' +
+      '<span class="rt">' + pill +
+        '<span>' + (d.who ? esc(d.who) + ' · ' : '') + timeAgo(d.time) + '</span>' +
+        (dead && d._id && d._id !== hereId
+          ? '<button class="mini danger" onclick="forgetDevice(\'' + esc(d._id) + '\')">Remove</button>' : '') +
+      '</span></div>';
+  }).join('');
+
+  summary.devices = live;
+  summary.behind = behind;
+  renderTiles();
+  renderSync();
+}
+
+async function forgetDevice(id) {
+  if (!await FLApp.flConfirm('Remove this device from the list?\n\nNothing it created is deleted. If it is still in use it will reappear the next time it syncs.')) return;
+  try { await FLApp.removeDevice(id); await renderDevices(); }
+  catch (e) { await FLApp.flAlert(e.message); }
+}
+
+function renderLog() {
+  const q = (document.getElementById('logFilter').value || '').toLowerCase();
+  const box = document.getElementById('logList');
+  const all = FLApp.activityLog();
+  const log = all.filter(e =>
+    !q || (e.who || '').toLowerCase().includes(q) || (e.type || '').toLowerCase().includes(q) || (e.device || '').toLowerCase().includes(q));
+  const oldest = all.length ? all[all.length - 1] : null;
+  document.getElementById('logNote').innerHTML = all.length
+    ? 'Keeps the last 500 actions — currently back to ' +
+      new Date(oldest.time).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
+      '. Anything older is forgotten.'
+    : '';
+  if (!log.length) { box.innerHTML = '<div class="empty">No activity recorded yet.</div>'; return; }
+  box.innerHTML = log.slice(0, 100).map(e => {
+    const warn = /LOCKED|deleted/i.test(e.type);
+    return '<div class="log-row' + (warn ? ' warn' : '') + '">' +
+      '<div class="lt">' + esc(e.type) + ' — ' + esc(e.who) + '</div>' +
+      '<div class="lm">' + new Date(e.time).toLocaleString('en-GB') + ' · ' + esc(e.device || '') + '</div></div>';
+  }).join('');
+}
+
+renderTiles();
+renderDeviceName();
+renderSettings();
+renderMail();
+renderPerms();
+renderSync();
+runCheck();
+renderVersion();
+renderStorage();
+renderUsers();
+renderDevices();
+renderLog();
+</script>
+</body>
+</html>

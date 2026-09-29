@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Timeline Editor</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rouge:      #550318;
+    --lace:       #F6F4F0;
+    --champagne:  #E6CCA1;
+    --terra:      #2E2522;
+    --muted:      #9B8E8A;
+    --bloom:      #FFF0F0;
+    --white:      #FFFFFF;
+    --border:     #E8DDD8;
+  }
+
+  body {
+    background: var(--lace);
+    font-family: 'Lato', Arial, sans-serif;
+    color: var(--terra);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 14px auto 30px;
+    background: var(--white);
+    box-shadow: 0 4px 40px rgba(85,3,24,0.10);
+  }
+
+  .header {
+    background: var(--rouge);
+    display: flex;
+    align-items: stretch;
+    min-height: 80px;
+  }
+  .header-left { flex: 0 0 58%; padding: 22px 28px; border-right: 3px solid var(--champagne); }
+  .header-left .brand { font-family: 'EB Garamond', Georgia, serif; font-size: 28px; color: var(--white); letter-spacing: 3px; line-height: 1; }
+  .header-left .tagline { font-size: 9px; color: var(--champagne); letter-spacing: 5px; margin-top: 6px; text-transform: uppercase; }
+  .header-right { flex: 1; padding: 22px 28px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+  .header-right .doc-label { font-size: 13px; font-weight: 700; color: var(--white); letter-spacing: 3px; text-transform: uppercase; }
+  .header-right .doc-sub { font-size: 9px; color: var(--champagne); letter-spacing: 3px; margin-top: 4px; }
+
+  .gold-rule { height: 3px; background: var(--champagne); }
+
+  .event-title-block { text-align: center; padding: 28px 40px 20px; background: var(--white); }
+  .event-title-block h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 36px; font-weight: 700; color: var(--rouge); line-height: 1.1; }
+  .event-meta { margin-top: 8px; font-size: 13px; color: var(--terra); letter-spacing: 0.5px; }
+
+  .divider { border: none; border-top: 1.5px solid var(--champagne); margin: 0 40px 0; }
+
+  .timeline-table { width: 100%; border-collapse: collapse; }
+  .timeline-table tr:nth-child(odd)  td { background: var(--lace); }
+  .timeline-table tr:nth-child(even) td { background: var(--white); }
+  .timeline-table td { padding: 14px 18px; vertical-align: top; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .timeline-table td.label { width: 26%; font-family: 'EB Garamond', Georgia, serif; font-size: 14px; font-weight: 700; color: var(--rouge); border-left: 1px solid var(--border); border-right: none; padding-right: 10px; position: relative; }
+  .timeline-table td.stripe { width: 5px; padding: 0; background: var(--champagne) !important; border: none; }
+  .timeline-table td.detail { border-left: none; border-right: 1px solid var(--border); font-size: 13px; color: var(--terra); }
+  .timeline-table td.detail p { margin: 0 0 4px 0; }
+  .timeline-table td.detail p:last-child { margin-bottom: 0; }
+  .timeline-table td.detail .bullet::before { content: '· '; color: var(--champagne); font-weight: 700; }
+  .timeline-table td.detail strong { font-weight: 700; color: var(--terra); }
+
+  .row-del {
+    position: absolute; top: 4px; left: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    border: none; background: #fff; color: #B91C1C;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25); line-height: 1;
+    opacity: .75;
+  }
+
+  .photo-cell { background: var(--bloom) !important; border: 2px dashed var(--rouge) !important; text-align: center; padding: 40px 20px !important; min-height: 180px; }
+  .photo-placeholder-label { font-size: 13px; font-weight: 700; color: var(--rouge); letter-spacing: 1px; margin-bottom: 8px; }
+  .photo-placeholder-sub { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 6px; }
+  .photo-placeholder-hint { font-size: 10px; color: var(--champagne); }
+
+  .footer { border-top: 2px solid var(--champagne); display: flex; justify-content: space-between; align-items: center; padding: 12px 28px; background: var(--white); font-size: 10px; color: var(--muted); }
+  .footer .footer-brand { color: var(--champagne); letter-spacing: 1px; font-size: 10px; }
+
+  .confidential { text-align: center; font-size: 10px; color: var(--muted); font-style: italic; padding: 10px; background: var(--white); }
+
+  [contenteditable="true"] { outline: none; cursor: text; }
+  [contenteditable="true"]:hover { background-color: rgba(230, 204, 161, 0.15) !important; border-radius: 2px; }
+  [contenteditable="true"]:focus { background-color: rgba(230, 204, 161, 0.25) !important; box-shadow: inset 0 0 0 1px var(--champagne); border-radius: 2px; }
+
+  #edit-bar {
+    background: var(--rouge); color: var(--champagne);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: 12px; letter-spacing: .5px; padding: 9px 12px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  #edit-bar a { color: #fff; text-decoration: none; font-weight: 700; white-space: nowrap; }
+  #save-status { font-size: 11px; color: var(--champagne); white-space: nowrap; }
+  .bar-actions { display: flex; gap: 8px; }
+  .bar-btn {
+    background: var(--champagne); color: var(--rouge); border: none;
+    font-weight: 700; font-size: 11px; padding: 6px 12px;
+    cursor: pointer; letter-spacing: .5px; border-radius: 3px; white-space: nowrap;
+  }
+
+  #photo-drop { min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+  #photo-drop img { max-width: 100%; max-height: 280px; object-fit: contain; display: block; }
+  #photo-drop.has-image .photo-placeholder-label,
+  #photo-drop.has-image .photo-placeholder-sub,
+  #photo-drop.has-image .photo-placeholder-hint { display: none; }
+
+  @media print {
+    body { background: white; font-size: 11px; }
+    .page { margin: 0; box-shadow: none; max-width: 100%; }
+    #edit-bar, .row-del { display: none !important; }
+    .gold-rule { height: 2px; }
+    .photo-placeholder-hint { display: none; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/html2canvas.min.js"></script>
+<script>FLApp.guard();</script>
+
+<!-- EDIT BAR -->
+<div id="edit-bar">
+  <a href="timelines.html">‹ My Timelines</a>
+  <span id="save-status">Saved</span>
+  <div class="bar-actions">
+    <button class="bar-btn" onclick="addRow()">＋ ROW</button>
+    <button class="bar-btn" onclick="FLApp.exportPdf(document.getElementById('page'), (docTitle() || 'Timeline') + '.pdf')">PDF</button>
+  </div>
+</div>
+
+<div class="page" id="page"></div>
+
+<!-- Blank template (cloned for new timelines) -->
+<template id="tpl">
+  <div class="header">
+    <div class="header-left">
+      <div class="brand" contenteditable="true">FLOWERS.AE</div>
+      <div class="tagline" contenteditable="true">The Art of Gifting</div>
+    </div>
+    <div class="header-right">
+      <div class="doc-label" contenteditable="true">Event Timeline</div>
+      <div class="doc-sub" contenteditable="true">On the Day</div>
+    </div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="event-title-block">
+    <h1 contenteditable="true">Event Name</h1>
+    <div class="event-meta" contenteditable="true">Venue &nbsp;·&nbsp; Day, Date &nbsp;·&nbsp; Time</div>
+  </div>
+
+  <hr class="divider">
+
+  <table class="timeline-table">
+    <tbody id="rows">
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Load Time</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>Day, Date</strong></p>
+          <p class="bullet">Chiller: —</p>
+          <p class="bullet">Load time: —</p>
+          <p class="bullet">Load and leave by: —</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Items to Transport</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p class="bullet">Item ×1</p>
+          <p class="bullet">Item ×1</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Flowers</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>Flower types</strong></p>
+          <p class="bullet">Notes about the flowers</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Arrangement Prep</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>When — where</strong></p>
+          <p class="bullet">Who is preparing</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Florist Reference</span></td>
+        <td class="stripe"></td>
+        <td class="photo-cell">
+          <div id="photo-drop">
+            <p class="photo-placeholder-label">[ TAP TO ADD PHOTO ]</p>
+            <p class="photo-placeholder-sub">Reference photo for the florist</p>
+            <p class="photo-placeholder-hint">Tap this area to choose an image</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Event Set Up</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>Venue</strong></p>
+          <p class="bullet">Date: —</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Staff</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p class="bullet">Name (confirmed)</p>
+          <p class="bullet">Total staff required · Remaining TBC</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Job Orders</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>#000000 — Main event order</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">Event Lead Contact</span></td>
+        <td class="stripe"></td>
+        <td class="detail" contenteditable="true">
+          <p><strong>Name · Phone</strong></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="confidential" contenteditable="true">Confidential &nbsp;·&nbsp; For internal use only</p>
+
+  <div class="footer">
+    <span class="footer-brand" contenteditable="true">FLOWERS.AE &nbsp;·&nbsp; THE ART OF GIFTING</span>
+    <span contenteditable="true">Order # &nbsp;</span>
+    <span contenteditable="true">www.flowers.ae</span>
+  </div>
+</template>
+
+<input type="file" id="photo-input" accept="image/*" style="display:none">
+
+<script>
+  const page = document.getElementById('page');
+  const status = document.getElementById('save-status');
+  const params = new URLSearchParams(location.search);
+  let docId = params.get('id');
+
+  // Load existing doc or seed from template
+  const existing = docId ? FLApp.getDoc(docId) : null;
+  if (existing) {
+    page.innerHTML = existing.html;
+  } else {
+    docId = null;
+    page.appendChild(document.getElementById('tpl').content.cloneNode(true));
+  }
+
+  function docTitle() {
+    const h1 = page.querySelector('h1');
+    return h1 ? h1.textContent.trim().slice(0, 80) : 'Untitled timeline';
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    status.textContent = 'Saving…';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 800);
+  }
+  function save() {
+    if (!docId) docId = 'd' + Date.now();
+    try {
+      FLApp.saveDoc({ id: docId, title: docTitle(), html: page.innerHTML });
+      status.textContent = 'Saved ✓';
+      history.replaceState(null, '', 'timeline-editor.html?id=' + docId);
+    } catch (e) {
+      status.textContent = 'Not saved — storage full';
+    }
+  }
+
+  // Any edit anywhere in the page triggers autosave
+  page.addEventListener('input', scheduleSave);
+
+  // Row delete + photo tap — event delegation so restored HTML keeps working
+  page.addEventListener('click', async e => {
+    const del = e.target.closest('.row-del');
+    if (del) {
+      const tr = del.closest('tr');
+      if (tr && await FLApp.flConfirm('Delete this row?')) { tr.remove(); scheduleSave(); }
+      return;
+    }
+    if (e.target.closest('#photo-drop')) document.getElementById('photo-input').click();
+  });
+
+  function addRow() {
+    const tbody = page.querySelector('.timeline-table tbody') || page.querySelector('.timeline-table');
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="label"><button class="row-del no-print" title="Delete row">✕</button><span contenteditable="true">New Section</span></td>' +
+      '<td class="stripe"></td>' +
+      '<td class="detail" contenteditable="true"><p class="bullet">Details…</p></td>';
+    tbody.appendChild(tr);
+    scheduleSave();
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Photo: compress to keep storage small, then embed
+  document.getElementById('photo-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, 1000 / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const drop = page.querySelector('#photo-drop');
+        if (drop) {
+          drop.innerHTML = '<img src="' + canvas.toDataURL('image/jpeg', 0.8) + '" alt="Florist Reference">';
+          drop.classList.add('has-image');
+          scheduleSave();
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+</script>
+</body>
+</html>

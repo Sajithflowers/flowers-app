@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Flowers.ae — Event GP Calculator</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F0F4F8;min-height:100vh;padding-bottom:200px;}
+.header{background:linear-gradient(150deg,#3a0210,#550318 70%);color:#fff;padding:16px 16px 12px;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:20px;font-weight:700;letter-spacing:1px;}
+.header p{font-size:11px;opacity:.7;margin-top:2px;}
+
+/* Tabs */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #E5E7EB;position:sticky;top:0;z-index:50;}
+.tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;}
+.tab.active{color:#550318;border-bottom-color:#E6CCA1;}
+
+.section{display:none;padding:14px;}
+@media (min-width:900px){ .section{max-width:1000px;margin:0 auto;} }
+.section.active{display:block;}
+
+/* Cards */
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.card-title{font-size:12px;font-weight:700;color:#1F3864;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+
+/* Search box */
+.search-wrap{position:relative;margin-bottom:10px;}
+.search-wrap input{width:100%;padding:11px 14px 11px 38px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;}
+.search-wrap input:focus{border-color:#005B6A;background:#fff;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.search-results{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #E6CCA1;border-radius:0 0 10px 10px;box-shadow:0 10px 30px rgba(85,3,24,.18);max-height:260px;overflow-y:auto;z-index:60;display:none;}
+.search-results.open{display:block;animation:srIn .18s ease;}
+@keyframes srIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.sr-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;font-size:13.5px;color:#374151;}
+.sr-item:last-child{border-bottom:none;}
+.sr-item:active{background:#FBF6EC;}
+.sr-item .sr-price{color:#550318;font-weight:700;font-size:12.5px;white-space:nowrap;}
+.sr-none{padding:12px 14px;font-size:13px;color:#9CA3AF;font-style:italic;}
+
+/* Dropdown */
+.flower-select{width:100%;padding:11px 14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;margin-bottom:10px;}
+.flower-select:focus{border-color:#005B6A;background:#fff;}
+
+.add-row{display:grid;grid-template-columns:1fr 80px auto;gap:8px;align-items:center;margin-bottom:10px;}
+.add-row input{padding:11px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;width:100%;}
+.add-row input:focus{border-color:#005B6A;background:#fff;}
+.btn-add{padding:11px 14px;background:#005B6A;color:#fff;border:none;border-radius:10px;font-size:20px;cursor:pointer;font-weight:700;}
+.btn-add:active{opacity:.8;}
+
+/* Item list */
+.items-list{margin-top:4px;}
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;}
+.item-row:last-child{border-bottom:none;}
+.item-name{font-size:13px;color:#374151;flex:1;}
+.item-price{font-size:12px;color:#6B7280;margin:0 8px;}
+.item-qty-wrap{display:flex;align-items:center;gap:6px;}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid #D1D5DB;background:#F9FAFB;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:#374151;}
+.qty-btn:active{background:#E5E7EB;}
+.qty-val{font-size:14px;font-weight:700;color:#1F3864;min-width:24px;text-align:center;}
+.item-total{font-size:13px;font-weight:700;color:#1E5631;min-width:60px;text-align:right;}
+.btn-del{background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;padding:0 0 0 8px;}
+
+/* Cost inputs */
+.cost-input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F3F4F6;}
+.cost-input-row:last-child{border-bottom:none;}
+.cost-label{font-size:14px;color:#374151;font-weight:500;}
+.cost-input-wrap{position:relative;}
+.cost-input-wrap span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#6B7280;font-weight:600;}
+.cost-input-wrap input{padding:9px 10px 9px 38px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;width:130px;text-align:right;background:#F9FAFB;outline:none;}
+.cost-input-wrap input:focus{border-color:#005B6A;background:#fff;}
+
+/* Sundry add */
+.sundry-add{display:grid;grid-template-columns:1fr 100px auto;gap:8px;margin-bottom:10px;}
+.sundry-add input{padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
+.sundry-add input:focus{border-color:#005B6A;background:#fff;}
+
+/* Summary tab */
+.summary-block{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F4F6;}
+.summary-row:last-child{border-bottom:none;}
+.summary-row .lbl{font-size:13px;color:#374151;}
+.summary-row .val{font-size:14px;font-weight:700;color:#1F3864;}
+.summary-row.total-row .lbl{font-size:14px;font-weight:700;color:#111827;}
+.summary-row.total-row .val{font-size:16px;font-weight:800;color:#1F3864;}
+
+/* Hero charge */
+.hero-charge{background:linear-gradient(135deg,#1E5631,#005B6A);border-radius:14px;padding:20px;text-align:center;margin-bottom:12px;}
+.hero-charge .label{font-size:12px;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.hero-charge .amount{font-size:42px;font-weight:800;color:#fff;line-height:1;}
+.hero-charge .sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:6px;}
+
+/* Revenue override */
+.rev-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.rev-section .card-title{margin-bottom:12px;}
+.rev-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rev-row label{font-size:13px;font-weight:600;color:#374151;white-space:nowrap;}
+.rev-input-wrap{position:relative;flex:1;}
+.rev-input-wrap span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#6B7280;font-weight:600;}
+.rev-input-wrap input{width:100%;padding:11px 12px 11px 44px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:16px;font-weight:700;color:#1F3864;background:#F9FAFB;outline:none;}
+.rev-input-wrap input:focus{border-color:#005B6A;background:#fff;}
+
+/* GP display */
+.gp-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.gp-box{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.gp-box .val{font-size:28px;font-weight:800;color:#1F3864;}
+.gp-box .lbl{font-size:11px;color:#6B7280;margin-top:3px;}
+
+.gp-bar-wrap{background:#F3F4F6;border-radius:8px;height:10px;margin:10px 0 4px;overflow:hidden;}
+.gp-bar{height:100%;border-radius:8px;transition:width .4s,background .4s;}
+.gp-warning{font-size:12px;font-weight:600;text-align:center;padding:8px 14px;border-radius:8px;margin-bottom:12px;}
+.warn-green{background:#D1FAE5;color:#065F46;}
+.warn-amber{background:#FEF3C7;color:#92400E;}
+.warn-red{background:#FEE2E2;color:#991B1B;}
+
+/* Discount */
+.discount-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.disc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.disc-row label{font-size:13px;font-weight:600;color:#374151;}
+.disc-input{padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:15px;font-weight:700;width:80px;text-align:center;background:#F9FAFB;outline:none;}
+.disc-input:focus{border-color:#EF4444;background:#fff;}
+.disc-result{background:#FFF8F0;border-radius:10px;padding:12px 14px;}
+.disc-result-row{display:flex;justify-content:space-between;padding:5px 0;}
+.disc-result-row span{font-size:13px;color:#374151;}
+.disc-result-row strong{font-size:13px;font-weight:700;color:#C2410C;}
+
+/* Empty state */
+.empty{text-align:center;padding:20px 0;color:#9CA3AF;font-size:13px;}
+
+/* Custom flower */
+.custom-section{border-top:1px dashed #D1D5DB;margin-top:12px;padding-top:12px;}
+.custom-section .custom-title{font-size:12px;color:#6B7280;font-weight:600;margin-bottom:8px;}
+.custom-add{display:grid;grid-template-columns:1fr 80px 70px auto;gap:6px;}
+.custom-add input{padding:10px 10px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
+.custom-add input:focus{border-color:#F59E0B;background:#fff;}
+.btn-add-custom{padding:10px 12px;background:#F59E0B;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
+
+.price-date{font-size:10px;color:#9CA3AF;text-align:right;margin-top:-8px;margin-bottom:8px;}
+
+/* Prices tab */
+.price-list-item{display:grid;grid-template-columns:1fr 80px 36px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #F3F4F6;}
+.price-list-item:last-child{border-bottom:none;}
+.price-list-item .pname{font-size:13px;color:#374151;font-weight:500;}
+.price-list-item .ptype{font-size:10px;color:#9CA3AF;}
+.price-input{padding:7px 10px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:14px;font-weight:700;color:#1F3864;width:100%;text-align:right;background:#F9FAFB;outline:none;}
+.price-input:focus{border-color:#005B6A;background:#fff;}
+.btn-del-price{background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;padding:0;}
+.price-search{width:100%;padding:10px 14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;margin-bottom:12px;}
+.price-search:focus{border-color:#005B6A;background:#fff;}
+.btn-save-prices{width:100%;padding:13px;background:linear-gradient(135deg,#1E5631,#005B6A);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.btn-save-prices:active{opacity:.85;}
+.save-toast{text-align:center;font-size:13px;color:#1E5631;font-weight:600;margin-bottom:12px;display:none;}
+.add-new-price{display:grid;grid-template-columns:1fr 70px 70px auto;gap:6px;margin-bottom:12px;}
+.add-new-price input{padding:10px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
+.add-new-price input:focus{border-color:#F59E0B;background:#fff;}
+.btn-add-new-price{padding:10px 12px;background:#F59E0B;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
+.price-count{font-size:12px;color:#6B7280;margin-bottom:8px;}
+.price-last-updated{font-size:11px;color:#9CA3AF;text-align:center;margin-bottom:8px;}
+
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guard();</script>
+
+<div style="background:#3a0210;display:flex;align-items:center;justify-content:space-between;padding:9px 15px;">
+  <a href="tools.html" style="color:#E6CCA1;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;">‹ TOOLS</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="fl-user-chip" style="color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+<script>document.getElementById('fl-user-chip').textContent = FLApp.currentUser() ? FLApp.currentUser().name : '';</script>
+
+<div class="header">
+  <h1>🌸 Event GP Calculator</h1>
+  <p>Flowers.ae · Price list: 15 July 2026</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('flowers')">🌸 Flowers</div>
+  <div class="tab" onclick="switchTab('costs')">💰 Costs</div>
+  <div class="tab" onclick="switchTab('summary')">📊 GP</div>
+  <div class="tab" onclick="switchTab('prices')" id="pricesTab">⚙️ Prices</div>
+</div>
+<script>if (!FLApp.isAdmin()) document.getElementById('pricesTab').style.display = 'none';</script>
+
+<!-- ═══ TAB 1: FLOWERS ═══════════════════════════════════════════════════ -->
+<div id="tab-flowers" class="section active">
+  <div class="card">
+    <div class="card-title">Add Flowers & Foliage</div>
+    <div class="price-date">Prices as of 15/07/2026</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="flowerSearch" placeholder="Search flower name..." oninput="filterFlowers()" autocomplete="off">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+    <select id="flowerSelect" class="flower-select" size="1">
+      <option value="">— Select a flower —</option>
+    </select>
+    <div class="add-row">
+      <div style="font-size:13px;color:#6B7280;" id="selectedPrice">Select a flower above</div>
+      <input type="number" id="flowerQty" placeholder="Qty" min="1" value="1" inputmode="numeric">
+      <button class="btn-add" onclick="addFlower()">+</button>
+    </div>
+
+    <!-- Custom flower -->
+    <div class="custom-section">
+      <div class="custom-title">➕ Add flower not in list</div>
+      <div class="custom-add">
+        <input type="text" id="customName" placeholder="Name">
+        <input type="number" id="customPrice" placeholder="AED" inputmode="decimal" step="0.25">
+        <input type="number" id="customQty" placeholder="Qty" inputmode="numeric" min="1" value="1">
+        <button class="btn-add-custom" onclick="addCustomFlower()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Flowers Added <span id="flowerCount" style="color:#005B6A;"></span></div>
+    <div class="items-list" id="flowerList">
+      <div class="empty">No flowers added yet</div>
+    </div>
+    <div id="flowerSubtotalRow" style="display:none;border-top:2px solid #E5E7EB;padding-top:10px;margin-top:6px;display:none;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;color:#374151;">Flowers Subtotal</span>
+        <span style="font-size:15px;font-weight:800;color:#1E5631;" id="flowerSubtotal">AED 0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 2: COSTS ═════════════════════════════════════════════════════ -->
+<div id="tab-costs" class="section">
+
+  <!-- Sundries -->
+  <div class="card">
+    <div class="card-title">Sundries</div>
+    <div class="sundry-add">
+      <input type="text" id="sundryName" placeholder="Item name (e.g. Vase, Ribbon)">
+      <input type="number" id="sundryPrice" placeholder="AED" inputmode="decimal" step="0.5">
+      <button class="btn-add" onclick="addSundry()">+</button>
+    </div>
+    <div class="items-list" id="sundryList">
+      <div class="empty">No sundries added</div>
+    </div>
+    <div id="sundrySubtotalRow" style="display:none;border-top:2px solid #E5E7EB;padding-top:10px;margin-top:6px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;color:#374151;">Sundries Subtotal</span>
+        <span style="font-size:15px;font-weight:800;color:#1E5631;" id="sundrySubtotal">AED 0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transport / OT -->
+  <div class="card">
+    <div class="card-title">Other Costs</div>
+    <div class="cost-input-row">
+      <span class="cost-label">🚚 Transportation</span>
+      <div class="cost-input-wrap">
+        <span>AED</span>
+        <input type="number" id="costTransport" placeholder="0" inputmode="decimal" onchange="recalc()" oninput="recalc()">
+      </div>
+    </div>
+    <div class="cost-input-row">
+      <span class="cost-label">⏰ Overtime (OT)</span>
+      <div class="cost-input-wrap">
+        <span>AED</span>
+        <input type="number" id="costOT" placeholder="0" inputmode="decimal" onchange="recalc()" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 3: GP SUMMARY ════════════════════════════════════════════════ -->
+<div id="tab-summary" class="section">
+
+  <!-- Cost breakdown -->
+  <div class="summary-block">
+    <div class="card-title">Cost Breakdown</div>
+    <div class="summary-row"><span class="lbl">🌸 Flowers & Foliage</span><span class="val" id="s-flowers">AED 0</span></div>
+    <div class="summary-row"><span class="lbl">📦 Sundries</span><span class="val" id="s-sundries">AED 0</span></div>
+    <div class="summary-row"><span class="lbl">🚚 Transportation</span><span class="val" id="s-transport">AED 0</span></div>
+    <div class="summary-row"><span class="lbl">⏰ Overtime</span><span class="val" id="s-ot">AED 0</span></div>
+    <div class="summary-row total-row"><span class="lbl">TOTAL COST</span><span class="val" id="s-total">AED 0</span></div>
+  </div>
+
+  <!-- Recommended charge -->
+  <div class="hero-charge">
+    <div class="label" id="chargeLabel">To reach 70% GP — charge</div>
+    <div class="amount" id="chargeAmount">AED —</div>
+    <div class="sub" id="chargeSub">Enter costs above to calculate</div>
+  </div>
+
+  <!-- Revenue override -->
+  <div class="rev-section">
+    <div class="card-title">Your Quote / Revenue</div>
+    <div class="rev-row">
+      <label>Charging client:</label>
+      <div class="rev-input-wrap">
+        <span>AED</span>
+        <input type="number" id="revenueInput" placeholder="Enter amount" inputmode="decimal"
+               oninput="recalcGP()" onchange="recalcGP()">
+      </div>
+    </div>
+    <div class="gp-bar-wrap"><div class="gp-bar" id="gpBar" style="width:0%;background:#1E5631;"></div></div>
+  </div>
+
+  <!-- GP boxes -->
+  <div class="gp-display">
+    <div class="gp-box"><div class="val" id="gpPct">—</div><div class="lbl">GP %</div></div>
+    <div class="gp-box"><div class="val" id="gpAED">—</div><div class="lbl">GP (AED)</div></div>
+  </div>
+
+  <div class="gp-warning" id="gpWarning" style="display:none;"></div>
+
+  <!-- Discount -->
+  <div class="discount-section">
+    <div class="card-title">Discount Calculator</div>
+    <div class="disc-row">
+      <label>Discount %</label>
+      <input type="number" class="disc-input" id="discountPct" placeholder="0" min="0" max="50"
+             inputmode="decimal" oninput="recalcDiscount()" onchange="recalcDiscount()">
+    </div>
+    <div class="disc-result" id="discResult" style="display:none;">
+      <div class="disc-result-row"><span>Discounted Revenue</span><strong id="d-rev">—</strong></div>
+      <div class="disc-result-row"><span>New GP (AED)</span><strong id="d-gp">—</strong></div>
+      <div class="disc-result-row"><span>New GP %</span><strong id="d-pct">—</strong></div>
+      <div class="disc-result-row" id="d-warn-row" style="display:none;">
+        <span></span><strong id="d-warn" style="color:#EF4444;"></strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset -->
+  <button onclick="resetAll()" style="width:100%;padding:13px;background:#F3F4F6;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#374151;cursor:pointer;margin-bottom:12px;">
+    🔄 Clear & Start New Job
+  </button>
+</div>
+
+<script>
+// ── Flower price list ─────────────────────────────────────────────────────────
+const FLOWERS = [
+  ["Alium Bullet","stems",2.5],
+  ["Alstro Light Pink","stems",2.5],
+  ["Alstroemeria White","stems",2.5],
+  ["Alstromeria Orange","stems",2.5],
+  ["Alstromeria Pink","stems",2.5],
+  ["Alstromeria Purple","stems",2.5],
+  ["Amaryllis Red","stems",14],
+  ["Amaryllis White","stems",14],
+  ["Ammi","stems",3.5],
+  ["Anemone","stems",6],
+  ["Anthrium Peach","stems",16],
+  ["Anthurium Pink","stems",16],
+  ["Anthurium Purple","stems",16],
+  ["Anthurium Red","stems",16],
+  ["Anthurium White","stems",16],
+  ["Asiatic Lily Orange","stems",8],
+  ["Asparagus Rose Gold","stems",6.5],
+  ["Asparagus Silver","stems",6.5],
+  ["Asparagus Umberlatus","stems",6.5],
+  ["Astilbe Europa Pink","stems",4.5],
+  ["Astilbe Red","stems",4.5],
+  ["Astilbe White","stems",4.5],
+  ["Astrantia","stems",3.5],
+  ["Autumn Leaves","foliage",4.5],
+  ["Bauble - Gold","stems",3],
+  ["Bauble - Purple","stems",3],
+  ["Bauble - Silver","stems",3],
+  ["Brunea Gray","stems",6.5],
+  ["Bupleurum Green","stems",4],
+  ["Calla Lily Pink","stems",7.5],
+  ["Calla Lily White","stems",7.5],
+  ["Carnation Burgundy","stems",2],
+  ["Carnation Fuchsia","stems",2],
+  ["Carnation Green","stems",2],
+  ["Carnation Holland","stems",3.5],
+  ["Carnation Light Pink","stems",2],
+  ["Carnation Peach","stems",2],
+  ["Carnation Pink","stems",2],
+  ["Carnation Purple","stems",2],
+  ["Carnation Red","stems",2],
+  ["Carnation Spray Pink","stems",2],
+  ["Carnation Spray Purple","stems",2],
+  ["Carnation Spray White","stems",2],
+  ["Carnation White","stems",2],
+  ["Chrysanthemum Button Green","stems",3.5],
+  ["Chrysanthemum Button Yellow","stems",3.5],
+  ["Chrysanthemum Deco Blue","stems",5.5],
+  ["Chrysanthemum Deco Burgundy","stems",7.5],
+  ["Chrysanthemum Deco Dark Orange","stems",7.5],
+  ["Chrysanthemum Deco Dark Pink","stems",7.5],
+  ["Chrysanthemum Deco Ivory","stems",7.5],
+  ["Chrysanthemum Deco Light Purple","stems",7.5],
+  ["Chrysanthemum Deco Malaysia Mum Dark Red","stems",7.5],
+  ["Chrysanthemum Deco Pale Pink","stems",7.5],
+  ["Chrysanthemum Deco Pale Yellow","stems",7.5],
+  ["Chrysanthemum Deco White","stems",7.5],
+  ["Chrysanthemum Ping Pong Burgundy","stems",5.5],
+  ["Chrysanthemum Ping Pong Pink","stems",5.5],
+  ["Chrysanthemum Ping Pong Purple","stems",5.5],
+  ["Chrysanthemum Ping Pong White","stems",5.5],
+  ["Chrysanthemum Ping Pong Yellow","stems",5.5],
+  ["Chrysanthemum Pink","stems",3.5],
+  ["Chrysanthemum Pink Euro","stems",2.5],
+  ["Chrysanthemum Red Button","stems",6],
+  ["Chrysanthemum Santini AAA Aurinko Yellow","stems",6],
+  ["Chrysanthemum Santini Brown","stems",6],
+  ["Chrysanthemum Santini Ellison Sweet","stems",6],
+  ["Chrysanthemum Spray Purple","stems",3.5],
+  ["Chrysanthemum Spray Red Euro","stems",2.5],
+  ["Chrysanthemum Spray White","stems",3.5],
+  ["Chrysanthemum Spray White Euro","stems",2.5],
+  ["Chrysanthemum White","stems",3.5],
+  ["Chrysanthemum Yellow","stems",3.5],
+  ["Chrysantymum Green Santini","stems",6],
+  ["Chrysantymum Santini Button Green","stems",6],
+  ["Chrysantymum Santini Red","stems",6],
+  ["Chrysintimum Deco Purple","stems",7.5],
+  ["Cimbidium Pink","stems",45],
+  ["Cimbidium Red","stems",45],
+  ["Cimbidium White","stems",45],
+  ["Crespedia","stems",4],
+  ["Cut Orchid - 1 Flower Blue Dyed","stems",10],
+  ["Cut Orchid - 1 Flower Pink Dyed","stems",10],
+  ["Cut Orchid - 1 Flower White","stems",10],
+  ["Cut Orchid Stem","stems",58],
+  ["Cut Phalaenopsis","stems",58],
+  ["Cymbidium Yellow","stems",45],
+  ["Dancing Lady","stems",9],
+  ["Deco Shamrock","stems",5.5],
+  ["Delphinium Blue","stems",10],
+  ["Dendrobium","stems",2.75],
+  ["Draceana Golden Coast","plant",21],
+  ["Dusty Miller (Senicio)","stems",5],
+  ["Eucalyptus","foliage",6],
+  ["Eucalyptus Painted Purple","stems",5],
+  ["Eustoma Frilled Sunny Pink","stems",10.5],
+  ["Eustoma/lisanthus Frilled Purple","stems",10.5],
+  ["Eustoma/lisanthus Peach","stems",7.5],
+  ["Eustoma/lisanthus Pink","stems",8.5],
+  ["Eustoma/lisanthus Purple","stems",7.5],
+  ["Eustoma/lisanthus White","stems",7.5],
+  ["Freesia White","stems",4],
+  ["Fressia Yellow","stems",4],
+  ["Gerbera Orange","stems",6.5],
+  ["Gerbera Pasta Peach","stems",8],
+  ["Gerbera Pink","stems",5.5],
+  ["Gerbera Spider Pink","stems",8],
+  ["Gerbera Spider Red","stems",5.5],
+  ["Gerbera White","stems",5.5],
+  ["Gypsophilla","stems",2],
+  ["Hydrangea Blue","stems",14],
+  ["Hydrangea Double Purple China","stems",22],
+  ["Hydrangea Fuchsia Pink","stems",15],
+  ["Hydrangea Green","stems",14],
+  ["Hydrangea Light Blue China","stems",22],
+  ["Hydrangea Light Pink China","stems",22],
+  ["Hydrangea Pink","stems",15],
+  ["Hydrangea Premium Blue","stems",14],
+  ["Hydrangea Purple","stems",16],
+  ["Hydrangea Red","stems",15],
+  ["Hydrangea Sea Pink China","stems",22],
+  ["Hydrangea White","stems",10],
+  ["Hypericum Pink","stems",3.5],
+  ["Hypericum Red","stems",3.5],
+  ["Hypericum White","stems",3.5],
+  ["Ilex Red - Long Stem","stems",12],
+  ["Ilex Red - Short","stems",9],
+  ["Italian Ruscus","foliage",3.6],
+  ["Leucospermum Yellow","stems",10],
+  ["Lily Pink","stems",13],
+  ["Lily White","stems",13],
+  ["Limonium","stems",3.5],
+  ["Limonium Pink","stems",3.5],
+  ["Limonium Purple","stems",3.5],
+  ["Limonium White","stems",3.5],
+  ["Matthiola Light Purple","stems",4],
+  ["Matthiola Lilac","stems",4],
+  ["Matthiola Pink","stems",4],
+  ["Matthiola Purple","stems",4],
+  ["Matthiola White","stems",4],
+  ["Mixed Roses","stems",3.25],
+  ["Mixed Spray Roses","stems",3],
+  ["Monstera Green","foliage",3.5],
+  ["Moss","stems",2.93],
+  ["Nobilis","foliage",16.5],
+  ["Oncidium Yellow","stems",9],
+  ["Oxypetalum","stems",5.5],
+  ["Pampas Dried Leave","foliage",25],
+  ["Peony Coral (Hawaii Coral)","stems",14],
+  ["Peony Light Pink (Blush Blusg Queen)","stems",14],
+  ["Peony Maroon (Red Charm)","stems",14],
+  ["Peony Pink (Sarah Bernardth)","stems",14],
+  ["Peony Purple (Monsieur Jules)","stems",14],
+  ["Peony White (Bowl of Cream)","stems",14],
+  ["Phalaenopsis Plant Purple","plant",68],
+  ["Phalaenopsis Plant White","plant",68],
+  ["Phlox Purple","stems",4.5],
+  ["Physallis Chinese Lantern","stems",0.9],
+  ["Pine Cone Gold","stems",4.5],
+  ["Pine Cone Silver","stems",4.5],
+  ["Pink Rice Flower","stems",3.5],
+  ["Pistache","foliage",1.5],
+  ["Protea Pink","stems",15],
+  ["Purple Orchid Plant","plant",70],
+  ["Pussy Willow","stems",7.5],
+  ["Ranunculus Pink","stems",14],
+  ["Ranunculus Red","stems",14],
+  ["Ranunculus White","stems",14],
+  ["Rascus Head Green","stems",2],
+  ["Rose Brighton Yellow","stems",4],
+  ["Rose Buttercap Kenya","stems",2.5],
+  ["Rose Candy Expression E","stems",6.5],
+  ["Rose Candy Pink","stems",2.25],
+  ["Rose Coral Reef","stems",3.5],
+  ["Rose Country Home","stems",4.5],
+  ["Rose Deep Purple","stems",3.5],
+  ["Rose Deep Purple Kenya","stems",2],
+  ["Rose Ever Red","stems",1.6],
+  ["Rose Faith Purple","stems",4],
+  ["Rose Free Spirit Orange E","stems",4],
+  ["Rose Freedom Red","stems",3],
+  ["Rose Freedom Red 40CM","stems",2],
+  ["Rose Heart","stems",3.8],
+  ["Rose Hera Pink","stems",2.25],
+  ["Rose Hermosa Kenya","stems",2],
+  ["Rose Hotspot Fuchsia Kenya","stems",2],
+  ["Rose Incredible Red Kenya","stems",1.6],
+  ["Rose Kahala E","stems",4],
+  ["Rose Marina Kenya","stems",1.6],
+  ["Rose Menta","stems",3.5],
+  ["Rose Moab","stems",3.5],
+  ["Rose Monte Carlo Red","stems",1.8],
+  ["Rose Nina Orange E","stems",4],
+  ["Rose Ocean Song","stems",3.5],
+  ["Rose Ohara Pink","stems",5.5],
+  ["Rose Ohara White","stems",5.5],
+  ["Rose Orange Confidential Kenya","stems",2],
+  ["Rose Peach Avalanche Kenya","stems",2],
+  ["Rose Piano Red","stems",22],
+  ["Rose Pink Expression","stems",5.5],
+  ["Rose Pink Floyd Fuchsia","stems",3.5],
+  ["Rose Quicksand Kenya","stems",2],
+  ["Rose Rosita Pink","stems",3.5],
+  ["Rose Rosita Pink 40CM","stems",2.2],
+  ["Rose Silantoi Orange Kenya","stems",2],
+  ["Rose Titanic","stems",4.5],
+  ["Rose Topaz","stems",3.25],
+  ["Rose Vendela White","stems",3.5],
+  ["Rose White Countdown","stems",2],
+  ["Rose Yellow Moonwalk Kenya","stems",2],
+  ["Safari Sunset Red","stems",8.5],
+  ["Salix Stick","stems",12],
+  ["Sanguisorba Red Dream","stems",8.5],
+  ["Scindapsis Gold","plant",14],
+  ["Seaspray BLUE","stems",3.5],
+  ["Skimmia Green","stems",5],
+  ["Skimmia Red","stems",5],
+  ["Solidago","stems",3.5],
+  ["Spray Rose Bombastic","stems",4.5],
+  ["Spray Rose Fuchsia","stems",3],
+  ["Spray Rose Julietta","stems",5.5],
+  ["Spray Rose Lilac","stems",3],
+  ["Spray Rose Misty Bubbles","stems",5],
+  ["Spray Rose Orange","stems",3],
+  ["Spray Rose Peach","stems",2.8],
+  ["Spray Rose Pink","stems",2.8],
+  ["Spray Rose Red","stems",3],
+  ["Spray Rose Selenora","stems",3],
+  ["Spray Rose Sweet Sarah","stems",2.8],
+  ["Spray Rose White","stems",3],
+  ["Spray Rose Yellow","stems",3.5],
+  ["Statice Pink","stems",4],
+  ["Statice Purple","stems",4],
+  ["Statice White","stems",4.5],
+  ["Steel Grass","stems",1],
+  ["Sunflower","stems",4.5],
+  ["Syringa","stems",15],
+  ["Test Stem 1","stems",0.5],
+  ["Thistle Blue","stems",2.5],
+  ["Tulip Orange","stems",5.5],
+  ["Tulip Pink","stems",5.5],
+  ["Tulip Purple","stems",3.5],
+  ["Tulip Red","stems",3.5],
+  ["Tulip White","stems",5.5],
+  ["Tulip Yellow","stems",5.5],
+  ["Veronica Pink","stems",3.5],
+  ["Veronica Purple","stems",3.5],
+  ["Veronica White","stems",3.5],
+  ["Viburnum Berries","stems",6],
+  ["Vriesia","plant",20],
+  ["Wax Pink","stems",4],
+  ["Wax Purple","stems",4],
+  ["Wax White","stems",4],
+  ["White Orchid Plant","plant",70],
+  ["Yucca","plant",22]
+];
+
+// State
+let flowerItems = [];   // {name, type, price, qty, custom}
+let sundryItems = [];   // {name, price}
+let allFlowers = [...FLOWERS];
+
+// ── Draft autosave — so leaving this page and coming back doesn't lose
+//    what you've entered; "Clear & Start New Job" is the explicit reset. ──
+const CALC_DRAFT_KEY = 'fl_calc_draft';
+function saveDraft() {
+  try {
+    localStorage.setItem(CALC_DRAFT_KEY, JSON.stringify({
+      flowerItems, sundryItems,
+      costTransport: document.getElementById('costTransport').value,
+      costOT: document.getElementById('costOT').value,
+      revenueInput: document.getElementById('revenueInput').value,
+      discountPct: document.getElementById('discountPct').value
+    }));
+  } catch (e) {}
+}
+function loadDraft() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CALC_DRAFT_KEY) || 'null');
+    if (!d) return;
+    flowerItems = d.flowerItems || [];
+    sundryItems = d.sundryItems || [];
+    document.getElementById('costTransport').value = d.costTransport || '';
+    document.getElementById('costOT').value = d.costOT || '';
+    document.getElementById('revenueInput').value = d.revenueInput || '';
+    document.getElementById('discountPct').value = d.discountPct || '';
+  } catch (e) {}
+}
+
+// ── Init dropdown ─────────────────────────────────────────────────────────────
+function buildDropdown(list) {
+  const sel = document.getElementById('flowerSelect');
+  sel.innerHTML = '<option value="">— Select a flower —</option>';
+  list.forEach((f, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${f[0]}  (AED ${f[2]} / ${f[1]})`;
+    sel.appendChild(opt);
+  });
+}
+buildDropdown(allFlowers);
+
+document.getElementById('flowerSelect').addEventListener('change', function() {
+  const idx = parseInt(this.value);
+  if (!isNaN(idx)) {
+    const f = allFlowers[idx];
+    document.getElementById('selectedPrice').textContent = `${f[0]} — AED ${f[2]} per ${f[1]}`;
+  } else {
+    document.getElementById('selectedPrice').textContent = 'Select a flower above';
+  }
+});
+
+function filterFlowers() {
+  const q = document.getElementById('flowerSearch').value.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if (!q) { box.classList.remove('open'); box.innerHTML = ''; return; }
+  const matches = allFlowers
+    .map((f, i) => ({ f, i }))
+    .filter(x => x.f[0].toLowerCase().includes(q));
+  if (!matches.length) {
+    box.innerHTML = '<div class="sr-none">No flower found for "' + q + '" — add it below as a custom flower</div>';
+  } else {
+    box.innerHTML = matches.map(x =>
+      '<div class="sr-item" onclick="pickSearchResult(' + x.i + ')"><span>' + x.f[0] + '</span>' +
+      '<span class="sr-price">AED ' + x.f[2] + ' / ' + x.f[1] + '</span></div>'
+    ).join('');
+  }
+  box.classList.add('open');
+}
+
+function pickSearchResult(idx) {
+  const f = allFlowers[idx];
+  const sel = document.getElementById('flowerSelect');
+  sel.value = String(idx);
+  document.getElementById('selectedPrice').textContent = `${f[0]} — AED ${f[2]} per ${f[1]}`;
+  document.getElementById('flowerSearch').value = f[0];
+  const box = document.getElementById('searchResults');
+  box.classList.remove('open');
+  box.innerHTML = '';
+  document.getElementById('flowerQty').focus();
+}
+
+/* close results when tapping elsewhere */
+document.addEventListener('pointerdown', e => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('searchResults').classList.remove('open');
+  }
+});
+
+// ── Add flowers ───────────────────────────────────────────────────────────────
+async function addFlower() {
+  const sel = document.getElementById('flowerSelect');
+  const idx = parseInt(sel.value);
+  const qty = parseInt(document.getElementById('flowerQty').value) || 1;
+  if (isNaN(idx)) { await FLApp.flAlert('Please select a flower first.'); return; }
+  const f = FLOWERS[idx];
+  const existing = flowerItems.find(i => i.name === f[0]);
+  if (existing) { existing.qty += qty; }
+  else { flowerItems.push({name:f[0], type:f[1], price:f[2], qty}); }
+  sel.value = '';
+  document.getElementById('flowerQty').value = 1;
+  document.getElementById('selectedPrice').textContent = 'Select a flower above';
+  renderFlowers(); recalc();
+}
+
+async function addCustomFlower() {
+  const name  = document.getElementById('customName').value.trim();
+  const price = parseFloat(document.getElementById('customPrice').value);
+  const qty   = parseInt(document.getElementById('customQty').value) || 1;
+  if (!name || isNaN(price) || price <= 0) { await FLApp.flAlert('Enter name and price.'); return; }
+  const existing = flowerItems.find(i => i.name === name);
+  if (existing) { existing.qty += qty; }
+  else { flowerItems.push({name, type:'custom', price, qty, custom:true}); }
+  document.getElementById('customName').value = '';
+  document.getElementById('customPrice').value = '';
+  document.getElementById('customQty').value = 1;
+  renderFlowers(); recalc();
+}
+
+function changeQty(name, delta) {
+  const item = flowerItems.find(i => i.name === name);
+  if (!item) return;
+  item.qty = Math.max(0, item.qty + delta);
+  if (item.qty === 0) flowerItems = flowerItems.filter(i => i.name !== name);
+  renderFlowers(); recalc();
+}
+
+function removeFlower(name) {
+  flowerItems = flowerItems.filter(i => i.name !== name);
+  renderFlowers(); recalc();
+}
+
+function renderFlowers() {
+  const list = document.getElementById('flowerList');
+  const total = flowerItems.reduce((s,i) => s + i.price*i.qty, 0);
+  if (flowerItems.length === 0) {
+    list.innerHTML = '<div class="empty">No flowers added yet</div>';
+    document.getElementById('flowerSubtotalRow').style.display = 'none';
+    document.getElementById('flowerCount').textContent = '';
+    return;
+  }
+  list.innerHTML = flowerItems.map(item => `
+    <div class="item-row">
+      <div>
+        <div class="item-name">${item.name}${item.custom?' ⭐':''}</div>
+        <div class="item-price">AED ${item.price} / ${item.type}</div>
+      </div>
+      <div class="item-qty-wrap">
+        <button class="qty-btn" onclick="changeQty('${item.name.replace(/'/g,"\\'")}', -1)">−</button>
+        <span class="qty-val">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty('${item.name.replace(/'/g,"\\'")}', 1)">+</button>
+      </div>
+      <span class="item-total">AED ${(item.price*item.qty).toFixed(2)}</span>
+      <button class="btn-del" onclick="removeFlower('${item.name.replace(/'/g,"\\'")}')">×</button>
+    </div>`).join('');
+  document.getElementById('flowerCount').textContent = `(${flowerItems.length} items)`;
+  const sub = document.getElementById('flowerSubtotalRow');
+  sub.style.display = 'block';
+  document.getElementById('flowerSubtotal').textContent = 'AED ' + total.toFixed(2);
+}
+
+// ── Sundries ──────────────────────────────────────────────────────────────────
+async function addSundry() {
+  const name  = document.getElementById('sundryName').value.trim();
+  const price = parseFloat(document.getElementById('sundryPrice').value);
+  if (!name || isNaN(price)) { await FLApp.flAlert('Enter item name and price.'); return; }
+  sundryItems.push({name, price});
+  document.getElementById('sundryName').value = '';
+  document.getElementById('sundryPrice').value = '';
+  renderSundries(); recalc();
+}
+
+function removeSundry(idx) {
+  sundryItems.splice(idx, 1);
+  renderSundries(); recalc();
+}
+
+function renderSundries() {
+  const list = document.getElementById('sundryList');
+  const total = sundryItems.reduce((s,i) => s + i.price, 0);
+  if (sundryItems.length === 0) {
+    list.innerHTML = '<div class="empty">No sundries added</div>';
+    document.getElementById('sundrySubtotalRow').style.display = 'none';
+    return;
+  }
+  list.innerHTML = sundryItems.map((item, idx) => `
+    <div class="item-row">
+      <span class="item-name">${item.name}</span>
+      <span class="item-total">AED ${item.price.toFixed(2)}</span>
+      <button class="btn-del" onclick="removeSundry(${idx})">×</button>
+    </div>`).join('');
+  document.getElementById('sundrySubtotalRow').style.display = 'block';
+  document.getElementById('sundrySubtotal').textContent = 'AED ' + total.toFixed(2);
+}
+
+// ── Recalculate ───────────────────────────────────────────────────────────────
+function recalc() {
+  const costFlowers   = flowerItems.reduce((s,i) => s + i.price*i.qty, 0);
+  const costSundries  = sundryItems.reduce((s,i) => s + i.price, 0);
+  const costTransport = parseFloat(document.getElementById('costTransport').value) || 0;
+  const costOT        = parseFloat(document.getElementById('costOT').value) || 0;
+  const totalCost = costFlowers + costSundries + costTransport + costOT;
+  const GPT = 70;   /* deliberately NOT a setting — see event-editor: Jo approves on that page */
+  const chargeFor70 = totalCost > 0 ? totalCost / (1 - GPT / 100) : 0;
+
+  // Update summary tab
+  document.getElementById('s-flowers').textContent   = 'AED ' + costFlowers.toFixed(2);
+  document.getElementById('s-sundries').textContent  = 'AED ' + costSundries.toFixed(2);
+  document.getElementById('s-transport').textContent = 'AED ' + costTransport.toFixed(2);
+  document.getElementById('s-ot').textContent        = 'AED ' + costOT.toFixed(2);
+  document.getElementById('s-total').textContent     = 'AED ' + totalCost.toFixed(2);
+
+  if (totalCost > 0) {
+    document.getElementById('chargeLabel').textContent = 'To reach ' + GPT + '% GP — charge';
+    document.getElementById('chargeAmount').textContent = 'AED ' + Math.ceil(chargeFor70).toLocaleString();
+    document.getElementById('chargeSub').textContent =
+      `Cost: AED ${totalCost.toFixed(0)} · GP: AED ${(chargeFor70-totalCost).toFixed(0)}`;
+    // Auto-fill revenue if empty
+    const revInput = document.getElementById('revenueInput');
+    if (!revInput.value) { revInput.value = Math.ceil(chargeFor70); }
+  } else {
+    document.getElementById('chargeAmount').textContent = 'AED —';
+    document.getElementById('chargeSub').textContent = 'Enter costs above to calculate';
+  }
+  recalcGP();
+  saveDraft();
+}
+
+function recalcGP() {
+  const GPT = 70;   /* deliberately NOT a setting — see event-editor: Jo approves on that page */
+  const costFlowers   = flowerItems.reduce((s,i) => s + i.price*i.qty, 0);
+  const costSundries  = sundryItems.reduce((s,i) => s + i.price, 0);
+  const costTransport = parseFloat(document.getElementById('costTransport').value) || 0;
+  const costOT        = parseFloat(document.getElementById('costOT').value) || 0;
+  const totalCost = costFlowers + costSundries + costTransport + costOT;
+
+  const revenue = parseFloat(document.getElementById('revenueInput').value) || 0;
+  if (revenue <= 0 || totalCost <= 0) {
+    document.getElementById('gpPct').textContent = '—';
+    document.getElementById('gpAED').textContent = '—';
+    document.getElementById('gpBar').style.width = '0%';
+    document.getElementById('gpWarning').style.display = 'none';
+    return;
+  }
+  const gp    = revenue - totalCost;
+  const gpPct = (gp / revenue) * 100;
+
+  document.getElementById('gpPct').textContent = gpPct.toFixed(1) + '%';
+  document.getElementById('gpAED').textContent = 'AED ' + Math.round(gp).toLocaleString();
+  document.getElementById('gpBar').style.width  = Math.max(0, Math.min(100, gpPct)) + '%';
+
+  const bar = document.getElementById('gpBar');
+  const warn = document.getElementById('gpWarning');
+  warn.style.display = 'block';
+  if (gpPct >= GPT) {
+    bar.style.background = '#1E5631';
+    warn.className = 'gp-warning warn-green';
+    warn.textContent = `✅ ${gpPct.toFixed(1)}% GP — on target (${GPT}%+ ✓)`;
+  } else if (gpPct >= GPT - 10) {
+    bar.style.background = '#F59E0B';
+    warn.className = 'gp-warning warn-amber';
+    warn.textContent = `⚠️ ${gpPct.toFixed(1)}% GP — below target. Raise quote by AED ${Math.ceil(totalCost / (1 - GPT / 100) - revenue).toLocaleString()} to reach ${GPT}%.`;
+  } else {
+    bar.style.background = '#EF4444';
+    warn.className = 'gp-warning warn-red';
+    warn.textContent = `🔴 ${gpPct.toFixed(1)}% GP — too low! Raise quote by AED ${Math.ceil(totalCost / (1 - GPT / 100) - revenue).toLocaleString()} to reach ${GPT}%.`;
+  }
+  recalcDiscount();
+}
+
+function recalcDiscount() {
+  saveDraft();
+  const revenue    = parseFloat(document.getElementById('revenueInput').value) || 0;
+  const discPct    = parseFloat(document.getElementById('discountPct').value) || 0;
+  const costFlowers   = flowerItems.reduce((s,i) => s + i.price*i.qty, 0);
+  const costSundries  = sundryItems.reduce((s,i) => s + i.price, 0);
+  const costTransport = parseFloat(document.getElementById('costTransport').value) || 0;
+  const costOT        = parseFloat(document.getElementById('costOT').value) || 0;
+  const totalCost = costFlowers + costSundries + costTransport + costOT;
+
+  if (discPct <= 0 || revenue <= 0) {
+    document.getElementById('discResult').style.display = 'none'; return;
+  }
+  const discRev  = revenue * (1 - discPct/100);
+  const newGP    = discRev - totalCost;
+  const newGPPct = totalCost > 0 ? (newGP / discRev) * 100 : 0;
+
+  document.getElementById('d-rev').textContent = 'AED ' + Math.round(discRev).toLocaleString();
+  document.getElementById('d-gp').textContent  = 'AED ' + Math.round(newGP).toLocaleString();
+  document.getElementById('d-pct').textContent = newGPPct.toFixed(1) + '%';
+
+  const warnRow = document.getElementById('d-warn-row');
+  const warnTxt = document.getElementById('d-warn');
+  if (newGPPct < 60) {
+    warnRow.style.display = 'flex';
+    warnTxt.textContent = `⚠️ Below 60% — not recommended`;
+  } else if (newGPPct < 70) {
+    warnRow.style.display = 'flex';
+    warnTxt.textContent = `GP drops below 70% target`;
+    warnTxt.style.color = '#D97706';
+  } else {
+    warnRow.style.display = 'none';
+  }
+  document.getElementById('discResult').style.display = 'block';
+}
+
+
+// ── Price management ──────────────────────────────────────────────────────────
+let editableFlowers = null; // loaded from localStorage or FLOWERS
+
+/* bump this whenever the built-in FLOWERS list changes — devices holding an
+   older saved list are migrated to the new one automatically */
+const PRICELIST_VERSION = 2;
+
+function loadPrices() {
+  const saved = localStorage.getItem('flowerPrices');
+  const savedVersion = parseInt(localStorage.getItem('flowerPricesVersion') || '1');
+  if (saved && savedVersion >= PRICELIST_VERSION) {
+    try { editableFlowers = JSON.parse(saved); }
+    catch(e) { editableFlowers = FLOWERS.map(f => [...f]); }
+  } else {
+    /* new price list ships with the app — replace any old saved list */
+    editableFlowers = FLOWERS.map(f => [...f]);
+    localStorage.removeItem('flowerPrices');
+    localStorage.removeItem('pricesUpdated');
+    localStorage.setItem('flowerPricesVersion', String(PRICELIST_VERSION));
+  }
+  // Sync allFlowers with editable
+  allFlowers = editableFlowers.map(f => [...f]);
+  buildDropdown(allFlowers);
+  updateLastUpdated();
+}
+
+function updateLastUpdated() {
+  const d = localStorage.getItem('pricesUpdated');
+  const el = document.getElementById('priceLastUpdated');
+  if (d && el) el.textContent = 'Last updated: ' + d;
+}
+
+function renderPriceList() {
+  const q = (document.getElementById('priceSearch')?.value || '').toLowerCase();
+  const list = document.getElementById('priceEditList');
+  const filtered = editableFlowers.filter(f => f[0].toLowerCase().includes(q));
+  document.getElementById('priceCount').textContent = `${filtered.length} of ${editableFlowers.length} items`;
+  list.innerHTML = filtered.map((f, fi) => {
+    const realIdx = editableFlowers.indexOf(f);
+    return `<div class="price-list-item">
+      <div><div class="pname">${f[0]}</div><div class="ptype">${f[1]}</div></div>
+      <input class="price-input" type="number" step="0.25" value="${f[2]}"
+             onchange="editableFlowers[${realIdx}][2] = parseFloat(this.value)||0"
+             oninput="editableFlowers[${realIdx}][2] = parseFloat(this.value)||0">
+      <button class="btn-del-price" onclick="deleteFlowerFromList(${realIdx})">×</button>
+    </div>`;
+  }).join('');
+}
+
+async function deleteFlowerFromList(idx) {
+  if (!(await FLApp.flConfirm('Remove ' + editableFlowers[idx][0] + ' from the list?'))) return;
+  editableFlowers.splice(idx, 1);
+  renderPriceList();
+}
+
+async function addNewFlowerToList() {
+  const name  = document.getElementById('newFlowerName').value.trim();
+  const type  = document.getElementById('newFlowerType').value.trim() || 'stems';
+  const price = parseFloat(document.getElementById('newFlowerPrice').value);
+  if (!name || isNaN(price) || price <= 0) { await FLApp.flAlert('Enter name and price.'); return; }
+  if (editableFlowers.find(f => f[0].toLowerCase() === name.toLowerCase())) {
+    await FLApp.flAlert('This flower already exists in the list. Scroll down to edit its price.'); return;
+  }
+  editableFlowers.push([name, type, price]);
+  editableFlowers.sort((a,b) => a[0].localeCompare(b[0]));
+  document.getElementById('newFlowerName').value = '';
+  document.getElementById('newFlowerType').value = '';
+  document.getElementById('newFlowerPrice').value = '';
+  renderPriceList();
+}
+
+function savePrices() {
+  localStorage.setItem('flowerPrices', JSON.stringify(editableFlowers));
+  localStorage.setItem('flowerPricesVersion', String(PRICELIST_VERSION));
+  const now = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  localStorage.setItem('pricesUpdated', now);
+  allFlowers = editableFlowers.map(f => [...f]);
+  buildDropdown(allFlowers);
+  updateLastUpdated();
+  if (FLApp.currentUser()) FLApp.notify('Flower prices updated (' + editableFlowers.length + ' items)', FLApp.currentUser().name);
+  const toast = document.getElementById('saveToast');
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2500);
+}
+
+async function resetPrices() {
+  if (!(await FLApp.flConfirm('Reset ALL prices back to the original 15 July 2026 list?'))) return;
+  editableFlowers = FLOWERS.map(f => [...f]);
+  localStorage.removeItem('flowerPrices');
+  localStorage.removeItem('pricesUpdated');
+  allFlowers = editableFlowers.map(f => [...f]);
+  buildDropdown(allFlowers);
+  renderPriceList();
+  document.getElementById('priceLastUpdated').textContent = '';
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const idx = {flowers:0,costs:1,summary:2,prices:3}[name];
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  if (name === 'summary') recalc();
+  if (name === 'prices') { renderPriceList(); }
+}
+
+// Init on load
+loadPrices();
+loadDraft();
+renderFlowers();
+renderSundries();
+recalc();
+
+async function resetAll() {
+  if (!(await FLApp.flConfirm('Clear all items and start a new job?'))) return;
+  flowerItems = []; sundryItems = [];
+  renderFlowers(); renderSundries();
+  document.getElementById('costTransport').value = '';
+  document.getElementById('costOT').value = '';
+  document.getElementById('revenueInput').value = '';
+  document.getElementById('discountPct').value = '';
+  localStorage.removeItem(CALC_DRAFT_KEY);
+  recalc();
+  switchTab('flowers');
+}
+</script>
+
+<!-- ═══ TAB 4: PRICES ════════════════════════════════════════════════ -->
+<div id="tab-prices" class="section">
+
+  <div class="card">
+    <div class="card-title">Add New Flower / Foliage</div>
+    <div class="add-new-price">
+      <input type="text" id="newFlowerName" placeholder="Flower name">
+      <input type="text" id="newFlowerType" placeholder="stems">
+      <input type="number" id="newFlowerPrice" placeholder="AED" inputmode="decimal" step="0.25">
+      <button class="btn-add-new-price" onclick="addNewFlowerToList()">+</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Edit Prices</div>
+    <div class="price-last-updated" id="priceLastUpdated"></div>
+    <input type="text" class="price-search" id="priceSearch" placeholder="🔍  Search flower to edit..." oninput="renderPriceList()">
+    <div class="price-count" id="priceCount"></div>
+    <div id="priceEditList"></div>
+  </div>
+
+  <button class="btn-save-prices" onclick="savePrices()">💾  Save All Price Changes</button>
+  <div class="save-toast" id="saveToast">✅ Prices saved!</div>
+  <button onclick="resetPrices()" style="width:100%;padding:11px;background:#FEE2E2;border:none;border-radius:10px;font-size:13px;font-weight:600;color:#991B1B;cursor:pointer;margin-bottom:12px;">
+    ↩️ Reset to original prices
+  </button>
+</div>
+
+</body>
+</html>

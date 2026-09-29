@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Event Enquiries</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;--tint:#FBF7F1;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:16px 16px 20px;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:21px;font-weight:700;letter-spacing:1.5px;}
+.header p{font-size:10px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 0;}
+.wrap{max-width:720px;margin:0 auto;padding:14px;}
+@media (min-width:900px){ .wrap{max-width:960px;} }
+
+.card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:16px;margin-bottom:16px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.card h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);font-weight:700;margin-bottom:10px;}
+label{display:block;font-size:9.5px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:8px 0 4px;}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;color:var(--terra);}
+input:focus,select:focus{border-color:var(--champagne);background:#fff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;}
+@media (max-width:520px){.grid3{grid-template-columns:1fr 1fr;}}
+.add-btn{width:100%;margin-top:14px;padding:12px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;font-size:11.5px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
+.check-row{display:flex;align-items:center;gap:8px;margin-top:12px;}
+.check-row input[type=checkbox]{width:auto;accent-color:var(--rouge);}
+.check-row label{margin:0;}
+
+.toolbar{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px 14px 14px;margin-bottom:16px;}
+.toolbar-row{display:flex;flex-wrap:wrap;gap:16px 20px;align-items:center;padding-bottom:11px;margin-bottom:11px;border-bottom:1px solid var(--border);}
+.tfield{display:flex;align-items:center;gap:7px;}
+.tfield label{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--rouge);text-transform:uppercase;white-space:nowrap;margin:0;}
+.tfield select{width:auto;padding:7px 9px;font-size:12px;}
+.viewby{display:inline-flex;background:var(--lace);border-radius:6px;padding:2px;}
+.viewby button{border:none;background:transparent;font-size:11px;font-weight:700;padding:6px 11px;border-radius:5px;color:var(--muted);cursor:pointer;font-family:inherit;letter-spacing:.3px;}
+.viewby button.on{background:#fff;color:var(--rouge);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+.filters{display:flex;gap:7px;flex-wrap:wrap;}
+.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:#fff;color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.8px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.fchip.on{border-color:var(--rouge);background:var(--rouge);color:var(--champagne);}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:50px 25px;line-height:1.8;}
+
+.enq{background:#fff;border:1px solid var(--border);border-radius:8px;padding:17px 18px 15px;margin-bottom:15px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.enq-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:5px;}
+.enq-name{flex:1;min-width:140px;font-family:'EB Garamond',Georgia,serif;font-size:18px;font-weight:700;color:var(--rouge);border:none;background:none;padding:2px 0;}
+.enq-name:focus{outline:none;border-bottom:1px solid var(--champagne);}
+.enq-name[readonly]{background:none;}
+.status-pill{font-size:9px;font-weight:700;letter-spacing:.8px;padding:5px 10px;border-radius:20px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap;}
+.enq-sub{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px;}
+.enq-sub .sep{color:var(--border);}
+.enq-sub input{width:auto;flex:0 1 150px;padding:5px 7px;font-size:12px;}
+.f-lbl{font-size:8.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+.f-val{font-size:12.5px;color:var(--terra);font-weight:600;}
+
+.timeline{display:flex;align-items:flex-start;margin-bottom:14px;}
+.tl-step{flex:1;text-align:center;position:relative;padding-top:13px;}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--champagne);position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:1;}
+.tl-dot.done{background:var(--rouge);}
+.tl-dot.warn{background:var(--bad);}
+.tl-line{position:absolute;top:3px;left:-50%;width:100%;height:1.5px;background:var(--border);z-index:0;}
+.tl-step:first-child .tl-line{display:none;}
+.tl-lbl{font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.tl-val{font-size:12px;font-weight:600;color:var(--terra);padding:0 4px;}
+.tl-val input[type=date]{width:100%;font-size:11px;padding:4px 3px;text-align:center;}
+.tl-flag{font-size:9px;color:var(--bad);font-weight:700;margin-top:3px;}
+
+.deal-panel{background:var(--tint);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:6px;display:flex;gap:16px;flex-wrap:wrap;}
+.deal-item{flex:1;min-width:110px;}
+.deal-item input,.deal-item select{background:#fff;}
+.chance-wrap{display:flex;align-items:center;gap:8px;}
+.chance-bar{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden;}
+.chance-fill{height:100%;border-radius:3px;transition:width .2s;}
+.chance-num{width:48px;padding:6px 7px;font-size:12px;text-align:right;}
+.chance-pct{font-size:11.5px;font-weight:700;min-width:34px;text-align:right;}
+.quote-toggle{display:flex;align-items:center;gap:6px;}
+.quote-toggle input[type=checkbox]{width:auto;accent-color:var(--good);}
+.quote-badge{font-size:9px;font-weight:700;letter-spacing:.6px;padding:3px 8px;border-radius:20px;text-transform:uppercase;}
+.paid-row{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;cursor:pointer;}
+.paid-row input[type=checkbox]{width:auto;accent-color:var(--rouge);}
+.enq-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.enq-actions a,.enq-actions button{flex:1;text-align:center;padding:8px 10px;border-radius:2px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-decoration:none;white-space:nowrap;font-family:inherit;cursor:pointer;min-width:90px;}
+.act-wa{background:#25D366;color:#fff;border:none;}
+.act-call{background:var(--lace);color:var(--rouge);border:1px solid var(--border);}
+.act-del{background:none;color:var(--bad);border:1px solid #E5C9C9;flex:0 0 auto !important;padding:8px 12px !important;}
+.msg-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
+.msg-row{display:flex;align-items:flex-start;gap:6px;background:var(--lace);border:1px solid var(--border);border-radius:2px;padding:7px 9px;font-size:12px;}
+.msg-name{font-weight:700;flex-shrink:0;white-space:nowrap;}
+.msg-text{flex:1;color:var(--terra);word-break:break-word;}
+.msg-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0;flex-shrink:0;text-decoration:underline;}
+.msg-empty{font-size:11.5px;color:var(--muted);font-style:italic;padding:2px 0;}
+.msg-compose{display:flex;gap:6px;margin-top:6px;}
+.msg-compose input{flex:1;font-size:12.5px;padding:8px 9px;}
+.msg-compose button{background:var(--rouge);color:var(--champagne);border:none;border-radius:2px;padding:0 14px;font-size:10.5px;font-weight:700;letter-spacing:.5px;cursor:pointer;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin','ceo']);</script>
+
+<div class="topbar">
+  <a href="home.html">‹ HOME</a>
+  <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+</div>
+
+<div class="header">
+  <h1>Event Enquiries</h1>
+  <p id="headerSub" style="display:none;">Upcoming leads &amp; sales pipeline</p>
+</div>
+
+<div class="wrap">
+  <div class="card" id="addCard">
+    <h2>＋ Log a new enquiry</h2>
+    <label>Client name</label>
+    <input id="a-name" placeholder="e.g. Fatima Al Suwaidi">
+    <div class="grid2">
+      <div><label>Mobile number</label><input id="a-mobile" type="tel" placeholder="e.g. 050 123 4567"></div>
+      <div><label>Occasion</label><input id="a-occasion" list="occasion-list" placeholder="e.g. Wedding"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Enquiry received</label><input id="a-enqdate" type="date"></div>
+      <div><label>Event date</label><input id="a-eventdate" type="date"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Current status</label><select id="a-status"></select></div>
+      <div><label>Chance of sale (%)</label><input id="a-chance" type="number" min="0" max="100" placeholder="e.g. 50"></div>
+    </div>
+    <datalist id="occasion-list">
+      <option value="Birthday"><option value="Anniversary"><option value="Wedding">
+      <option value="Engagement"><option value="Baby Shower"><option value="Corporate">
+    </datalist>
+    <div class="check-row"><input type="checkbox" id="a-quotesent"><label for="a-quotesent" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--terra);font-size:13px;">Quote already sent</label></div>
+    <button class="add-btn" onclick="addEnquiry()">＋ Save enquiry</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <div class="tfield">
+        <label for="sortSelect">Sort by</label>
+        <select id="sortSelect" onchange="sortBy=this.value;render()">
+          <option value="event">Event date (soonest first)</option>
+          <option value="enquiry">Enquiry date (oldest first)</option>
+          <option value="enquiryNew">Enquiry date (newest first)</option>
+          <option value="value">Quote value (highest first)</option>
+          <option value="followup">Follow-up date (soonest first)</option>
+        </select>
+      </div>
+      <div class="tfield">
+        <label>View by</label>
+        <div class="viewby" id="viewByBox"></div>
+      </div>
+      <div class="tfield">
+        <label for="monthSelect">Month</label>
+        <select id="monthSelect" onchange="monthFilter=this.value;render()"></select>
+      </div>
+    </div>
+    <div class="filters" id="statusFilters"></div>
+  </div>
+  <div id="list"></div>
+</div>
+
+<script>
+const STATUSES = [
+  { v: 'new', l: 'New Enquiry', bg: 'var(--lace)', fg: 'var(--muted)', bd: 'var(--border)' },
+  { v: 'contacted', l: 'Contacted', bg: '#FBF6EC', fg: '#8a6d3b', bd: 'var(--champagne)' },
+  { v: 'negotiating', l: 'Negotiating', bg: '#FBF6EC', fg: 'var(--rouge)', bd: 'var(--champagne)' },
+  { v: 'awaiting', l: 'Awaiting Response', bg: 'var(--lace)', fg: 'var(--muted)', bd: 'var(--border)' },
+  { v: 'confirmed', l: 'Confirmed — Won', bg: '#E3EFE7', fg: 'var(--good)', bd: '#BFD8C6' },
+  { v: 'lost', l: 'Lost / Declined', bg: '#F4E4E4', fg: 'var(--bad)', bd: '#E5C9C9' }
+];
+const isAdmin = FLApp.isAdmin();
+const myRole = isAdmin ? 'admin' : (FLApp.isCeo() ? 'ceo' : null);
+let statusFilter = 'all';
+let sortBy = 'event';
+let viewBy = 'received';
+let monthFilter = 'all';
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+function statusMeta(v) { return STATUSES.find(s => s.v === v) || STATUSES[0]; }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-').map(Number);
+  return d + ' ' + MONTHS_SHORT[m - 1] + ' ' + y;
+}
+function monthLabel(key) {
+  const [y, m] = key.split('-');
+  return MONTHS_SHORT[parseInt(m, 10) - 1] + ' ' + y;
+}
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function waDigits(mobile) {
+  let d = (mobile || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('0')) d = '971' + d.slice(1);
+  else if (!d.startsWith('971') && d.length <= 10) d = '971' + d;
+  return d;
+}
+function chanceColor(pct) {
+  if (pct >= 70) return 'var(--good)';
+  if (pct >= 40) return '#8a6d3b';
+  return 'var(--bad)';
+}
+
+function setViewBy(v) { viewBy = v; monthFilter = 'all'; render(); }
+
+function buildViewByAndMonth() {
+  document.getElementById('viewByBox').innerHTML =
+    '<button class="' + (viewBy === 'received' ? 'on' : '') + '" onclick="setViewBy(\'received\')">Enquiry date</button>' +
+    '<button class="' + (viewBy === 'event' ? 'on' : '') + '" onclick="setViewBy(\'event\')">Event date</button>';
+
+  const all = FLApp.enquiriesAll();
+  const field = viewBy === 'event' ? 'eventDate' : 'enqDate';
+  const counts = {};
+  all.forEach(e => {
+    const d = e[field];
+    const key = d ? d.slice(0, 7) : 'none';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  const keys = Object.keys(counts).filter(k => k !== 'none').sort();
+  const validValues = ['all'].concat(keys, counts.none ? ['none'] : []);
+  if (!validValues.includes(monthFilter)) monthFilter = 'all';
+  let html = '<option value="all"' + (monthFilter === 'all' ? ' selected' : '') + '>All months</option>';
+  keys.forEach(k => {
+    html += '<option value="' + k + '"' + (monthFilter === k ? ' selected' : '') + '>' + monthLabel(k) + ' (' + counts[k] + ')</option>';
+  });
+  if (counts.none) {
+    const lbl = viewBy === 'event' ? 'Not yet scheduled' : 'No date set';
+    html += '<option value="none"' + (monthFilter === 'none' ? ' selected' : '') + '>' + lbl + ' (' + counts.none + ')</option>';
+  }
+  document.getElementById('monthSelect').innerHTML = html;
+}
+
+document.getElementById('a-status').innerHTML = STATUSES.map(s => '<option value="' + s.v + '">' + s.l + '</option>').join('');
+if (!isAdmin) document.getElementById('addCard').style.display = 'none';
+if (isAdmin) document.getElementById('headerSub').style.display = '';
+
+async function addEnquiry() {
+  const name = document.getElementById('a-name').value.trim();
+  const mobile = document.getElementById('a-mobile').value.trim();
+  const occasion = document.getElementById('a-occasion').value.trim();
+  const enqDate = document.getElementById('a-enqdate').value;
+  const eventDate = document.getElementById('a-eventdate').value;
+  const status = document.getElementById('a-status').value;
+  const chance = Math.max(0, Math.min(100, parseInt(document.getElementById('a-chance').value) || 0));
+  const quoteSentDate = document.getElementById('a-quotesent').checked ? todayISO() : '';
+  if (!name) { await FLApp.flAlert('Client name is needed.'); return; }
+  FLApp.enquirySave({ id: 'nq' + Date.now(), name, mobile, occasion, enqDate, eventDate, status, chance, quoteSentDate });
+  document.getElementById('a-name').value = '';
+  document.getElementById('a-mobile').value = '';
+  document.getElementById('a-occasion').value = '';
+  document.getElementById('a-enqdate').value = '';
+  document.getElementById('a-eventdate').value = '';
+  document.getElementById('a-status').value = 'new';
+  document.getElementById('a-chance').value = '';
+  document.getElementById('a-quotesent').checked = false;
+  render();
+}
+
+function patch(id, field, value) {
+  const all = FLApp.enquiriesAll();
+  const row = all.find(x => x.id === id);
+  if (!row) return;
+  row[field] = value;
+  FLApp.enquirySave(row);
+}
+
+function addMessage(id) {
+  const input = document.getElementById('msg-' + id);
+  const text = (input.value || '').trim();
+  if (!text || !myRole) return;
+  const all = FLApp.enquiriesAll();
+  const row = all.find(x => x.id === id);
+  if (!row) return;
+  const u = FLApp.currentUser();
+  row.messages = row.messages || [];
+  row.messages.push({ id: 'm' + Date.now(), name: u.name, role: myRole, text: text, ts: new Date().toISOString() });
+  FLApp.enquirySave(row);
+  render();
+}
+
+function deleteMessage(id, msgId) {
+  const all = FLApp.enquiriesAll();
+  const row = all.find(x => x.id === id);
+  if (!row) return;
+  row.messages = (row.messages || []).filter(m => !(m.id === msgId && m.role === myRole));
+  FLApp.enquirySave(row);
+  render();
+}
+
+async function removeEnquiry(id) {
+  if (await FLApp.flConfirm('Remove this enquiry?')) { FLApp.enquiryDelete(id); render(); }
+}
+
+function render() {
+  const all = FLApp.enquiriesAll().slice().sort((a, b) => {
+    if (sortBy === 'enquiry') return (a.enqDate || '9999').localeCompare(b.enqDate || '9999');
+    if (sortBy === 'enquiryNew') return (b.enqDate || '').localeCompare(a.enqDate || '');
+    if (sortBy === 'value') return (b.quoteValue || 0) - (a.quoteValue || 0);
+    if (sortBy === 'followup') return (a.followUpDate || '9999').localeCompare(b.followUpDate || '9999');
+    return (a.eventDate || a.enqDate || '9999').localeCompare(b.eventDate || b.enqDate || '9999');
+  });
+  const box = document.getElementById('list');
+
+  buildViewByAndMonth();
+
+  document.getElementById('statusFilters').innerHTML = ['all'].concat(STATUSES.map(s => s.v)).map(v =>
+    '<button class="fchip ' + (statusFilter === v ? 'on' : '') + '" onclick="statusFilter=\'' + v + '\';render()">' +
+    (v === 'all' ? 'All' : statusMeta(v).l) + '</button>').join('');
+
+  const monthField = viewBy === 'event' ? 'eventDate' : 'enqDate';
+  const rows = (statusFilter === 'all' ? all : all.filter(e => (e.status || 'new') === statusFilter))
+    .filter(e => {
+      if (monthFilter === 'all') return true;
+      const d = e[monthField];
+      const key = d ? d.slice(0, 7) : 'none';
+      return key === monthFilter;
+    });
+
+  if (!rows.length) {
+    box.innerHTML = '<div class="empty">' + (all.length ? 'No enquiries match these filters.' : 'No enquiries logged yet.') + '</div>';
+    return;
+  }
+
+  box.innerHTML = rows.map(e => {
+    const sm = statusMeta(e.status || 'new');
+    const wa = waDigits(e.mobile);
+    const chance = e.chance || 0;
+    const nameField = isAdmin
+      ? '<input class="enq-name" value="' + esc(e.name) + '" oninput="patch(\'' + e.id + '\',\'name\',this.value)">'
+      : '<span class="enq-name" style="display:inline-block;">' + esc(e.name || 'Untitled') + '</span>';
+    const paidStatusPill = '<span class="status-pill" style="background:#E3EFE7;color:var(--good);">🥳 Paid</span>' +
+      (isAdmin ? '<button onclick="patch(\'' + e.id + '\',\'paid\',false);render()" style="background:none;border:none;color:var(--muted);font-size:9.5px;text-decoration:underline;cursor:pointer;padding:0;margin-left:6px;">undo</button>' : '');
+    const statusField = e.paid
+      ? paidStatusPill
+      : (isAdmin
+        ? '<select onchange="patch(\'' + e.id + '\',\'status\',this.value);render()" style="width:auto;padding:5px 9px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-radius:20px;background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' +
+          STATUSES.map(s => '<option value="' + s.v + '"' + (s.v === (e.status || 'new') ? ' selected' : '') + '>' + s.l + '</option>').join('') + '</select>'
+        : '<span class="status-pill" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + sm.l + '</span>');
+    const mobileField = isAdmin
+      ? '<input value="' + esc(e.mobile) + '" oninput="patch(\'' + e.id + '\',\'mobile\',this.value)" placeholder="—">'
+      : '<div class="f-val">' + esc(e.mobile || '—') + '</div>';
+    const occasionField = isAdmin
+      ? '<input value="' + esc(e.occasion) + '" list="occasion-list" oninput="patch(\'' + e.id + '\',\'occasion\',this.value)" placeholder="—">'
+      : '<div class="f-val">' + esc(e.occasion || '—') + '</div>';
+    const enqDateField = isAdmin
+      ? '<input type="date" value="' + (e.enqDate || '') + '" onchange="patch(\'' + e.id + '\',\'enqDate\',this.value);render()">'
+      : fmtDate(e.enqDate);
+    const eventDateField = isAdmin
+      ? '<input type="date" value="' + (e.eventDate || '') + '" onchange="patch(\'' + e.id + '\',\'eventDate\',this.value);render()">'
+      : fmtDate(e.eventDate);
+    const chanceBar = '<div class="chance-wrap"><div class="chance-bar"><div class="chance-fill" id="cf-' + e.id + '" style="width:' + chance + '%;background:' + chanceColor(chance) + ';"></div></div>' +
+      '<input class="chance-num" type="number" min="0" max="100" value="' + chance + '" oninput="const v=Math.max(0,Math.min(100,parseInt(this.value)||0));patch(\'' + e.id + '\',\'chance\',v);document.getElementById(\'cf-' + e.id + '\').style.width=v+\'%\';document.getElementById(\'cf-' + e.id + '\').style.background=v>=70?\'var(--good)\':v>=40?\'#8a6d3b\':\'var(--bad)\';document.getElementById(\'cp-' + e.id + '\').textContent=v+\'%\';document.getElementById(\'cp-' + e.id + '\').style.color=v>=70?\'var(--good)\':v>=40?\'#8a6d3b\':\'var(--bad)\';">' +
+      '<span class="chance-pct" id="cp-' + e.id + '" style="color:' + chanceColor(chance) + ';">' + chance + '%</span></div>';
+    const chanceBarReadonly = '<div class="chance-wrap"><div class="chance-bar"><div class="chance-fill" style="width:' + chance + '%;background:' + chanceColor(chance) + ';"></div></div><span class="chance-pct" style="color:' + chanceColor(chance) + ';">' + chance + '%</span></div>';
+    const chanceField = isAdmin ? chanceBar : chanceBarReadonly;
+    const paidToggleRow = '<label class="paid-row"><input type="checkbox" onchange="patch(\'' + e.id + '\',\'paid\',this.checked);render()"> Mark as paid</label>';
+    const quoteField = isAdmin
+      ? '<input type="date" value="' + (e.quoteSentDate || '') + '" onchange="patch(\'' + e.id + '\',\'quoteSentDate\',this.value);render()">'
+      : (e.quoteSentDate ? fmtDate(e.quoteSentDate) : '<span class="quote-badge" style="background:var(--lace);color:var(--muted);">Not sent</span>');
+    const quoteValueField = isAdmin
+      ? '<input type="number" min="0" step="1" value="' + (e.quoteValue || '') + '" placeholder="—" oninput="patch(\'' + e.id + '\',\'quoteValue\',parseFloat(this.value)||0)">'
+      : (e.quoteValue ? 'AED ' + Number(e.quoteValue).toLocaleString() : '—');
+    const isOverdue = e.followUpDate && e.followUpDate < todayISO() && !e.paid && (e.status || 'new') !== 'lost';
+    const overdueDays = isOverdue ? Math.round((new Date(todayISO()) - new Date(e.followUpDate)) / 86400000) : 0;
+    const overdueFlag = isOverdue ? '<div class="tl-flag">⚠ ' + overdueDays + (overdueDays === 1 ? ' day' : ' days') + ' overdue</div>' : '';
+    const followUpField = isAdmin
+      ? '<input type="date" value="' + (e.followUpDate || '') + '" style="' + (isOverdue ? 'border-color:var(--bad);color:var(--bad);font-weight:700;' : '') + '" onchange="patch(\'' + e.id + '\',\'followUpDate\',this.value);render()">'
+      : '<span' + (isOverdue ? ' style="color:var(--bad);font-weight:700;"' : '') + '>' + fmtDate(e.followUpDate) + '</span>';
+
+    /* once paid, this is a closed deal — collapse to just the essentials */
+    const subLine = e.paid
+      ? '<div class="enq-sub">' + mobileField + '</div>'
+      : '<div class="enq-sub">' + mobileField + '<span class="sep">·</span>' + occasionField + '</div>';
+
+    const timeline = e.paid
+      ? '<div class="timeline">' +
+          '<div class="tl-step"><div class="tl-dot done"></div><div class="tl-lbl">Received</div><div class="tl-val">' + enqDateField + '</div></div>' +
+          '<div class="tl-step"><div class="tl-line"></div><div class="tl-dot done"></div><div class="tl-lbl">Event date</div><div class="tl-val">' + eventDateField + '</div></div>' +
+        '</div>'
+      : '<div class="timeline">' +
+          '<div class="tl-step"><div class="tl-dot done"></div><div class="tl-lbl">Received</div><div class="tl-val">' + enqDateField + '</div></div>' +
+          '<div class="tl-step"><div class="tl-line"></div><div class="tl-dot' + (e.eventDate ? ' done' : '') + '"></div><div class="tl-lbl">Event date</div><div class="tl-val">' + eventDateField + '</div></div>' +
+          '<div class="tl-step"><div class="tl-line"></div><div class="tl-dot' + (isOverdue ? ' warn' : (e.followUpDate ? ' done' : '')) + '"></div><div class="tl-lbl">Follow up</div><div class="tl-val">' + followUpField + '</div>' + overdueFlag + '</div>' +
+        '</div>';
+
+    const dealPanel = e.paid ? '' :
+      '<div class="deal-panel">' +
+        '<div class="deal-item"><div class="f-lbl">Chance of sale</div>' + chanceField + '</div>' +
+        '<div class="deal-item"><div class="f-lbl">Quote sent</div>' + quoteField + '</div>' +
+        '<div class="deal-item"><div class="f-lbl">Quote value (AED)</div>' + quoteValueField + '</div>' +
+      '</div>' + (isAdmin ? paidToggleRow : '');
+
+    const messages = e.messages || [];
+    const msgList = messages.length
+      ? '<div class="msg-list">' + messages.map(m => {
+          const nameColor = m.role === 'admin' ? 'var(--rouge)' : 'var(--good)';
+          const canDelete = m.role === myRole;
+          return '<div class="msg-row"><span class="msg-name" style="color:' + nameColor + ';">' + esc(m.name) + ':</span>' +
+            '<span class="msg-text">' + esc(m.text) + '</span>' +
+            (canDelete ? '<button class="msg-del" onclick="deleteMessage(\'' + e.id + '\',\'' + m.id + '\')">delete</button>' : '') +
+            '</div>';
+        }).join('') + '</div>'
+      : '<div class="msg-empty">No messages yet.</div>';
+    const msgCompose = myRole
+      ? '<div class="msg-compose">' +
+          '<input type="text" id="msg-' + e.id + '" placeholder="Write a message…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addMessage(\'' + e.id + '\');}">' +
+          '<button onclick="addMessage(\'' + e.id + '\')">Send</button>' +
+        '</div>'
+      : '';
+
+    return '<div class="enq">' +
+      '<div class="enq-top">' + nameField + statusField + '</div>' +
+      subLine +
+      timeline +
+      dealPanel +
+      '<div style="margin-bottom:2px;">' +
+        '<div class="f-lbl">Notes / questions <span style="text-transform:none;font-weight:400;">— either of you can write here</span></div>' +
+        msgList + msgCompose +
+      '</div>' +
+      (isAdmin
+        ? (wa ? '<div class="enq-actions">' +
+            '<a class="act-wa" target="_blank" href="https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi ' + (e.name || '') + '! Thanks for your enquiry with Flowers.ae — just following up on your ' + (e.occasion || 'event').toLowerCase() + '. Let us know how you\'d like to proceed 🌸') + '">💬 WhatsApp</a>' +
+            '<a class="act-call" href="tel:+' + wa + '">📞 Call</a>' +
+            '<button class="act-del" onclick="removeEnquiry(\'' + e.id + '\')">✕</button>' +
+            '</div>'
+          : '<div class="enq-actions"><button class="act-del" onclick="removeEnquiry(\'' + e.id + '\')" style="flex:0 0 auto;">✕ Remove</button></div>')
+        : '') +
+      '</div>';
+  }).join('');
+}
+render();
+
+if (FLApp.syncEnabled()) {
+  let lastFp = localStorage.getItem('fl_enquiries') || '';
+  FLApp.onSync(state => {
+    if (state !== 'synced') return;
+    const now = localStorage.getItem('fl_enquiries') || '';
+    if (now !== lastFp) { lastFp = now; render(); }
+  });
+}
+</script>
+</body>
+</html>

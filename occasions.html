@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Client Occasions</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:16px 16px 20px;text-align:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:21px;font-weight:700;letter-spacing:1.5px;}
+.header p{font-size:10px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 0;}
+.wrap{max-width:680px;margin:0 auto;padding:14px;}
+@media (min-width:900px){ .wrap{max-width:900px;} }
+
+.year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
+.chip.on{background:var(--rouge);color:var(--champagne);box-shadow:0 4px 14px rgba(85,3,24,.3);}
+
+.month-head{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--muted);margin:18px 2px 8px;letter-spacing:2px;text-transform:uppercase;}
+.month-head:first-of-type{margin-top:0;}
+.occ{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px 15px;margin-bottom:10px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.occ-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.occ h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);font-weight:700;}
+.pill{font-size:8.5px;font-weight:700;letter-spacing:1.2px;padding:3px 8px;border-radius:2px;text-transform:uppercase;background:#FBF6EC;color:#8a6d3b;border:1px solid var(--champagne);white-space:nowrap;}
+.occ .meta{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.occ .meta b{color:var(--terra);}
+.occ .actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;}
+.occ .actions a,.occ .actions button{flex:1;text-align:center;padding:9px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.6px;text-decoration:none;white-space:nowrap;font-family:inherit;cursor:pointer;}
+.act-wa{background:#25D366;color:#fff;}
+.act-call{background:var(--lace);color:var(--rouge);border:1px solid var(--border);}
+.act-view{background:none;color:var(--muted);border:1px solid var(--border);flex:0 0 auto !important;padding:9px 12px !important;}
+.no-mobile{font-size:11px;color:var(--muted);font-style:italic;margin-top:10px;}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:50px 25px;line-height:1.8;}
+
+.card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:16px;margin-bottom:16px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.card h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);font-weight:700;margin-bottom:10px;}
+label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:8px 0 4px;}
+input{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:2px;font-size:13.5px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;color:var(--terra);}
+input:focus{border-color:var(--champagne);background:#fff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+.add-btn{width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;font-size:11.5px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
+.del{background:none;color:var(--bad);border:1px solid #E5C9C9;flex:0 0 auto !important;padding:9px 12px !important;}
+.src-tag{font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-left:6px;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guardRole(['admin']);</script>
+
+<div class="topbar">
+  <a href="home.html">‹ HOME</a>
+  <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+</div>
+
+<div class="header">
+  <h1>Client Occasions</h1>
+  <p>Admin only — birthdays, anniversaries &amp; repeat-client reminders</p>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>＋ Add an occasion</h2>
+    <label>Client name</label>
+    <input id="a-name" placeholder="e.g. Fatima Al Suwaidi">
+    <div class="grid2">
+      <div><label>Occasion</label><input id="a-occasion" list="occasion-list" placeholder="e.g. Birthday"></div>
+      <div><label>Date</label><input id="a-date" type="date"></div>
+    </div>
+    <label>Mobile number</label>
+    <input id="a-mobile" type="tel" placeholder="e.g. 050 123 4567">
+    <datalist id="occasion-list">
+      <option value="Birthday"><option value="Anniversary"><option value="Wedding">
+      <option value="Engagement"><option value="Baby Shower"><option value="Corporate">
+    </datalist>
+    <button class="add-btn" onclick="addOccasion()">＋ Save occasion</button>
+  </div>
+
+  <div class="year-chips" id="monthChips"></div>
+  <div id="list"></div>
+</div>
+
+<script>
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+let occMonth = 'all';
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  return d + ' ' + MONTH_NAMES[m - 1].slice(0, 3) + ' ' + y;
+}
+function waDigits(mobile) {
+  let d = (mobile || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('0')) d = '971' + d.slice(1);
+  else if (!d.startsWith('971') && d.length <= 10) d = '971' + d;
+  return d;
+}
+
+async function addOccasion() {
+  const name = document.getElementById('a-name').value.trim();
+  const occasion = document.getElementById('a-occasion').value.trim();
+  const date = document.getElementById('a-date').value;
+  const mobile = document.getElementById('a-mobile').value.trim();
+  if (!name || !occasion) { await FLApp.flAlert('Client name and occasion are both needed.'); return; }
+  FLApp.occasionSave({ id: 'o' + Date.now(), name, occasion, date, mobile });
+  document.getElementById('a-name').value = '';
+  document.getElementById('a-occasion').value = '';
+  document.getElementById('a-date').value = '';
+  document.getElementById('a-mobile').value = '';
+  render();
+}
+
+async function removeOccasion(id) {
+  if (await FLApp.flConfirm('Remove this occasion reminder?')) { FLApp.occasionDelete(id); render(); }
+}
+
+function render() {
+  const fromEvents = FLApp.eventsAll().filter(e => (e.occasion || '').trim())
+    .map(e => ({ id: e.id, name: e.name, occasion: e.occasion, date: e.date, mobile: e.mobile, source: 'event' }));
+  const fromManual = FLApp.occasionsAll().map(o => ({ id: o.id, name: o.name, occasion: o.occasion, date: o.date, mobile: o.mobile, source: 'occasion' }));
+  const all = fromEvents.concat(fromManual);
+  const box = document.getElementById('list');
+
+  if (!all.length) {
+    document.getElementById('monthChips').innerHTML = '';
+    box.innerHTML = '<div class="empty">No occasions recorded yet.<br>Add one above, or from an event\'s "Occasion" field in Event GP Sheets.</div>';
+    return;
+  }
+
+  const byMonth = {};
+  all.forEach(e => {
+    const m = e.date ? parseInt(e.date.slice(5, 7)) : 0;
+    (byMonth[m] = byMonth[m] || []).push(e);
+  });
+
+  if (occMonth !== 'all' && !byMonth[occMonth]) occMonth = 'all';
+  const monthChipList = ['all'].concat(Object.keys(byMonth).map(Number).sort((a, b) => a - b));
+  document.getElementById('monthChips').innerHTML = monthChipList.map(m =>
+    '<button class="chip ' + (String(m) === String(occMonth) ? 'on' : '') + '" onclick="occMonth=\'' + m + '\';render()">' +
+    (m === 'all' ? 'All' : m === 0 ? 'No date' : MONTH_NAMES[m - 1]) + '</button>').join('');
+
+  const monthsToShow = occMonth === 'all' ? monthChipList.filter(m => m !== 'all') : [Number(occMonth)];
+  let html = '';
+  monthsToShow.forEach(m => {
+    const rows = (byMonth[m] || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    if (!rows.length) return;
+    html += '<div class="month-head">' + (m === 0 ? 'No date set' : MONTH_NAMES[m - 1]) + '</div>';
+    rows.forEach(e => {
+      const wa = waDigits(e.mobile);
+      const lastAction = e.source === 'event'
+        ? '<a class="act-view" href="event-editor.html?id=' + e.id + '">Edit ↗</a>'
+        : '<button class="act-view del" type="button" onclick="removeOccasion(\'' + e.id + '\')">✕ Remove</button>';
+      html += '<div class="occ">' +
+        '<div class="occ-top"><h2>' + (e.name || 'Untitled') + '</h2><span class="pill">' + e.occasion + '</span></div>' +
+        '<div class="meta">' + (e.date ? '<b>' + fmtDate(e.date) + '</b>' : '<i>no date set</i>') + (e.mobile ? ' · ' + e.mobile : '') +
+          (e.source === 'occasion' ? '<span class="src-tag">manually added</span>' : '') + '</div>' +
+        (wa ? '<div class="actions">' +
+          '<a class="act-wa" target="_blank" href="https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi ' + (e.name || '') + '! Hope you\'re doing well 🌸 Just checking in ahead of your ' + e.occasion.toLowerCase() + ' — would you like us to arrange flowers again this year?') + '">💬 WhatsApp</a>' +
+          '<a class="act-call" href="tel:+' + wa + '">📞 Call</a>' +
+          lastAction +
+          '</div>' :
+          '<div class="no-mobile">No mobile number saved. ' + lastAction + '</div>');
+      html += '</div>';
+    });
+  });
+  box.innerHTML = html || '<div class="empty">Nothing for this month.</div>';
+}
+render();
+
+  const syncFp = () => (localStorage.getItem('fl_occasions') || '') + '|' + (localStorage.getItem('fl_events') || '');
+  let lastFp = syncFp();
+  /* another device changed something — redraw instead of making the user
+     leave the page and come back to see it */
+  FLApp.onSync(state => {
+    if (state !== 'synced') return;
+    const now = syncFp();
+    if (now === lastFp) return;
+    lastFp = now;
+    render();
+  });
+</script>
+</body>
+</html>

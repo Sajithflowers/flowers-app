@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Quotations</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:100px;}
+.topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
+.topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
+.topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:20px 16px 24px;text-align:center;position:relative;overflow:hidden;}
+.header::after{content:'❀';position:absolute;right:-10px;bottom:-28px;font-size:110px;opacity:.07;color:var(--champagne);}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:1.5px;animation:fadeSlide .6s both;}
+.header .gold-rule{width:40px;height:2px;background:var(--champagne);margin:10px auto 8px;}
+.header p{font-size:11px;color:var(--champagne);letter-spacing:1.5px;text-transform:uppercase;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.list{padding:16px 14px;max-width:520px;margin:0 auto;}
+@media (min-width:900px){ .list{max-width:880px;} }
+.doc{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:17px;margin-bottom:13px;box-shadow:0 3px 16px rgba(85,3,24,.06);animation:fadeSlide .5s both;transition:transform .25s,box-shadow .25s;}
+.doc:nth-child(1){animation-delay:.1s;}.doc:nth-child(2){animation-delay:.18s;}.doc:nth-child(3){animation-delay:.26s;}.doc:nth-child(4){animation-delay:.34s;}
+.doc:active{transform:scale(.985);}
+.doc-main{cursor:pointer;}
+.doc h2{font-family:'EB Garamond',Georgia,serif;font-size:18px;color:var(--rouge);font-weight:700;letter-spacing:.3px;}
+.doc .meta{font-size:11.5px;color:var(--muted);margin-top:4px;letter-spacing:.3px;}
+.doc-actions{display:flex;gap:8px;margin-top:13px;border-top:1px solid #F1EBE4;padding-top:11px;}
+.doc-actions button{flex:1;padding:9px;border:1px solid var(--border);background:var(--lace);border-radius:2px;font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--terra);cursor:pointer;font-family:'Lato',Arial,sans-serif;transition:background .2s;}
+.doc-actions button:active{background:#EDE6DC;}
+.doc-actions button.del{color:#8f1d1d;border-color:#E5C9C9;}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:60px 30px;line-height:1.8;animation:fadeSlide .6s .2s both;}
+.empty .fleur{font-size:34px;display:block;margin-bottom:12px;opacity:.5;}
+.fab{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:1px solid rgba(230,204,161,.4);border-radius:2px;padding:16px 34px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;box-shadow:0 10px 30px rgba(58,2,16,.45);cursor:pointer;font-family:'Lato',Arial,sans-serif;transition:all .3s;animation:fadeSlide .6s .3s both;}
+.fab:active{transform:translateX(-50%) scale(.96);}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guard();</script>
+
+<div class="topbar">
+  <a href="tools.html">‹ TOOLS</a>
+  <span style="display:flex;align-items:center;gap:12px;">
+    <span id="user-chip"></span>
+    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  </span>
+</div>
+
+<div class="header">
+  <h1>Quotations</h1>
+  <div class="gold-rule"></div>
+  <p>Shared across every device</p>
+</div>
+
+<div class="list" id="list"></div>
+
+<button class="fab" onclick="location.href='quotation-editor.html'">＋ New Quotation</button>
+
+<script>
+document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase();
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
+    ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function render() {
+  const list = document.getElementById('list');
+  const items = FLApp.quotesAll();
+  if (!items.length) {
+    list.innerHTML = '<div class="empty"><span class="fleur">❀</span>No quotations yet.<br>Tap <strong>New Quotation</strong> to create your first one.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  items.forEach(doc => {
+    const el = document.createElement('div');
+    el.className = 'doc';
+    el.innerHTML =
+      '<div class="doc-main"><h2></h2><div class="meta"></div></div>' +
+      '<div class="doc-actions">' +
+      '<button class="open">Open</button>' +
+      '<button class="dup">Duplicate</button>' +
+      '<button class="del">Delete</button></div>';
+    el.querySelector('h2').textContent = doc.title || 'Untitled quotation';
+    el.querySelector('.meta').textContent = 'Last edited ' + fmtDate(doc.updated);
+    const open = () => location.href = 'quotation-editor.html?id=' + doc.id;
+    el.querySelector('.doc-main').onclick = open;
+    el.querySelector('.open').onclick = open;
+    el.querySelector('.dup').onclick = () => {
+      const copy = { id: 'qt' + Date.now(), title: (doc.title || 'Untitled') + ' (copy)', html: doc.html, discountType: doc.discountType, discountValue: doc.discountValue };
+      FLApp.quoteSave(copy);
+      render();
+    };
+    el.querySelector('.del').onclick = async () => {
+      if (await FLApp.flConfirm('Delete "' + (doc.title || 'Untitled') + '"? This cannot be undone.')) {
+        FLApp.quoteDelete(doc.id);
+        render();
+      }
+    };
+    list.appendChild(el);
+  });
+}
+render();
+
+  const syncFp = () => (localStorage.getItem('fl_quotes') || '');
+  let lastFp = syncFp();
+  /* another device changed something — redraw instead of making the user
+     leave the page and come back to see it */
+  FLApp.onSync(state => {
+    if (state !== 'synced') return;
+    const now = syncFp();
+    if (now === lastFp) return;
+    lastFp = now;
+    render();
+  });
+</script>
+</body>
+</html>

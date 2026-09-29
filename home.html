@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Flowers.ae — Home</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;}
+body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;}
+
+.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:26px 20px 30px;position:relative;overflow:hidden;}
+.header::after{content:'❀';position:absolute;right:-14px;bottom:-32px;font-size:130px;opacity:.07;color:var(--champagne);}
+.header-top{display:flex;justify-content:space-between;align-items:center;}
+.header h1{font-family:'EB Garamond',Georgia,serif;font-size:24px;font-weight:700;letter-spacing:2px;animation:fadeSlide .7s cubic-bezier(.2,.7,.3,1) both;}
+.logout{background:transparent;border:1px solid rgba(230,204,161,.5);color:var(--champagne);font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 15px;border-radius:2px;cursor:pointer;transition:all .3s;}
+.logout:active{background:rgba(230,204,161,.15);}
+.gold-rule{width:44px;height:2px;background:var(--champagne);margin:12px 0 10px;}
+.greet{font-size:13px;color:var(--champagne);letter-spacing:.5px;animation:fadeSlide .7s .15s cubic-bezier(.2,.7,.3,1) both;}
+
+.tools{padding:22px 16px;display:flex;flex-direction:column;gap:16px;max-width:520px;margin:0 auto;}
+@media (min-width:900px){ .tools{max-width:680px;} }
+.tool{display:flex;align-items:center;gap:17px;background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:20px 18px;box-shadow:0 3px 20px rgba(85,3,24,.07);text-decoration:none;color:inherit;transition:transform .25s ease,box-shadow .25s ease;animation:fadeSlide .6s cubic-bezier(.2,.7,.3,1) both;}
+.tool:nth-child(1){animation-delay:.2s;}
+.tool:nth-child(2){animation-delay:.32s;}
+.tool:nth-child(3){animation-delay:.44s;}
+.tool:active{transform:scale(.98);}
+@media(hover:hover){.tool:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(85,3,24,.14);}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.tool .icon{width:56px;height:56px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;background:linear-gradient(135deg,var(--rouge-deep),#7d1b35);}
+.tool h2{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:700;color:var(--rouge);letter-spacing:.5px;}
+.tool p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.tool .arrow{margin-left:auto;color:var(--champagne);font-size:24px;font-family:'EB Garamond',Georgia,serif;}
+.foot{text-align:center;font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;padding:26px 0 20px;animation:fadeSlide .6s .55s both;}
+
+.attn{background:#fff;border:1px solid var(--border);border-left:3px solid var(--rouge);border-radius:3px;padding:14px 16px;box-shadow:0 3px 20px rgba(85,3,24,.07);animation:fadeSlide .6s .1s both;}
+.attn-hd{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
+.attn a{display:block;text-decoration:none;color:var(--terra);font-size:13.5px;padding:5px 0;border-bottom:1px solid var(--border);}
+.attn a:last-child{border-bottom:none;}
+.attn a:active{opacity:.6;}
+.attn b{color:var(--rouge);font-family:'EB Garamond',Georgia,serif;font-size:17px;margin-right:5px;}
+.attn .due{display:block;font-size:11px;color:var(--muted);margin-top:1px;}
+.attn .late{color:#b02a2a;font-weight:700;}
+</style>
+</head>
+<body>
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>FLApp.guard();</script>
+
+<div class="header">
+  <div class="header-top">
+    <h1>FLOWERS.AE</h1>
+    <button class="logout" onclick="FLApp.logout()">Log out</button>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="greet" id="greet"></div>
+</div>
+
+<div class="tools">
+  <!-- admin only, and only drawn when there is genuinely something to do -->
+  <div class="attn" id="attn" style="display:none;">
+    <div class="attn-hd">Needs your attention</div>
+    <div id="attn-lines"></div>
+  </div>
+
+  <a class="tool" href="dashboard.html" id="tool-dash" style="display:none;">
+    <div class="icon">📈</div>
+    <div>
+      <h2>Dashboard <span id="dash-badge" style="display:none;background:#E6CCA1;color:#550318;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:3px;font-family:'Lato',Arial,sans-serif;letter-spacing:.5px;"></span></h2>
+      <p>Sales, GP, charts, pending approvals &amp; top clients</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="tools.html" id="tool-eventtools">
+    <div class="icon">🧰</div>
+    <div>
+      <h2>Event Tools</h2>
+      <p id="eventtools-desc">Calculator, timelines, quotations &amp; proposals — all in one place</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="events.html" id="tool-events" style="display:none;">
+    <div class="icon">💐</div>
+    <div>
+      <h2>Event GP Sheets</h2>
+      <p>Budgets, costs, invoices, commission, tracker &amp; yearly reports</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+
+  <a class="tool" href="admin.html" id="tool-admin" style="display:none;">
+    <div class="icon">🔐</div>
+    <div>
+      <h2>Admin Panel</h2>
+      <p>Login history, team accounts &amp; access control</p>
+    </div>
+    <span class="arrow">›</span>
+  </a>
+</div>
+
+<div class="foot">The Art of Gifting</div>
+
+<script>
+const u = FLApp.currentUser();
+if (u) {
+  const r = FLApp.role(u);
+  document.getElementById('greet').textContent = 'Welcome back, ' + u.name +
+    (r !== 'staff' ? ' · ' + r.toUpperCase() : '');
+  if (FLApp.canFinance()) document.getElementById('tool-events').style.display = '';
+  if (FLApp.isAdmin()) document.getElementById('tool-admin').style.display = '';
+  if (FLApp.isCeo()) { location.replace('dashboard.html'); }  /* CEO lands straight on her dashboard */
+  if (FLApp.canFinance()) {
+    document.getElementById('tool-dash').style.display = '';
+    /* pending-review badge */
+    const evs = FLApp.eventsAll();
+    const pend = evs.filter(e => !(e.approval && ['approved', 'rejected'].includes(e.approval.status))).length;
+    if (pend) {
+      const b = document.getElementById('dash-badge');
+      b.style.display = '';
+      b.textContent = pend + ' PENDING';
+    }
+  }
+  if (FLApp.isAdmin()) renderAttention();
+  if (r === 'finance') {
+    /* accountant sees dashboard, Event GP Sheets, and Event Tools (Expense Sheet only, gated inside tools.html) */
+    document.querySelectorAll('.tool').forEach(t => { if (t.id !== 'tool-events' && t.id !== 'tool-dash' && t.id !== 'tool-eventtools') t.style.display = 'none'; });
+    /* the description below was written for admin's full Event Tools — finance only
+       ever sees Expense Sheet in there, so say that instead of promising tools they won't find */
+    document.getElementById('eventtools-desc').textContent = 'Expense Sheet — review, approve & share';
+  }
+}
+
+/* ── "Needs your attention" — admin only ──────────────────────────────────────
+   Counts only work that can actually be done. A GP sheet cannot be made until the
+   event is over, so a booking for December is not a job waiting — counting those
+   would show a big number every day and quickly be ignored. Each line links to
+   the page that clears it, and the whole strip stays hidden when all is clear. */
+function renderAttention() {
+  const today = new Date().toISOString().slice(0, 10);
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  /* the cut-off for an event's month: the 19th of the month after it */
+  const cutoffOf = ym => { try { return FLApp.expenseCutoffDate(ym); } catch (e) { return null; } };
+  const fmtCut = d => d.getDate() + ' ' + MON[d.getMonth()];
+
+  /* "N due before <soonest cut-off still ahead>", or a plain late warning */
+  function deadline(months) {
+    const now = new Date();
+    let soonest = null, late = 0;
+    months.forEach(ym => {
+      const d = cutoffOf(ym);
+      if (!d) return;
+      if (d <= now) { late++; return; }
+      if (!soonest || d < soonest) soonest = d;
+    });
+    if (late) return '<span class="late">' + late + ' past the cut-off</span>';
+    if (!soonest) return '';
+    const n = months.filter(ym => { const d = cutoffOf(ym); return d && d.getTime() === soonest.getTime(); }).length;
+    return n + ' due before ' + fmtCut(soonest);
+  }
+
+  const lines = [];
+
+  /* 1 — events that have happened but have no GP sheet yet */
+  const onSheet = new Set(FLApp.eventsAll().map(e => (e.orderNo || '').trim()).filter(Boolean));
+  const missing = FLApp.trackerAll().filter(t =>
+    t.eventDate && t.eventDate < today && !onSheet.has((t.orderNo || '').trim()));
+  if (missing.length) {
+    lines.push({ href: 'events.html',
+      text: '<b>' + missing.length + '</b> finished event' + (missing.length > 1 ? 's' : '') +
+            ' still need' + (missing.length > 1 ? '' : 's') + ' a GP sheet',
+      due: deadline(missing.map(t => t.eventDate.slice(0, 7))) });
+  }
+
+  /* 2 — sheets for finished events that Jo has not reviewed */
+  const waiting = FLApp.eventsAll().filter(e =>
+    e.date && e.date < today && !(e.approval && ['approved', 'rejected'].includes(e.approval.status)));
+  if (waiting.length) {
+    lines.push({ href: 'events.html',
+      text: '<b>' + waiting.length + '</b> finished event' + (waiting.length > 1 ? 's' : '') + ' waiting for Jo',
+      due: deadline(waiting.map(e => e.date.slice(0, 7))) });
+  }
+
+  /* 3 — enquiries whose event has already been and gone but are still marked open.
+     Each one is either a win nobody recorded or a loss nobody recorded, and until
+     they are settled the win/loss figures mean nothing. */
+  const stale = FLApp.enquiryBuckets().gone;
+  if (stale.length) {
+    lines.push({ href: 'enquiries.html',
+      text: '<b>' + stale.length + '</b> enquir' + (stale.length > 1 ? 'ies are' : 'y is') +
+            (stale.length > 1 ? ' past their event date' : ' past its event date'),
+      due: 'won or lost?' });
+  }
+
+  /* 4 — enquiries whose follow-up date has arrived, still in play */
+  const due = FLApp.enquiriesAll().filter(e =>
+    e.followUpDate && e.followUpDate <= today &&
+    ['confirmed', 'lost'].indexOf(String(e.status || '').toLowerCase()) === -1);
+  if (due.length) {
+    lines.push({ href: 'enquiries.html',
+      text: '<b>' + due.length + '</b> enquir' + (due.length > 1 ? 'ies' : 'y') + ' to follow up',
+      due: '' });
+  }
+
+  if (!lines.length) return;                      /* nothing to do — stay hidden */
+  document.getElementById('attn-lines').innerHTML = lines.map(l =>
+    '<a href="' + l.href + '">' + l.text + (l.due ? '<span class="due">' + l.due + '</span>' : '') + '</a>'
+  ).join('');
+  document.getElementById('attn').style.display = '';
+}
+</script>
+</body>
+</html>

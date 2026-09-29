@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flowers.ae">
+<meta name="theme-color" content="#550318">
+<title>Flowers.ae — Team Tools</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--champagne-soft:#F0E2C8;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;}
+body{font-family:'Lato',Arial,sans-serif;background:linear-gradient(165deg,#36081a 0%,#4B0D24 55%,#5d1230 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative;}
+
+/* floating petals */
+.petal{position:fixed;top:-30px;font-size:18px;opacity:0;animation:fall linear infinite;pointer-events:none;filter:saturate(.6) brightness(1.1);}
+@keyframes fall{
+  0%{transform:translateY(-5vh) translateX(0) rotate(0deg);opacity:0;}
+  8%{opacity:.5;}
+  90%{opacity:.4;}
+  100%{transform:translateY(108vh) translateX(40px) rotate(320deg);opacity:0;}
+}
+
+.logo{text-align:center;color:#fff;margin-bottom:30px;animation:riseIn .9s cubic-bezier(.2,.7,.3,1) both;}
+.logo .mark{font-size:40px;animation:bloom 3.5s ease-in-out infinite;}
+@keyframes bloom{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.logo h1{font-family:'EB Garamond',Georgia,serif;font-size:30px;font-weight:700;letter-spacing:4px;margin-top:10px;}
+.logo .rule{width:60px;height:2px;background:var(--champagne);margin:12px auto 8px;animation:ruleGrow 1.2s .3s cubic-bezier(.2,.7,.3,1) both;}
+@keyframes ruleGrow{from{width:0;opacity:0;}to{width:60px;opacity:1;}}
+.logo p{font-size:10px;color:var(--champagne);letter-spacing:6px;text-transform:uppercase;}
+
+.card{background:rgba(255,255,255,.985);border-radius:4px;border-top:3px solid var(--champagne);padding:28px 24px;width:100%;max-width:380px;box-shadow:0 24px 70px rgba(0,0,0,.45);animation:riseIn .9s .15s cubic-bezier(.2,.7,.3,1) both;}
+@keyframes riseIn{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+.card h2{font-family:'EB Garamond',Georgia,serif;font-size:20px;color:var(--rouge);margin-bottom:18px;text-align:center;font-weight:700;letter-spacing:.5px;}
+
+.user-list{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.user-btn{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid #E4DCD2;border-radius:3px;background:var(--lace);font-family:'Lato',Arial,sans-serif;font-size:15px;font-weight:700;color:var(--terra);cursor:pointer;text-align:left;width:100%;transition:all .25s ease;}
+.user-btn:active{transform:scale(.98);}
+.user-btn.selected{border-color:var(--champagne);background:#FBF6EC;box-shadow:0 3px 14px rgba(230,204,161,.35);}
+.user-btn .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--rouge),#7d1b35);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:17px;font-weight:700;flex-shrink:0;transition:transform .25s;}
+.user-btn.selected .avatar{transform:scale(1.08);}
+
+input{width:100%;padding:13px 15px;border:1px solid #E4DCD2;border-radius:3px;font-size:16px;font-family:'Lato',Arial,sans-serif;background:var(--lace);outline:none;margin-bottom:10px;transition:border-color .25s,box-shadow .25s;}
+input:focus{border-color:var(--champagne);background:#fff;box-shadow:0 0 0 3px rgba(230,204,161,.25);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:46px;}
+.pw-toggle{position:absolute;right:2px;top:0;height:100%;display:flex;align-items:center;padding:0 12px;background:none;border:none;cursor:pointer;font-size:17px;line-height:1;color:var(--muted);}
+.pw-toggle:active{transform:scale(.9);}
+
+.suggest-wrap{position:relative;}
+.suggest-list{position:absolute;left:0;right:0;top:calc(100% - 6px);background:#fff;border:1px solid #E4DCD2;border-top:none;border-radius:0 0 3px 3px;box-shadow:0 12px 24px rgba(58,2,16,.14);z-index:5;overflow:hidden;}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:10px 15px;cursor:pointer;}
+.suggest-item+.suggest-item{border-top:1px solid #F0E9E1;}
+.suggest-item:hover,.suggest-item.active{background:var(--lace);}
+.suggest-item .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--rouge),#7d1b35);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:12px;font-weight:700;flex-shrink:0;}
+.suggest-item .txt{overflow:hidden;}
+.suggest-item .nm{font-size:13px;font-weight:700;color:var(--terra);}
+.suggest-item .em{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;}
+.btn::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .6s ease;}
+.btn:active{transform:translateY(1px);}
+.btn:hover::after,.btn:active::after{left:130%;}
+
+.link{display:block;text-align:center;margin-top:16px;font-size:12.5px;color:var(--rouge);font-weight:700;letter-spacing:1px;cursor:pointer;background:none;border:none;width:100%;font-family:'Lato',Arial,sans-serif;}
+.err{color:#B91C1C;font-size:13px;text-align:center;margin-bottom:10px;min-height:16px;}
+.hidden{display:none;}
+.hint{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6;}
+.gold-sep{display:flex;align-items:center;gap:10px;color:var(--champagne);font-size:10px;margin:4px 0 14px;}
+.gold-sep::before,.gold-sep::after{content:'';flex:1;height:1px;background:#EADFCB;}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <h1 style="font-family:'Lato',Arial,sans-serif;font-weight:300;font-size:28px;letter-spacing:9px;">FLOWERS.AE</h1>
+  <div class="rule"></div>
+  <p>The Art of Gifting</p>
+</div>
+
+<div class="card">
+  <!-- LOGIN VIEW -->
+  <div id="view-login">
+    <h2>Welcome back</h2>
+    <div class="suggest-wrap">
+      <input type="email" id="login-email" placeholder="you@flowers.ae" autocomplete="username">
+    </div>
+    <div class="pw-wrap">
+      <input type="password" id="login-pin" placeholder="Password" autocomplete="current-password">
+      <button type="button" class="pw-toggle" onclick="togglePw('login-pin', this)">👁️</button>
+    </div>
+    <div class="err" id="login-err"></div>
+    <button class="btn" onclick="doLogin()">Log In</button>
+    <button class="link" onclick="showRegister()">+ New user — create account</button>
+    <button class="link" onclick="showForgot()" style="margin-top:2px;font-size:11.5px;color:var(--muted);">Forgot password?</button>
+  </div>
+
+  <!-- REGISTER VIEW -->
+  <div id="view-register" class="hidden">
+    <h2>Create your account</h2>
+    <input type="text" id="reg-name" placeholder="Your name (e.g. Sajith)" autocomplete="off">
+    <input type="email" id="reg-email" placeholder="you@flowers.ae" autocomplete="username">
+    <div class="pw-wrap">
+      <input type="password" id="reg-pin" placeholder="Password — 6+ chars, letters & numbers" autocomplete="new-password">
+      <button type="button" class="pw-toggle" onclick="togglePw('reg-pin', this)">👁️</button>
+    </div>
+    <div class="pw-wrap">
+      <input type="password" id="reg-pin2" placeholder="Repeat password" autocomplete="new-password">
+      <button type="button" class="pw-toggle" onclick="togglePw('reg-pin2', this)">👁️</button>
+    </div>
+    <div class="err" id="reg-err"></div>
+    <button class="btn" onclick="doRegister()">Create Account</button>
+    <button class="link" onclick="showLogin()">‹ Back to log in</button>
+    <p class="hint">Must be a real @flowers.ae email — we'll send a code to confirm it's really you.<br>Remember your password — only you can reset it.</p>
+  </div>
+
+  <!-- PENDING CONFIRMATION VIEW -->
+  <div id="view-pending" class="hidden">
+    <h2>Enter your code</h2>
+    <p class="hint" style="margin-top:0;">We've emailed a code to your @flowers.ae inbox.</p>
+    <input type="text" id="confirm-code" placeholder="Code from your email" autocomplete="one-time-code" inputmode="numeric">
+    <div class="err" id="confirm-err"></div>
+    <button class="btn" onclick="doConfirmSignup()">Confirm &amp; Log In</button>
+    <button class="link" onclick="showLogin()">‹ Back to log in</button>
+  </div>
+
+  <!-- FORGOT PASSWORD — request code -->
+  <div id="view-forgot" class="hidden">
+    <h2>Reset your password</h2>
+    <div class="suggest-wrap">
+      <input type="email" id="forgot-email" placeholder="you@flowers.ae" autocomplete="username">
+    </div>
+    <div class="err" id="forgot-err"></div>
+    <button class="btn" onclick="doForgotRequest()">Send Code</button>
+    <button class="link" onclick="showLogin()">‹ Back to log in</button>
+  </div>
+
+  <!-- FORGOT PASSWORD — enter code + new password -->
+  <div id="view-reset" class="hidden">
+    <h2>Enter your code</h2>
+    <p class="hint" style="margin-top:0;">Check your email for the code.</p>
+    <input type="text" id="reset-code" placeholder="Code from your email" autocomplete="one-time-code" inputmode="numeric">
+    <div class="pw-wrap">
+      <input type="password" id="reset-pin" placeholder="New password — 6+ chars, letters & numbers" autocomplete="new-password">
+      <button type="button" class="pw-toggle" onclick="togglePw('reset-pin', this)">👁️</button>
+    </div>
+    <div class="pw-wrap">
+      <input type="password" id="reset-pin2" placeholder="Repeat new password" autocomplete="new-password">
+      <button type="button" class="pw-toggle" onclick="togglePw('reset-pin2', this)">👁️</button>
+    </div>
+    <div class="err" id="reset-err"></div>
+    <button class="btn" onclick="doResetConfirm()">Set New Password</button>
+    <button class="link" onclick="showLogin()">‹ Back to log in</button>
+  </div>
+</div>
+
+<script src="ios-install.js"></script>
+<script src="app.js"></script>
+<script>
+if (FLApp.currentUser()) location.replace('home.html');
+
+/* floating petals */
+(() => {
+  const glyphs = ['🌸','✿','❀'];
+  for (let i = 0; i < 7; i++) {
+    const p = document.createElement('span');
+    p.className = 'petal';
+    p.textContent = glyphs[i % glyphs.length];
+    p.style.left = (5 + (i * 13) % 90) + 'vw';
+    p.style.animationDuration = (9 + (i % 5) * 2.4) + 's';
+    p.style.animationDelay = (i * 1.7) + 's';
+    p.style.fontSize = (13 + (i % 3) * 5) + 'px';
+    document.body.appendChild(p);
+  }
+})();
+
+const VIEWS = ['view-login', 'view-register', 'view-pending', 'view-forgot', 'view-reset'];
+function showView(id) {
+  VIEWS.forEach(v => document.getElementById(v).classList.toggle('hidden', v !== id));
+}
+function togglePw(id, btn) {
+  const el = document.getElementById(id);
+  const show = el.type === 'password';
+  el.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁️';
+}
+function showRegister() { showView('view-register'); }
+function showLogin() { showView('view-login'); }
+function showForgot() { showView('view-forgot'); }
+
+async function doLogin() {
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  const email = document.getElementById('login-email').value;
+  const pin = document.getElementById('login-pin').value;
+  if (!email || !pin) { err.textContent = 'Enter your email and password'; return; }
+  try {
+    await FLApp.login(email, pin);
+    location.replace('home.html');
+  } catch (e) { err.textContent = e.message; }
+}
+
+let pendingEmail = null;
+
+async function doRegister() {
+  const err = document.getElementById('reg-err');
+  err.textContent = '';
+  const pin = document.getElementById('reg-pin').value;
+  if (pin !== document.getElementById('reg-pin2').value) { err.textContent = 'Passwords do not match'; return; }
+  const email = document.getElementById('reg-email').value;
+  try {
+    const result = await FLApp.register(
+      document.getElementById('reg-name').value,
+      email,
+      pin
+    );
+    if (result.pendingConfirmation) { pendingEmail = email.trim().toLowerCase(); showView('view-pending'); }
+    else location.replace('home.html');
+  } catch (e) { err.textContent = e.message; }
+}
+
+async function doConfirmSignup() {
+  const err = document.getElementById('confirm-err');
+  err.textContent = '';
+  const code = document.getElementById('confirm-code').value;
+  try {
+    await FLApp.confirmSignup(pendingEmail, code);
+    location.replace('home.html');
+  } catch (e) { err.textContent = e.message; }
+}
+
+async function doForgotRequest() {
+  const err = document.getElementById('forgot-err');
+  err.textContent = '';
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { err.textContent = 'Enter your email'; return; }
+  try {
+    await FLApp.requestPasswordReset(email);
+    document.getElementById('reset-code').dataset.email = email;
+    showView('view-reset');
+  } catch (e) { err.textContent = e.message; }
+}
+
+async function doResetConfirm() {
+  const err = document.getElementById('reset-err');
+  err.textContent = '';
+  const email = document.getElementById('reset-code').dataset.email;
+  const code = document.getElementById('reset-code').value;
+  const pin = document.getElementById('reset-pin').value;
+  if (pin !== document.getElementById('reset-pin2').value) { err.textContent = 'Passwords do not match'; return; }
+  try {
+    await FLApp.confirmPasswordReset(email, code, pin);
+    location.replace('home.html');
+  } catch (e) { err.textContent = e.message; }
+}
+
+document.getElementById('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* email suggestions — remembers who's logged in on this device, so typing
+   the first letter of a name or address suggests it (like the user list
+   used to work, before this was a real login screen) */
+function wireEmailSuggest(inputId) {
+  const input = document.getElementById(inputId);
+  const wrap = input.parentElement;
+  let list = null;
+  let items = [];
+  let activeIdx = -1;
+
+  function close() { if (list) { list.remove(); list = null; } activeIdx = -1; }
+
+  function open(matches) {
+    close();
+    items = matches;
+    list = document.createElement('div');
+    list.className = 'suggest-list';
+    matches.forEach((a, i) => {
+      const row = document.createElement('div');
+      row.className = 'suggest-item';
+      row.innerHTML = '<span class="av">' + (a.name || a.email).charAt(0).toUpperCase() + '</span>' +
+        '<span class="txt"><span class="nm">' + (a.name || a.email) + '</span><br><span class="em">' + a.email + '</span></span>';
+      row.addEventListener('mousedown', (e) => { e.preventDefault(); pick(i); });
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+  }
+
+  function pick(i) {
+    input.value = items[i].email;
+    close();
+  }
+
+  function refresh() {
+    const v = input.value.trim().toLowerCase();
+    if (!v) { close(); return; }
+    const matches = FLApp.knownAccounts().filter(a =>
+      a.email.toLowerCase().startsWith(v) || (a.name || '').toLowerCase().startsWith(v)
+    ).slice(0, 4);
+    if (matches.length) open(matches); else close();
+  }
+
+  input.addEventListener('input', refresh);
+  input.addEventListener('focus', refresh);
+  input.addEventListener('blur', () => setTimeout(close, 150));
+  input.addEventListener('keydown', (e) => {
+    if (!list) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); updateActive(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); updateActive(); }
+    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); pick(activeIdx); }
+    else if (e.key === 'Escape') close();
+  });
+  function updateActive() {
+    [...list.children].forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+  }
+}
+wireEmailSuggest('login-email');
+wireEmailSuggest('forgot-email');
+</script>
+</body>
+</html>

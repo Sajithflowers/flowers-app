@@ -1,0 +1,16 @@
+{
+  "name": "Flowers.ae Team Tools",
+  "short_name": "Flowers.ae",
+  "description": "Event GP sheets, tracker, enquiries and expense sheets for the Flowers.ae team.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#550318",
+  "theme_color": "#550318",
+  "icons": [
+    { "src": "icons/app-icon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/app-icon.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/app-icon.png", "sizes": "1080x1080", "type": "image/png", "purpose": "any" }
+  ]
+}
