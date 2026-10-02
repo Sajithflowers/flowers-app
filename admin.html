@@ -208,10 +208,18 @@ table.perm tr:last-child td{border-bottom:none;}
   </div>
 
   <div class="card">
+    <h2>Enquiry statuses</h2>
+    <div id="statusBox"></div>
+    <p class="note">Every status says whether it counts as still open, won or lost — that is what
+      keeps the pipeline figure on the dashboard honest. The first six cannot be removed.</p>
+  </div>
+
+  <div class="card">
     <h2>Activity Log</h2>
     <input class="filter" id="logFilter" placeholder="Filter by name, device or action…" oninput="renderLog()">
     <div id="logList"></div>
     <p class="note" id="logNote"></p>
+    <div id="tidyBox" style="margin-top:12px;"></div>
   </div>
 
 </div>
@@ -567,11 +575,84 @@ renderMail();
 renderPerms();
 renderSync();
 runCheck();
+/* ── Enquiry statuses ──────────────────────────────────────────────── */
+const GRP_LABEL = { open: 'Still open', won: 'Won', lost: 'Lost' };
+const GRP_STYLE = {
+  open: 'background:#FBF6EC;color:#8a6d3b;',
+  won:  'background:#E3EFE7;color:#1E5631;',
+  lost: 'background:#F8E9E9;color:#8f1d1d;'
+};
+function renderStatuses() {
+  const built = FLApp.BUILT_IN_STATUSES.map(s => s.v);
+  document.getElementById('statusBox').innerHTML =
+    FLApp.allStatuses().map(s => {
+      const mine = built.indexOf(s.v) === -1;
+      const used = FLApp.statusInUse(s.v);
+      return '<div class="dev-row">' +
+        '<div class="lt"><b>' + esc(s.l) + '</b>' +
+          '<span class="badge" style="' + GRP_STYLE[s.g] + 'margin-left:8px;">' + GRP_LABEL[s.g] + '</span>' +
+          '<div class="lm">' + (mine ? 'yours' : 'built in') +
+            (used ? ' · on ' + used + ' enquir' + (used === 1 ? 'y' : 'ies') : ' · not in use') + '</div>' +
+        '</div>' +
+        (mine ? '<button class="mini danger" onclick="dropStatus(\'' + s.v + '\')">Remove</button>'
+              : '<span class="badge locked">locked</span>') +
+      '</div>';
+    }).join('') +
+    '<button class="mini go" style="margin-top:10px;" onclick="newStatus()">＋ Add a status</button>';
+}
+async function newStatus() {
+  const label = (await FLApp.flPrompt('What should the new status say?\n\ne.g. "Waiting on flowers"') || '').trim();
+  if (!label) return;
+  const g = (await FLApp.flPrompt('Does it mean  open,  won  or  lost ?\n\nType one of those three words.\n\nThis is what keeps the pipeline figure correct — a word with no meaning behind it would be counted as live money for ever.') || '').trim().toLowerCase();
+  if (FLApp.STATUS_GROUPS.indexOf(g) === -1) { await FLApp.flAlert('Please type exactly open, won or lost.'); return; }
+  if (!FLApp.addCustomStatus(label, g)) { await FLApp.flAlert('Could not add that — it may already exist.'); return; }
+  renderStatuses();
+}
+async function dropStatus(v) {
+  const used = FLApp.statusInUse(v);
+  const warn = used
+    ? '\n\n' + used + ' enquir' + (used === 1 ? 'y is' : 'ies are') + ' using it. They will show as "New Enquiry" and count as still open until you change them.'
+    : '';
+  if (!await FLApp.flConfirm('Remove this status?' + warn)) return;
+  FLApp.removeCustomStatus(v);
+  renderStatuses();
+}
+
+/* ── Tidy the shared activity history ──────────────────────────────────
+   Each device already shows only its newest 500 lines, so anything past
+   that is invisible everywhere yet still fills the shared list — and a
+   full download stops at 1,000 rows, which is how a half-loaded device
+   overwrote the June sheet. The app has never deleted a cloud row before,
+   so this reports exactly what the server said rather than assuming. */
+const TIDY_KEEP = 400;
+function renderTidy(msg) {
+  document.getElementById('tidyBox').innerHTML =
+    '<button class="mini" onclick="tidyHistory()">Tidy old history in the cloud</button>' +
+    '<div class="note" style="margin-top:6px;">Keeps the newest ' + TIDY_KEEP +
+      ' lines for everyone and deletes the rest. No orders, sheets, enquiries or quotations are touched.</div>' +
+    (msg ? '<div class="note" style="margin-top:6px;color:var(--rouge);"><b>' + esc(msg) + '</b></div>' : '');
+}
+async function tidyHistory() {
+  if (!await FLApp.flConfirm('Delete shared activity history older than the newest ' + TIDY_KEEP +
+      ' lines?\n\nOnly the history list is affected. Nothing else is touched, and it cannot be undone.')) return;
+  renderTidy('Working…');
+  try {
+    const r = await FLApp.tidyActivityHistory(TIDY_KEEP);
+    renderTidy(r.ok
+      ? 'Done — ' + r.removed + ' old lines removed. ' + r.kept + ' kept.'
+      : 'The server refused: ' + r.error + '. Nothing was deleted — tell Sajith to mention this.');
+  } catch (e) {
+    renderTidy('Could not reach the server. Nothing was deleted.');
+  }
+}
+
 renderVersion();
 renderStorage();
 renderUsers();
 renderDevices();
 renderLog();
+renderStatuses();
+renderTidy('');
 </script>
 </body>
 </html>

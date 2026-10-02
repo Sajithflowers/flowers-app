@@ -409,7 +409,58 @@ async function addTrack() {
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('t-after').value = '';
   renderTracker();
+  offerToCloseEnquiry(row);
 }
+
+/* ── the sale just became real: close the enquiry it came from ─────────
+   An order and an enquiry are the same job when they share a phone number.
+   Two rules make this safe, both of them Sajith's:
+     · ONLY enquiries still open are ever considered. One already Won or Lost
+       is never touched, never suggested — so a repeat client's second and
+       third orders cannot re-open or overwrite the first job.
+     · it always asks. No means nothing is written.
+   Without this the same money sits in the CEO's "booked" and "quoted"
+   columns at once — AED 39,970 was double-counted this way in October. */
+function enqDigits(m) {
+  const d = String(m || '').replace(/\D/g, '').replace(/^00/, '').replace(/^971/, '').replace(/^0+/, '');
+  return d.length >= 9 ? d.slice(-9) : '';   /* too short to be anyone's number */
+}
+async function offerToCloseEnquiry(row) {
+  const key = enqDigits(row.mobile);
+  if (!key) return;                                  /* no number, nothing to match on */
+  const hits = FLApp.enquiriesAll().filter(e => FLApp.enquiryIsOpen(e) && enqDigits(e.mobile) === key);
+  if (!hits.length) return;                          /* the normal case — stay silent */
+
+  let pick = hits[0];
+  if (hits.length > 1) {
+    const lines = hits.map((e, i) => (i + 1) + '. ' + (e.name || 'Untitled') +
+      ' — ' + (e.eventDate ? 'event ' + fmtD(e.eventDate) : 'no event date') +
+      (e.quoteValue ? ', quoted ' + AED(e.quoteValue) : ''));
+    const ans = await FLApp.flPrompt('Order ' + row.orderNo + ' matches ' + hits.length +
+      ' open enquiries on this number.\n\n' + lines.join('\n') +
+      '\n\nType the number of the right one, or leave blank for none.');
+    const n = parseInt(ans, 10);
+    if (!n || n < 1 || n > hits.length) return;
+    pick = hits[n - 1];
+  }
+
+  const quoted = parseFloat(pick.quoteValue) || 0;
+  const amount = parseFloat(row.revenue) || 0;
+  const money = (quoted && quoted !== amount)
+    ? '\nYou quoted ' + AED(quoted) + ' · this order is ' + AED(amount)
+    : (amount ? '\nValue ' + AED(amount) : '');
+  const yes = await FLApp.flConfirm('Is this the same job?\n\n' +
+    (pick.name || 'Untitled') + ' — ' + statusLabel(pick.status) +
+    (pick.eventDate ? '\nEnquiry event date ' + fmtD(pick.eventDate) : '') + money +
+    '\n\nMark the enquiry as Confirmed — Won' + (amount ? ' and set its value to ' + AED(amount) : '') + '?');
+  if (!yes) return;
+
+  pick.status = 'confirmed';
+  if (amount) pick.quoteValue = amount;              /* the Tracker is the final sale */
+  FLApp.enquirySave(pick);
+  FLApp.notify('Enquiry won from order ' + row.orderNo + ': ' + (pick.name || '—'), FLApp.currentUser().name);
+}
+function statusLabel(v) { try { return FLApp.statusMetaOf(v).l; } catch (e) { return v || ''; } }
 
 /* highlight the clashing row and bring it into view */
 function flashTrackerRow(id) {

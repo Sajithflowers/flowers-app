@@ -657,6 +657,72 @@ const FLApp = (() => {
   }
 
   /* ── Event enquiries (sales pipeline — admin edits, CEO reviews) ── */
+
+  /* Enquiry statuses. The app does ARITHMETIC with these: the CEO's pipeline
+     figure and the home strip both ask "is this still live money?". So every
+     status — including one Sajith invents — must declare which of three groups
+     it belongs to, or a word like "client ghosted us" would be counted as live
+     business for ever. Group is the only thing any calculation may look at;
+     nothing anywhere should test the label itself. */
+  const STATUS_GROUPS = ['open', 'won', 'lost'];
+  const BUILT_IN_STATUSES = [
+    { v: 'new',         l: 'New Enquiry',        g: 'open' },
+    { v: 'contacted',   l: 'Contacted',          g: 'open' },
+    { v: 'negotiating', l: 'Negotiating',        g: 'open' },
+    { v: 'awaiting',    l: 'Awaiting Response',  g: 'open' },
+    { v: 'confirmed',   l: 'Confirmed — Won',    g: 'won'  },
+    { v: 'lost',        l: 'Lost / Declined',    g: 'lost' }
+  ];
+  /* custom ones live in the synced meta doc, so they reach every device */
+  function customStatuses() {
+    const list = metaDoc().statuses;
+    return Array.isArray(list) ? list.filter(s => s && s.v && s.l && STATUS_GROUPS.indexOf(s.g) !== -1) : [];
+  }
+  function allStatuses() { return BUILT_IN_STATUSES.concat(customStatuses()); }
+  function statusMetaOf(v) {
+    const key = String(v || 'new').toLowerCase();
+    return allStatuses().find(s => s.v === key) || BUILT_IN_STATUSES[0];
+  }
+  /* an UNKNOWN status counts as open — the safe default. Treating it as won or
+     lost would quietly remove real money from the pipeline; treating it as open
+     only means it stays visible until someone settles it. */
+  function statusGroup(v) {
+    const key = String(v || 'new').toLowerCase();
+    const s = allStatuses().find(x => x.v === key);
+    return s ? s.g : 'open';
+  }
+  function enquiryIsOpen(e) { return statusGroup(e && e.status) === 'open'; }
+  function addCustomStatus(label, group) {
+    const l = String(label || '').trim();
+    if (!l || STATUS_GROUPS.indexOf(group) === -1) return null;
+    const v = 'c_' + l.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    if (v === 'c_' || allStatuses().some(s => s.v === v)) return null;
+    const d = metaDoc();
+    d.statuses = customStatuses().concat([{ v: v, l: l, g: group }]);
+    d.updated = new Date().toISOString();
+    localStorage.setItem(META_KEY, JSON.stringify(d));
+    markDirty('meta_monthly');
+    scheduleSync();
+    if (currentUser()) recordEvent('Enquiry status added: ' + l + ' (' + group + ')', currentUser().name);
+    return v;
+  }
+  /* built-ins are never removable — 'confirmed' and 'lost' are wired into the
+     pipeline maths and the settle-before-folding rule on the enquiries page. */
+  function removeCustomStatus(v) {
+    if (BUILT_IN_STATUSES.some(s => s.v === v)) return false;
+    const gone = customStatuses().find(s => s.v === v);
+    const d = metaDoc();
+    d.statuses = customStatuses().filter(s => s.v !== v);
+    d.updated = new Date().toISOString();
+    localStorage.setItem(META_KEY, JSON.stringify(d));
+    markDirty('meta_monthly');
+    scheduleSync();
+    if (gone && currentUser()) recordEvent('Enquiry status removed: ' + gone.l, currentUser().name);
+    return true;
+  }
+  /* how many enquiries still carry this word — asked before offering to remove it */
+  function statusInUse(v) { return enquiriesAll().filter(e => String(e.status || '').toLowerCase() === v).length; }
+
   const ENQUIRIES_KEY = 'fl_enquiries';
   function enquiriesAll() { return JSON.parse(localStorage.getItem(ENQUIRIES_KEY) || '[]'); }
   function enquirySave(row) {
@@ -1498,7 +1564,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.31';
+  const APP_VERSION = '5.7.32';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -1900,8 +1966,7 @@ const FLApp = (() => {
   function enquiryBuckets() {
     const today = new Date().toISOString().slice(0, 10);
     const val = e => parseFloat(e.quoteValue) || 0;
-    const open = enquiriesAll().filter(e =>
-      ['confirmed', 'lost'].indexOf(String(e.status || '').toLowerCase()) === -1);
+    const open = enquiriesAll().filter(enquiryIsOpen);
     const live = open.filter(e => e.eventDate && e.eventDate >= today);
     const undated = open.filter(e => !e.eventDate);
     const gone = open.filter(e => e.eventDate && e.eventDate < today);
@@ -1928,6 +1993,47 @@ const FLApp = (() => {
       else { by[m].todo += after(t); by[m].todoCount++; }
     });
     return Object.keys(by).sort().map(m => by[m]);
+  }
+
+  /* ── Tidy the shared activity history ────────────────────────────────
+     The cloud keeps every log line for ever while each device displays only
+     its newest 500 — so the oldest ones are invisible everywhere yet still
+     count against the 1,000-row limit a full download stops at. That limit
+     is what let a half-loaded device overwrite the June sheet.
+     This is the first DELETE the app has ever sent, so it reports what the
+     server actually said instead of assuming it was allowed. */
+  async function tidyActivityHistory(keep) {
+    const n = Math.max(50, parseInt(keep, 10) || 400);
+    try {
+      const headers = await syncHeaders();
+      const base = SYNC.url + '/rest/v1/fl_shared';
+      /* everything past the newest n, oldest first, in bounded batches */
+      const res = await fetchT(base + '?select=id&kind=eq.log&order=updated.desc&offset=' + n + '&limit=500', { headers });
+      if (!res.ok) return { ok: false, error: 'could not list (' + res.status + ')', removed: 0 };
+      const old = await res.json();
+      if (!old.length) return { ok: true, removed: 0, kept: n };
+      let removed = 0;
+      for (let i = 0; i < old.length; i += 100) {
+        const ids = old.slice(i, i + 100).map(r => r.id);
+        const url = base + '?kind=eq.log&id=in.(' + ids.map(encodeURIComponent).join(',') + ')';
+        const del = await fetchT(url, { method: 'DELETE', headers: Object.assign({}, headers, { Prefer: 'return=minimal' }) });
+        if (!del.ok) {
+          return { ok: false, removed: removed,
+                   error: del.status === 401 || del.status === 403
+                     ? 'not allowed to delete (' + del.status + ')'
+                     : 'delete failed (' + del.status + ')' };
+        }
+        removed += ids.length;
+      }
+      /* trim this device's own copy to match, so the two agree immediately */
+      const keptIds = new Set(old.map(r => r.id.replace(/^log_/, '')));
+      const mine = activityLog().filter(e => !keptIds.has(e.id));
+      localStorage.setItem(LOG_KEY, JSON.stringify(mine.slice(0, 500)));
+      if (currentUser()) recordEvent('Old activity history tidied: ' + removed + ' lines removed', currentUser().name);
+      return { ok: true, removed: removed, kept: n };
+    } catch (e) {
+      return { ok: false, removed: 0, error: 'could not reach the server' };
+    }
   }
 
   function dataCheck() {
@@ -1965,8 +2071,7 @@ const FLApp = (() => {
         noSheet.length ? noSheet.length + ' finished events have no sheet — AED ' +
           Math.round(value).toLocaleString() + ' uncosted' : '');
 
-    const due = enq.filter(e => e.followUpDate && e.followUpDate <= today &&
-      ['confirmed', 'lost'].indexOf(String(e.status || '').toLowerCase()) === -1);
+    const due = enq.filter(e => e.followUpDate && e.followUpDate <= today && enquiryIsOpen(e));
     add(!due.length, 'Enquiry follow-ups', due.length ? due.length + ' are overdue' : 'none overdue');
 
     const dirty = dirtySet().size;
@@ -2019,6 +2124,8 @@ const FLApp = (() => {
     trackerAll, trackerSave, trackerDelete,
     occasionsAll, occasionSave, occasionDelete,
     enquiriesAll, enquirySave, enquiryDelete,
+    allStatuses, statusMetaOf, statusGroup, enquiryIsOpen, addCustomStatus, removeCustomStatus,
+    statusInUse, STATUS_GROUPS, BUILT_IN_STATUSES, tidyActivityHistory,
     calendarAll, calendarSave, calendarDelete, calendarAddComment,
     quotesAll, quoteGet, quoteSave, quoteDelete,
     proposalsAll, proposalGet, proposalSave, proposalDelete,

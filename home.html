@@ -196,7 +196,10 @@ function renderAttention() {
      they are settled the win/loss figures mean nothing. */
   const stale = FLApp.enquiryBuckets().gone;
   if (stale.length) {
-    lines.push({ href: 'enquiries.html',
+    /* ?show= opens Enquiries filtered to exactly these, highlighted, with a way
+       back to the full list — clicking a count and then having to find the rows
+       yourself was the complaint. */
+    lines.push({ href: 'enquiries.html?show=past',
       text: '<b>' + stale.length + '</b> enquir' + (stale.length > 1 ? 'ies are' : 'y is') +
             (stale.length > 1 ? ' past their event date' : ' past its event date'),
       due: 'won or lost?' });
@@ -205,9 +208,9 @@ function renderAttention() {
   /* 4 — enquiries whose follow-up date has arrived, still in play */
   const due = FLApp.enquiriesAll().filter(e =>
     e.followUpDate && e.followUpDate <= today &&
-    ['confirmed', 'lost'].indexOf(String(e.status || '').toLowerCase()) === -1);
+    FLApp.enquiryIsOpen(e));
   if (due.length) {
-    lines.push({ href: 'enquiries.html',
+    lines.push({ href: 'enquiries.html?show=followup',
       text: '<b>' + due.length + '</b> enquir' + (due.length > 1 ? 'ies' : 'y') + ' to follow up',
       due: '' });
   }

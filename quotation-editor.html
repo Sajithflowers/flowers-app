@@ -262,6 +262,10 @@ const docEl = document.getElementById('doc');
 const status = document.getElementById('save-status');
 const params = new URLSearchParams(location.search);
 let quoteId = params.get('id');
+/* set when the quotation was started from an enquiry, so the client's name is
+   spelled once and the finished total goes back into that enquiry instead of
+   being typed in twice. Carried through saves via the url. */
+let fromEnquiry = params.get('enq') || '';
 
 let discountType = 'pct';
 const existing = quoteId ? FLApp.quoteGet(quoteId) : null;
@@ -274,6 +278,11 @@ if (existing) {
   const _u = FLApp.currentUser();
   if (_u) document.getElementById('prepared-by').textContent = _u.name + ', Flowers.ae';
   document.getElementById('prepared-date').textContent = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  if (fromEnquiry) {
+    const src = FLApp.enquiriesAll().find(x => x.id === fromEnquiry);
+    const h1 = document.getElementById('client-name');
+    if (src && src.name && h1) h1.textContent = src.name;
+  }
 }
 document.getElementById('seg-pct').classList.toggle('active', discountType === 'pct');
 document.getElementById('seg-amt').classList.toggle('active', discountType === 'amt');
@@ -302,8 +311,24 @@ function save() {
       discountType: discountType,
       discountValue: parseFloat(document.getElementById('discount-input').value) || 0
     });
+    /* push the finished total back onto the enquiry this came from, and keep a
+       pointer so the enquiry card can reopen this quotation. Only ever writes
+       the value — the status is left alone, because quoting is not winning. */
+    if (fromEnquiry) {
+      const src = FLApp.enquiriesAll().find(x => x.id === fromEnquiry);
+      if (src) {
+        const grand = parseFloat(String(document.getElementById('grand-amt').textContent).replace(/[^0-9.]/g, '')) || 0;
+        const changed = (src.quoteId !== quoteId) || (grand && (parseFloat(src.quoteValue) || 0) !== grand);
+        if (changed) {
+          src.quoteId = quoteId;
+          if (grand) src.quoteValue = grand;
+          if (!src.quoteSentDate) src.quoteSentDate = new Date().toISOString().slice(0, 10);
+          FLApp.enquirySave(src);
+        }
+      } else { fromEnquiry = ''; }     /* enquiry deleted meanwhile — stop trying */
+    }
     status.textContent = 'Saved ✓';
-    history.replaceState(null, '', 'quotation-editor.html?id=' + quoteId);
+    history.replaceState(null, '', 'quotation-editor.html?id=' + quoteId + (fromEnquiry ? '&enq=' + fromEnquiry : ''));
   } catch (e) {
     status.textContent = 'Not saved — storage full';
   }
