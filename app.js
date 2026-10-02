@@ -691,7 +691,14 @@ const FLApp = (() => {
     const s = allStatuses().find(x => x.v === key);
     return s ? s.g : 'open';
   }
-  function enquiryIsOpen(e) { return statusGroup(e && e.status) === 'open'; }
+  /* "Paid" is a separate tick from the status word, and until Oct 2026 only the
+     word was ever consulted — so an enquiry could be marked Paid and still be
+     counted as live money everywhere. Three of Sajith's were, worth AED 39,970
+     sitting in the CEO's pipeline as a maybe. Money in the bank wins over
+     whatever the status still says; the word itself is left untouched, so
+     unticking Paid puts everything back. */
+  function enquiryWon(e) { return !!(e && (e.paid || statusGroup(e.status) === 'won')); }
+  function enquiryIsOpen(e) { return !(e && e.paid) && statusGroup(e && e.status) === 'open'; }
   function addCustomStatus(label, group) {
     const l = String(label || '').trim();
     if (!l || STATUS_GROUPS.indexOf(group) === -1) return null;
@@ -1564,7 +1571,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.32';
+  const APP_VERSION = '5.7.33';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2125,7 +2132,7 @@ const FLApp = (() => {
     occasionsAll, occasionSave, occasionDelete,
     enquiriesAll, enquirySave, enquiryDelete,
     allStatuses, statusMetaOf, statusGroup, enquiryIsOpen, addCustomStatus, removeCustomStatus,
-    statusInUse, STATUS_GROUPS, BUILT_IN_STATUSES, tidyActivityHistory,
+    statusInUse, STATUS_GROUPS, BUILT_IN_STATUSES, tidyActivityHistory, enquiryWon,
     calendarAll, calendarSave, calendarDelete, calendarAddComment,
     quotesAll, quoteGet, quoteSave, quoteDelete,
     proposalsAll, proposalGet, proposalSave, proposalDelete,

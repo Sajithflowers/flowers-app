@@ -365,7 +365,7 @@ function pileOf(e) {
   if (!live && when && when < cutoff) return 'done';      /* finished business — folds */
   if (live && e.followUpDate && e.followUpDate <= today) return 'chase';
   if (live) return 'play';
-  return FLApp.statusGroup(e.status) === 'won' ? 'won' : 'done';
+  return FLApp.enquiryWon(e) ? 'won' : 'done';
 }
 const PILES = [
   { k: 'settle', t: 'Settle these first', hint: '— the event has been and gone' },
@@ -453,12 +453,16 @@ function collapsedRow(e, highlight) {
   const pile = pileOf(e);
   const when = e.eventDate ? 'event ' + fmtDate(e.eventDate) : (e.enqDate ? 'enq ' + fmtDate(e.enqDate) : 'no date');
   const val = (parseFloat(e.quoteValue) || 0) ? AEDn(e.quoteValue) : '—';
+  /* Paid wins over the status word on the row too — the card already shows
+     "Paid", and the two disagreeing is what hid the problem for weeks. */
   const tail = (pile === 'settle' && isAdmin)
     ? '<span class="settle">' +
         '<button type="button" class="won" onclick="event.stopPropagation();settleAs(\'' + e.id + '\',\'won\')">Won</button>' +
         '<button type="button" class="lost" onclick="event.stopPropagation();settleAs(\'' + e.id + '\',\'lost\')">Lost</button>' +
       '</span>'
-    : '<span class="pl" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + esc(sm.l) + '</span>';
+    : e.paid
+      ? '<span class="pl" style="background:#E3EFE7;color:var(--good);border-color:#BFD8C6;">🥳 Paid</span>'
+      : '<span class="pl" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + esc(sm.l) + '</span>';
   return '<button type="button" class="erow' + (openId === e.id ? ' on' : '') + (highlight ? ' hit' : '') +
       '" onclick="toggleRow(\'' + e.id + '\')">' +
       '<span class="ch">' + (openId === e.id ? '▾' : '›') + '</span>' +
