@@ -160,6 +160,14 @@ input:focus,textarea:focus{border-color:var(--champagne);background:#fff;}
       <label>Reason — what needs fixing?</label>
       <textarea id="f-reject-reason" rows="2" placeholder="e.g. Missing tulip invoice, transport cost looks too high…"></textarea>
     </div>
+    <!-- Reviewing twenty sheets used to mean going back to an unfiltered list of
+         118 and finding your place again, every single time. This only navigates;
+         it does not touch what Approved does or what is saved. -->
+    <button id="btn-next" style="display:none;width:100%;margin-top:10px;padding:12px;border:none;
+      border-radius:3px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));
+      color:var(--champagne);font-size:11.5px;font-weight:700;letter-spacing:1.6px;
+      text-transform:uppercase;cursor:pointer;font-family:inherit;"></button>
+    <div id="nextHint" style="display:none;font-size:11.5px;color:var(--muted);margin-top:8px;text-align:center;"></div>
     <div id="apprStamp" class="appr-stamp"></div>
   </div>
 
@@ -519,6 +527,73 @@ function renderApproval() {
   if (a.status === 'approved') stamp.textContent = 'Approved by ' + a.by + ' · ' + new Date(a.at).toLocaleString('en-GB');
   else if (a.status === 'rejected') stamp.textContent = 'Not approved by ' + a.by + ' · ' + new Date(a.at).toLocaleString('en-GB');
   else stamp.textContent = 'Waiting for review — not yet approved.';
+  renderNextWaiting();
+}
+
+/* ── "Next waiting" — review-queue navigation, CEO only ──────────────
+   Shown only once THIS sheet has been answered, so it can never become a
+   way to skip past one without deciding.
+
+   THE CHAIN NEVER CROSSES A MONTH. Reviewing September during October, it
+   walks September and stops — it must not quietly carry her into October,
+   because each month is its own piece of work with its own cut-off. When the
+   month is done it says so, and she goes back and picks the next month
+   herself if she wants to.
+
+   It only navigates. The approval was already written to this device by
+   eventSave() before this button appears, and the upload queue lives in
+   localStorage, so leaving the page cannot lose it. */
+const MONTH_NAMES_Q = ['January','February','March','April','May','June',
+                       'July','August','September','October','November','December'];
+function monthKeyOf(e) { return (e && e.date) ? e.date.slice(0, 7) : ''; }
+function monthLabelOf(key) {
+  if (!key) return 'undated events';
+  return MONTH_NAMES_Q[+key.slice(5, 7) - 1] + ' ' + key.slice(0, 4);
+}
+function allPending() {
+  return FLApp.eventsAll()
+    .filter(e => !(e.approval && ['approved', 'rejected'].includes(e.approval.status)));
+}
+/* only this sheet's own month, oldest event first — the order she works in */
+function pendingQueue() {
+  const mine = monthKeyOf(ev);
+  return allPending()
+    .filter(e => e.id !== ev.id && monthKeyOf(e) === mine)
+    .sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+}
+function renderNextWaiting() {
+  const btn = document.getElementById('btn-next');
+  const hint = document.getElementById('nextHint');
+  if (!btn || !hint) return;
+  btn.style.display = 'none'; hint.style.display = 'none'; btn.onclick = null;
+  if (!FLApp.isCeo()) return;
+
+  /* Nothing is shown before she decides. The button simply appears once she
+     has — which explains itself better than a line telling the CEO what
+     Approve means. */
+  const answered = ev.approval && ['approved', 'rejected'].includes(ev.approval.status);
+  if (!answered) return;
+
+  const queue = pendingQueue();
+  const label = monthLabelOf(monthKeyOf(ev));
+  if (queue.length) {
+    btn.style.display = '';
+    btn.textContent = 'Next in ' + label + ' (' + queue.length + ' left) ›';
+    btn.onclick = () => { location.href = 'event-editor.html?id=' + encodeURIComponent(queue[0].id); };
+    return;
+  }
+
+  /* month finished — never roll into the next one on her behalf */
+  const elsewhere = allPending().filter(e => e.id !== ev.id && monthKeyOf(e) !== monthKeyOf(ev));
+  const months = [...new Set(elsewhere.map(monthKeyOf))].sort();
+  btn.style.display = '';
+  btn.textContent = '✓ ' + label + ' all reviewed — back to the list';
+  btn.onclick = () => { location.href = 'events.html'; };
+  if (months.length) {
+    hint.style.display = '';
+    hint.textContent = elsewhere.length + ' sheet' + (elsewhere.length === 1 ? '' : 's') +
+      ' still waiting in ' + months.map(monthLabelOf).join(' and ') + ' — open one from the list when you are ready.';
+  }
 }
 function setApproval(status) {
   const cur = (ev.approval || {}).status;

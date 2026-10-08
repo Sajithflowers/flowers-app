@@ -52,6 +52,20 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .kpi .kv.pos{color:var(--good);} .kpi .kv.neg{color:var(--bad);}
 .kpi .kd{font-size:10.5px;margin-top:5px;color:var(--muted);}
 .kpi .kd b.up{color:var(--good);} .kpi .kd b.down{color:var(--bad);}
+/* Sales tile carries two figures that answer different questions — work
+   happening this month, and what was actually sold this month. Equal weight
+   with a rule between, so neither reads as a footnote to the other. */
+.kpi .two-up{margin-top:6px;}
+.kpi .tu{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
+.kpi .tu .n{font-family:'EB Garamond',Georgia,serif;font-size:21px;color:var(--plum);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;}
+.kpi .tu .n.placed{color:#A8566B;}
+.kpi .tu .t{font-size:10px;color:var(--muted);}
+.kpi .tu .d{font-size:10px;font-weight:700;white-space:nowrap;}
+.kpi .tu .d.up{color:var(--good);} .kpi .tu .d.down{color:var(--bad);}
+.kpi .tu-rule{height:1px;background:var(--border);margin:5px 0 4px;}
+.chart-key{display:flex;gap:16px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:8px;padding-left:4px;}
+.chart-key .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+.chart-key .sw.solid{background:#4B0D24;} .chart-key .sw.pale{background:#A8566B;}
 
 .card{background:#fff;border:1px solid var(--border);border-radius:4px;padding:17px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);margin-bottom:14px;animation:rise .6s .25s both;}
 
@@ -130,6 +144,10 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
     <button class="pending" id="financeReadyBanner" style="display:none;"></button>
   </div>
 
+  <!-- BELOW the approval banners, deliberately: nothing may come between the
+       CEO and her approvals. Shown once after an update, then never again. -->
+  <div id="whatsNew"></div>
+
   <div class="kpis" id="kpis"></div>
 
   <div class="card">
@@ -180,6 +198,10 @@ document.getElementById('dateline').textContent =
 /* ── data ── */
 const COMMISSION_PCT = 10;
 const GPT = 70;   /* deliberately NOT a setting — see event-editor: Jo approves on that page */
+/* a Tracker row's revenue after its discount — the sale as placed */
+function trackerAfter(t) {
+  return (parseFloat(t.revenue) || 0) * (1 - (parseFloat(t.discountPct) || 0) / 100);
+}
 function calcEvent(ev) {
   const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
   const cost = sum(ev.flowers) + sum(ev.sundries) + sum(ev.other);
@@ -200,6 +222,20 @@ function salesRows() {
   FLApp.eventsAll().filter(e => e.date && !agg.has(e.date.slice(0, 7))).forEach(e => {
     rows.push({ y: e.date.slice(0, 4), m: +e.date.slice(5, 7), amount: calcEvent(e).after });
   });
+  /* A sale happens when the order goes in the Tracker; the GP sheet is written
+     afterwards, once the event is over. Counting only sheets made the current
+     month read AED 0 right through to the cut-off — Jo saw "no sales yet this
+     month" on 7 October with nine orders already sold. Tracker orders with no
+     sheet yet are therefore counted too, matched on order number so nothing is
+     added twice, and marked `uncosted` so the chart can show them differently.
+     Sales legitimately runs ahead of profit; GP% stays sheet-only. */
+  const costed = new Set(FLApp.eventsAll().map(e => String(e.orderNo || '').trim()).filter(Boolean));
+  FLApp.trackerAll().forEach(t => {
+    if (!t.eventDate || agg.has(t.eventDate.slice(0, 7))) return;
+    if (costed.has(String(t.orderNo || '').trim())) return;   /* its sheet already counted it */
+    rows.push({ y: t.eventDate.slice(0, 4), m: +t.eventDate.slice(5, 7),
+                amount: trackerAfter(t), uncosted: true });
+  });
   /* admin's manual monthly totals beat everything for that month */
   Object.entries(FLApp.monthlyOverrides()).forEach(([ym, amt]) => {
     const y = ym.slice(0, 4), m = parseInt(ym.slice(5, 7));
@@ -210,6 +246,8 @@ function salesRows() {
 }
 const ROWS = salesRows();
 const monthTotal = (y, m) => ROWS.filter(r => r.y === y && r.m === m).reduce((s, r) => s + r.amount, 0);
+/* the part of a month that is sold but not yet costed — drawn in pale rouge */
+const monthUncosted = (y, m) => ROWS.filter(r => r.y === y && r.m === m && r.uncosted).reduce((s, r) => s + r.amount, 0);
 const yearToMonth = (y, upTo) => ROWS.filter(r => r.y === y && r.m <= upTo).reduce((s, r) => s + r.amount, 0);
 const YEARS = [...new Set(ROWS.map(r => r.y))].sort();
 
@@ -266,6 +304,8 @@ if (FLApp.role(me) === 'finance') {
   }
 }
 
+FLApp.renderWhatsNew('whatsNew');
+
 /* ── KPIs ── */
 const monthEvs = evs.filter(e => e.date && e.date.slice(0, 4) === CY && +e.date.slice(5, 7) === CM);
 let mAfter = 0, mProfit = 0;
@@ -280,21 +320,68 @@ const mPrevYear = monthTotal(prevY, CM);
 const mDelta = mPrevYear ? (mSales - mPrevYear) / mPrevYear * 100 : null;
 const approvedCount = monthEvs.filter(e => e.approval && e.approval.status === 'approved').length;
 
+/* ── the two figures in the Sales tile ──────────────────────────────────
+   They answer different questions and are not meant to match:
+     "events this month" — work happening in this month, whenever it was sold
+     "orders placed"     — what was sold during this month, whenever it happens
+   An order can be in both; neither is double-counted within itself. Where a
+   placed order also has a GP sheet, the sheet's figure wins — it is the later
+   document and the one Jo audits. */
+const ymNow = CY + '-' + String(CM).padStart(2, '0');
+const sheetByNo = {};
+evs.forEach(e => { const n = String(e.orderNo || '').trim(); if (n) sheetByNo[n] = e; });
+const placedRows = FLApp.trackerAll().filter(t => t.placed && t.placed.slice(0, 7) === ymNow);
+const mPlaced = placedRows.reduce((s, t) => {
+  const sheet = sheetByNo[String(t.orderNo || '').trim()];
+  return s + (sheet ? calcEvent(sheet).after : trackerAfter(t));
+}, 0);
+/* every order whose EVENT is this month, sheet or not — so "Events" stops reading 0 */
+const monthTracked = FLApp.trackerAll().filter(t =>
+  t.eventDate && t.eventDate.slice(0, 7) === ymNow && !sheetByNo[String(t.orderNo || '').trim()]);
+const monthOrders = monthEvs.length + monthTracked.length;
+
 const deltaHtml = d => d == null ? '' :
   '<b class="' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(0) + '%</b> vs last year';
+/* the compact form that sits on the same line as its own figure */
+const deltaInline = d => d == null ? '' :
+  '<span class="d ' + (d >= 0 ? 'up' : 'down') + '" title="vs the whole of ' + MONTHS[CM - 1] + ' ' + prevY + '">' +
+  (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(0) + '%</span>';
 document.getElementById('kpis').innerHTML =
-  '<div class="kpi"><div class="kl">Sales — ' + MONTHS[CM - 1] + '</div><div class="kv">' + AED(mSales) + '</div><div class="kd">' + (mSales ? deltaHtml(mDelta) : 'no sales yet this month') + '</div></div>' +
+  /* Sold first, delivering second: the tile is called Sales, and the honest
+     answer to "how are sales this month" is what was actually sold this month.
+     What is being delivered is partly last month's work and partly next
+     month's — a different question. The year-on-year arrow belongs to the
+     delivering figure, because that is the one measured the same way last
+     year; it used to sit at the bottom of the tile reading as if it described
+     the other number. */
+  '<div class="kpi"><div class="kl">Sales — ' + MONTHS[CM - 1] + '</div>' +
+    '<div class="two-up">' +
+      '<div class="tu"><span class="n">' + AED(mPlaced) + '</span><span class="t">sold this month</span></div>' +
+      '<div class="tu-rule"></div>' +
+      '<div class="tu"><span class="n placed">' + AED(mSales) + '</span><span class="t">delivering this month</span>' +
+        (mSales ? deltaInline(mDelta) : '') + '</div>' +
+    '</div>' +
+    '<div class="kd">' + (monthOrders
+      ? monthOrders + ' event' + (monthOrders === 1 ? '' : 's') + ' · ' +
+        (monthTracked.length ? monthTracked.length + ' not costed yet' : 'all costed')
+      : 'nothing sold yet this month') + '</div></div>' +
   '<div class="kpi"><div class="kl">GP margin — ' + MONTHS[CM - 1] + '</div><div class="kv ' + (mGp == null ? '' : mGp >= GPT ? 'pos' : 'neg') + '">' + (mGp == null ? '—' : mGp.toFixed(1) + '%') + '</div><div class="kd">' + (mGp == null ? 'no event sheets yet this month' : 'target ' + GPT + '% → ' + (mGp - GPT >= 0 ? '+' : '') + (mGp - GPT).toFixed(1) + '%') + '</div></div>' +
-  '<div class="kpi"><div class="kl">Events — ' + MONTHS[CM - 1] + '</div><div class="kv">' + monthEvs.length + '</div><div class="kd">' + approvedCount + ' approved · ' + pending.filter(e => monthEvs.includes(e)).length + ' pending</div></div>' +
+  '<div class="kpi"><div class="kl">Events — ' + MONTHS[CM - 1] + '</div><div class="kv">' + monthOrders + '</div><div class="kd">' +
+    (monthTracked.length
+      ? monthEvs.length + ' sheet' + (monthEvs.length === 1 ? '' : 's') + ' made · ' + monthTracked.length + ' to come'
+      : approvedCount + ' approved · ' + pending.filter(e => monthEvs.includes(e)).length + ' pending') + '</div></div>' +
   '<div class="kpi"><div class="kl">Sales — ' + CY + ' so far</div><div class="kv">' + AED(ytd) + '</div><div class="kd">' + deltaHtml(ytdDelta) + '</div></div>';
 
 /* ── sales by month chart ── */
 let salesYear = YEARS.includes(CY) ? CY : YEARS[YEARS.length - 1];
-function barChart(perMonth, highlightM) {
+/* `pale` is the sold-but-not-yet-costed part of each month, drawn on top of the
+   solid bar in #A8566B. Champagne was measured and fails as a bar fill (1.51:1). */
+function barChart(perMonth, highlightM, pale) {
   const W = 620, H = 240, padT = 28, padB = 26;
   const max = Math.max(...perMonth, 1);
   const bw = W / 12;
   const maxIdx = perMonth.indexOf(Math.max(...perMonth));
+  pale = pale || [];
   let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
   for (let g = 1; g <= 3; g++) {
     const gy = padT + (H - padT - padB) * g / 4;
@@ -307,9 +394,27 @@ function barChart(perMonth, highlightM) {
       const hh = Math.max(3, (H - padT - padB) * v / max);
       const y = H - padB - hh;
       const col = (i + 1) === highlightM ? '#E6CCA1' : '#4B0D24';
-      s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 4) + ' Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y +
-        ' L' + (x + w - 4) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 4) +
-        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="' + col + '"><title>' + MONTHS[i] + ': ' + AEDf(v) + '</title></path>';
+      const u = Math.min(pale[i] || 0, v);          /* sold, sheet not made yet */
+      const tip = MONTHS[i] + ': ' + AEDf(v) + (u ? ' — ' + AEDf(u) + ' sold, sheet still to make' : '');
+      /* one rounded bar in up to two pieces: the costed part grows from the
+         baseline in the normal colour, the uncosted part caps it in pale rouge
+         (#A8566B — champagne was measured at 1.51:1 and fails as a bar fill).
+         A month with no sheets yet is simply all pale. */
+      const slice = (top, bottom, fill, round) =>
+        '<path d="M' + x + ' ' + bottom + ' L' + x + ' ' + (top + (round ? 4 : 0)) +
+        (round ? ' Q' + x + ' ' + top + ' ' + (x + 4) + ' ' + top + ' L' + (x + w - 4) + ' ' + top +
+                 ' Q' + (x + w) + ' ' + top + ' ' + (x + w) + ' ' + (top + 4)
+               : ' L' + (x + w) + ' ' + top) +
+        ' L' + (x + w) + ' ' + bottom + ' Z" fill="' + fill + '"><title>' + tip + '</title></path>';
+      const uh = (H - padT - padB) * u / max;       /* height of the pale cap */
+      if (u >= v) {
+        s += slice(y, H - padB, '#A8566B', true);
+      } else if (u > 0) {
+        s += slice(y + uh, H - padB, col, false);   /* costed, square top */
+        s += slice(y, y + uh, '#A8566B', true);     /* uncosted cap, rounded */
+      } else {
+        s += slice(y, H - padB, col, true);
+      }
       s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + (i === maxIdx ? 11 : 9) + '" font-weight="' + (i === maxIdx ? 700 : 600) + '" fill="#4B0D24" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
     }
     s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
@@ -320,7 +425,11 @@ function renderSales() {
   document.getElementById('salesYears').innerHTML = YEARS.map(y =>
     '<button class="chip ' + (y === salesYear ? 'on' : '') + '" onclick="salesYear=\'' + y + '\';renderSales()">' + y + '</button>').join('');
   const perMonth = Array.from({ length: 12 }, (_, i) => monthTotal(salesYear, i + 1));
-  document.getElementById('salesChart').innerHTML = barChart(perMonth, salesYear === CY ? CM : 0);
+  const pale = Array.from({ length: 12 }, (_, i) => monthUncosted(salesYear, i + 1));
+  const owed = pale.reduce((s, v) => s + v, 0);
+  document.getElementById('salesChart').innerHTML = barChart(perMonth, salesYear === CY ? CM : 0, pale) +
+    (owed ? '<div class="chart-key"><span><i class="sw solid"></i>Sold and costed</span>' +
+            '<span><i class="sw pale"></i>Sold &mdash; sheet still to make (' + AED(owed) + ')</span></div>' : '');
 }
 renderSales();
 

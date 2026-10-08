@@ -168,9 +168,11 @@ body.settled .drill,body.settled .ev,body.settled .section.active{animation:none
         <button class="trk-add" onclick="addTrack()">＋ Add to tracker</button>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;">
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;">
       <span style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;">Group by</span>
       <div id="trkGroupChips"></div>
+      <input class="search" id="trkSearch" style="flex:1;min-width:180px;margin:0;"
+             placeholder="Search order number, client or mobile…" oninput="renderTracker()">
     </div>
     <div class="tblwrap"><table id="trkTable">
       <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Discounted</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
@@ -274,6 +276,12 @@ function setFilter(f) {
   renderEvents();
 }
 function passesFilter(ev) { return evFilter === 'all' || apprStatus(ev) === evFilter; }
+/* arriving from the home screen's "sent back by Jo" line — land on those,
+   not on all 118 with them hidden somewhere inside */
+(function applyUrlFilter() {
+  const want = new URLSearchParams(location.search).get('filter');
+  if (want && ['pending', 'approved', 'rejected'].indexOf(want) !== -1) evFilter = want;
+})();
 
 function renderEvents() {
   const q = (document.getElementById('evSearch').value || '').toLowerCase();
@@ -545,11 +553,33 @@ function renderTracker() {
   const tb = document.querySelector('#trkTable tbody');
   const dateField = trackerGroupBy === 'placed' ? 'placed' : 'eventDate';
   const fallbackField = trackerGroupBy === 'placed' ? 'eventDate' : 'placed';
-  const rows = FLApp.trackerAll().slice().sort((a, b) =>
+  /* Searching the Tracker: order number is how Sajith thinks about an order,
+     but client and mobile are free since they are already on the row. Digits
+     only on the mobile, so "0509583390" finds "+971 50 958 3390". */
+  const qEl = document.getElementById('trkSearch');
+  const q = (qEl ? qEl.value : '').trim().toLowerCase();
+  const qDigits = q.replace(/\D/g, '');
+  /* same phone rule as the enquiry match: a full number is compared on its
+     last 9 digits, so "+971509583390" finds a row saved as "0509583390".
+     A partial number still matches as you type. */
+  const last9 = s => { const x = String(s || '').replace(/\D/g, '').replace(/^00/, '')
+    .replace(/^971/, '').replace(/^0+/, ''); return x.length >= 9 ? x.slice(-9) : ''; };
+  const matches = r => !q ||
+    String(r.orderNo || '').toLowerCase().includes(q) ||
+    String(r.client || '').toLowerCase().includes(q) ||
+    (qDigits.length >= 9
+      ? (!!last9(q) && last9(r.mobile) === last9(q))
+      : qDigits.length >= 3 && String(r.mobile || '').replace(/\D/g, '').includes(qDigits));
+
+  const rows = FLApp.trackerAll().filter(matches).sort((a, b) =>
     (b[dateField] || b[fallbackField] || '').localeCompare(a[dateField] || a[fallbackField] || ''));
   const gpOrders = new Set(FLApp.eventsAll().map(e => e.orderNo).filter(Boolean));
   tb.innerHTML = '';
-  if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" style="color:var(--muted);font-style:italic;">Nothing logged yet</td></tr>'; return; }
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="10" style="color:var(--muted);font-style:italic;">' +
+      (q ? 'Nothing found for "' + esc(q) + '"' : 'Nothing logged yet') + '</td></tr>';
+    return;
+  }
 
   function flushGroupTotal(afterTotal) {
     /* mirrors the data rows' exact 8-column structure (incl. col-placed/col-event/
@@ -849,7 +879,8 @@ if (FLApp.syncEnabled()) {
 /* first paint done — freeze entry animations so later re-renders don't shake */
 setTimeout(() => document.body.classList.add('settled'), 700);
 
-renderEvents();
+/* keep the filter chip in step when the page arrived with ?filter= */
+if (evFilter !== 'all') setFilter(evFilter); else renderEvents();
 </script>
 </body>
 </html>

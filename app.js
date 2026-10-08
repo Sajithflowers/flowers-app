@@ -1081,6 +1081,96 @@ const FLApp = (() => {
 
   function appVersion() { return APP_VERSION; }
 
+  /* ── "What's new", written per role ──────────────────────────────────
+     An update used to land in silence: the CEO would simply find a button
+     she had not asked for. Each release carries a short note per role,
+     shown once on the first open after updating, then never again.
+     A role with nothing to say shows NO card at all — an empty "nothing
+     for you" box is worse than silence. */
+  /* No APP_VERSION in here: this object is built as the file loads, and the
+     const is declared further down — reading it here throws before the app
+     has even started. The version is read inside the functions instead, which
+     run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
+  const WHATS_NEW = {
+    admin: [
+      ['Your sales figure was wrong',
+       'The dashboard showed AED 0 for this month while orders were already sold. Sales now counts Tracker orders, not only finished GP sheets.'],
+      ['Search the Tracker',
+       'A search box above the table — order number, client name or mobile. Either phone format finds the same row.'],
+      ['You will know when a sheet is sent back',
+       'A sheet the CEO returns used to disappear from your home screen. It now shows as "sent back — needs fixing".'],
+      ['This month is no longer a gap',
+       'The Sales chart shows it in pale rouge, turning solid as you make each GP sheet.']
+    ],
+    ceo: [
+      ['Review without going back and forth',
+       'After you approve or send one back, a Next button takes you straight to the following sheet.'],
+      ['It stays inside one month',
+       'Reviewing September will not carry you into October. When the month is finished it says so, and you choose the next one yourself.'],
+      ['Sales now shows two figures',
+       'What was sold this month, and what is being delivered this month. They answer different questions and are not meant to match.']
+    ],
+    finance: []
+  };
+  const SEEN_VERSION_KEY = 'fl_last_version';
+  /* Only someone who actually UPGRADED should see a changelog. A brand-new
+     device has nothing to be told about, so it records the version quietly
+     and shows nothing. Devices already carrying data but no recorded version
+     (everyone, the first time this ships) count as upgraded. */
+  function whatsNewFor(roleName) {
+    const seen = localStorage.getItem(SEEN_VERSION_KEY);
+    const upgraded = seen ? seen !== APP_VERSION : localStorage.getItem(EVENTS_KEY) !== null;
+    if (!upgraded) { localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION); return null; }
+    const lines = WHATS_NEW[roleName] || [];
+    if (!lines.length) { localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION); return null; }
+    return { version: APP_VERSION, lines: lines };
+  }
+  function markWhatsNewSeen() { localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION); }
+  /* Draws the card into an existing element and returns true if it drew one.
+     Dismissing removes it and records the version, so it cannot come back. */
+  function renderWhatsNew(elId) {
+    const host = typeof document !== 'undefined' && document.getElementById(elId);
+    if (!host) return false;
+    const u = currentUser();
+    if (!u) return false;
+    const data = whatsNewFor(role(u));
+    if (!data) return false;
+    const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    host.innerHTML =
+      '<div class="fl-nu">' +
+        '<div class="fl-nu-hd"><h3>What&rsquo;s new</h3><span>Version ' + esc(data.version) + '</span></div>' +
+        '<ul>' + data.lines.map(l =>
+          '<li><span class="fl-nu-dot">&#10022;</span><span><b>' + esc(l[0]) + '</b><br>' + esc(l[1]) + '</span></li>'
+        ).join('') + '</ul>' +
+        '<div class="fl-nu-foot"><button type="button" id="fl-nu-ok">Got it</button>' +
+        '<span>You will not see this again.</span></div>' +
+      '</div>';
+    if (!document.getElementById('fl-nu-style')) {
+      const st = document.createElement('style');
+      st.id = 'fl-nu-style';
+      st.textContent =
+        '.fl-nu{background:#fff;border:1px solid #E8DDD8;border-left:3px solid #E6CCA1;border-radius:3px;' +
+          'padding:15px 17px;margin-bottom:16px;box-shadow:0 3px 20px rgba(85,3,24,.07);font-family:Lato,Arial,sans-serif;}' +
+        '.fl-nu-hd{display:flex;align-items:baseline;gap:9px;}' +
+        '.fl-nu-hd h3{font-family:"EB Garamond",Georgia,serif;font-size:16px;color:#550318;margin:0;font-weight:700;}' +
+        '.fl-nu-hd span{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#9B8E8A;}' +
+        '.fl-nu ul{margin:9px 0 0;padding:0;list-style:none;}' +
+        '.fl-nu li{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid #E8DDD8;font-size:13px;color:#2E2522;line-height:1.5;}' +
+        '.fl-nu li:last-child{border-bottom:none;}' +
+        '.fl-nu-dot{color:#E6CCA1;font-size:14px;line-height:1.4;}' +
+        '.fl-nu li b{color:#4B0D24;}' +
+        '.fl-nu-foot{display:flex;align-items:center;gap:11px;margin-top:12px;flex-wrap:wrap;}' +
+        '.fl-nu-foot button{background:linear-gradient(135deg,#3a0210,#550318);color:#E6CCA1;border:none;' +
+          'border-radius:3px;padding:9px 18px;font-size:10px;font-weight:700;letter-spacing:1.5px;' +
+          'text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:36px;}' +
+        '.fl-nu-foot span{font-size:10.5px;color:#9B8E8A;}';
+      document.head.appendChild(st);
+    }
+    const ok = document.getElementById('fl-nu-ok');
+    if (ok) ok.onclick = () => { markWhatsNewSeen(); host.innerHTML = ''; };
+    return true;
+  }
+
   /* ── Cloud sync (Supabase) — events + tracker shared across all devices ──
      Last-write-wins per record by `updated` timestamp; deletions travel as
      tombstones; offline changes push automatically when back online. */
@@ -1571,7 +1661,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.33';
+  const APP_VERSION = '5.7.34';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2122,6 +2212,7 @@ const FLApp = (() => {
 
   return { register, login, logout, currentUser, guard, docs, getDoc, saveDoc, deleteDoc, activityLog, notify,
     appSettings, setAppSetting, appVersion, publishedVersion, storageStats, dataCheck,
+    whatsNewFor, renderWhatsNew, markWhatsNewSeen,
     permissions, exportBackup, enquiryBuckets, bookedByMonth,
     knownAccounts,
     role, isAdmin, canFinance, isCeo, guardRole,

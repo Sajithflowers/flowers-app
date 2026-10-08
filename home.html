@@ -65,6 +65,8 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 </div>
 
 <div class="tools">
+  <!-- what changed in this release, once, then never again -->
+  <div id="whatsNew"></div>
   <!-- admin only, and only drawn when there is genuinely something to do -->
   <div class="attn" id="attn" style="display:none;">
     <div class="attn-hd">Needs your attention</div>
@@ -130,6 +132,7 @@ if (u) {
       b.textContent = pend + ' PENDING';
     }
   }
+  FLApp.renderWhatsNew('whatsNew');
   if (FLApp.isAdmin()) renderAttention();
   if (r === 'finance') {
     /* accountant sees dashboard, Event GP Sheets, and Event Tools (Expense Sheet only, gated inside tools.html) */
@@ -189,6 +192,19 @@ function renderAttention() {
     lines.push({ href: 'events.html',
       text: '<b>' + waiting.length + '</b> finished event' + (waiting.length > 1 ? 's' : '') + ' waiting for Jo',
       due: deadline(waiting.map(e => e.date.slice(0, 7))) });
+  }
+
+  /* 2b — sheets Jo has sent back. These used to be invisible here: every other
+     line counts sheets that are WAITING, and a rejected one is no longer
+     waiting, so the moment she rejected one it simply vanished from this
+     screen. With email alerts off, nothing told him at all. */
+  const sentBack = FLApp.eventsAll().filter(e => e.approval && e.approval.status === 'rejected');
+  if (sentBack.length) {
+    const who = (sentBack[0].approval && sentBack[0].approval.by) || 'Jo';
+    lines.push({ href: 'events.html?filter=rejected',
+      text: '<b>' + sentBack.length + '</b> sheet' + (sentBack.length > 1 ? 's' : '') +
+            ' sent back by ' + who,
+      due: 'needs fixing' });
   }
 
   /* 3 — enquiries whose event has already been and gone but are still marked open.
