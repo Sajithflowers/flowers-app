@@ -113,13 +113,15 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .grp i{flex:1;height:1px;background:var(--border);font-style:normal;}
 .grp em{font-style:normal;color:var(--muted);font-weight:700;}
 .grp .hint{text-transform:none;letter-spacing:.2px;font-weight:600;color:var(--muted);}
-.erow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:1px solid var(--border);border-radius:7px;padding:11px 13px;margin-bottom:7px;font-family:inherit;font-size:13.5px;color:var(--terra);cursor:pointer;}
+.erow{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;background:#fff;border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:7px;font-family:inherit;font-size:13.5px;color:var(--terra);cursor:pointer;}
+.erow .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.erow .top{display:flex;align-items:center;gap:8px;min-width:0;}
 .erow:hover{border-color:var(--champagne);}
-.erow .ch{color:var(--champagne);font-size:15px;line-height:1;flex:0 0 11px;}
+.erow .ch{color:var(--champagne);font-size:15px;line-height:1.5;flex:0 0 11px;}
 .erow .nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.erow .dt{color:var(--muted);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.erow .dt{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;}
 .erow .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
-.erow .pl{font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;}
+.erow .pl{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;}
 .erow.on{border-color:var(--champagne);background:var(--tint);border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0;}
 .erow.hit{background:#FFF9EA;border-color:#E8C96A;}
 .ebody{border:1px solid var(--champagne);border-top:none;border-radius:0 0 7px 7px;background:#fff;padding:15px 16px 14px;margin-bottom:9px;}
@@ -134,6 +136,42 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .focusbar a{margin-left:auto;color:var(--rouge);font-size:12px;white-space:nowrap;}
 .tailbar{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap;}
 .tailbar select{width:auto;padding:7px 9px;font-size:12px;background:#fff;}
+
+/* ── Won, lost & pending — the CEO's chart, inside this page ───────── */
+.nq-strip{width:100%;display:flex;align-items:center;gap:10px;background:#4B0D24;color:#fff;
+  border:none;border-radius:3px;padding:12px 14px;cursor:pointer;font-family:inherit;text-align:left;}
+.nq-strip .s1{font-weight:700;font-size:13.5px;}
+.nq-strip .s2{font-size:11.5px;color:#d7a7b0;}
+.nq-strip .s3{margin-left:auto;font-size:17px;color:var(--champagne);}
+.nq-panel{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 3px 3px;padding:14px;}
+.nq-months{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px;}
+.nq-months button{border:1px solid var(--border);background:var(--lace);border-radius:16px;
+  padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);font-weight:700;}
+.nq-months button.on{background:var(--rouge);color:#fff;border-color:var(--rouge);}
+.nq-bar{display:flex;height:25px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:6px;}
+.nq-bar span{display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;}
+.nq-key{display:flex;gap:13px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-bottom:12px;}
+.nq-key i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+.nq-dwrap{display:flex;gap:15px;align-items:center;flex-wrap:wrap;}
+.nq-donut{width:132px;height:132px;flex:0 0 132px;}
+.nq-mid{font-family:'EB Garamond',Georgia,serif;font-size:27px;font-weight:700;fill:var(--rouge);}
+.nq-midsub{font-size:8px;fill:var(--muted);font-family:'Lato',Arial,sans-serif;letter-spacing:1px;}
+.nq-legend{flex:1;min-width:152px;}
+.nq-lrow{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;border-bottom:1px solid var(--border);}
+.nq-lrow:last-child{border-bottom:none;}
+.nq-lrow.hd{font-weight:800;border-bottom:1px solid var(--border);padding-bottom:3px;}
+.nq-lrow .sw{width:11px;height:11px;border-radius:2px;flex:0 0 11px;}
+.nq-lrow .nm{flex:1;} .nq-lrow .pc{font-variant-numeric:tabular-nums;font-weight:700;}
+.nq-thin{background:#FBF2E2;border:1px dashed var(--champagne);border-radius:5px;padding:10px 13px;font-size:12.5px;}
+.nq-thin ul{margin:6px 0 0;padding-left:17px;}
+.nq-pend{background:#FBF2E2;border-radius:5px;padding:8px 12px;font-size:11.5px;margin-top:10px;}
+.nq-pend b{color:#8a6d3b;}
+.nq-foot{font-size:10.5px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+.nq-foot b{color:var(--terra);}
+/* an undecided enquiry whose month has gone, lifted to the top to be answered */
+.ask-row{display:flex;gap:9px;align-items:center;background:#F3E3C4;border:1px solid var(--champagne);
+  border-radius:6px;padding:9px 12px;margin:14px 0 8px;font-size:12.5px;flex-wrap:wrap;}
+.ask-row .nm{flex:1;font-weight:700;min-width:130px;}
 </style>
 </head>
 <body>
@@ -177,6 +215,7 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
   </div>
 
   <div class="focusbar" id="focusbar" style="display:none;"></div>
+  <div id="chartWrap"></div>
   <div class="kpis" id="kpis"></div>
   <div id="list"></div>
   <div class="tailbar no-print">
@@ -222,6 +261,12 @@ function fmtDate(iso) {
   if (!iso) return '—';
   const [y, m, d] = iso.split('-').map(Number);
   return d + ' ' + MONTHS_SHORT[m - 1] + ' ' + y;
+}
+/* day and month only — rows are tight on a phone */
+function fmtShort(iso) {
+  if (!iso) return '—';
+  const p = iso.split('-');
+  return (+p[2]) + ' ' + MONTHS_SHORT[(+p[1]) - 1];
 }
 function monthLabel(key) {
   const [y, m] = key.split('-');
@@ -352,27 +397,20 @@ async function removeEnquiry(id) {
   if (await FLApp.flConfirm('Remove this enquiry?')) { FLApp.enquiryDelete(id); render(); }
 }
 
-/* ── which pile does an enquiry belong in? ────────────────────────────
-   Order matters: the first match wins, and "settle" is deliberately first
-   so an open enquiry whose event is long gone can never hide anywhere else.
-   Nothing folds away until it has been answered Won or Lost. */
-function pileOf(e) {
-  const today = todayISO();
-  const cutoff = new Date(Date.now() - SETTLE_DAYS * 86400000).toISOString().slice(0, 10);
-  const live = FLApp.enquiryIsOpen(e);
+/* ── what is on screen and what folds away ───────────────────────────
+   The fold used to be "settled and more than 10 days old". Because Sajith
+   settles his enquiries properly, that hid 21 of 35 and left the CEO looking
+   at a list of almost nothing but PAID — she could not see what was lost,
+   which is the thing she asks about. The rule is now the month: everything
+   from this month onward stays, whatever happened to it. */
+function thisMonth() { return todayISO().slice(0, 7); }
+function monthGone(e) {
   const when = e.eventDate || e.enqDate || '';
-  if (live && when && when < cutoff) return 'settle';
-  if (!live && when && when < cutoff) return 'done';      /* finished business — folds */
-  if (live && e.followUpDate && e.followUpDate <= today) return 'chase';
-  if (live) return 'play';
-  return FLApp.enquiryWon(e) ? 'won' : 'done';
+  return !!when && when.slice(0, 7) < thisMonth();
 }
-const PILES = [
-  { k: 'settle', t: 'Settle these first', hint: '— the event has been and gone' },
-  { k: 'chase',  t: 'Chase today',        hint: '' },
-  { k: 'play',   t: 'Still in play',      hint: '' },
-  { k: 'won',    t: 'Won — coming up',    hint: '' }
-];
+/* still undecided AND its month has already gone — these are asked about at
+   the top rather than quietly folded away with the finished business */
+function needsSettling(e) { return FLApp.enquiryState(e) === 'pending' && monthGone(e); }
 function AEDn(n) { return 'AED ' + Math.round(n).toLocaleString('en-US'); }
 
 /* Picking "＋ Add your own…" from a status dropdown. The group question is not
@@ -381,6 +419,20 @@ function AEDn(n) { return 'AED ' + Math.round(n).toLocaleString('en-US'); }
    live for ever. Cancel at any point and the enquiry keeps the status it had. */
 async function pickStatus(id, sel) {
   const chosen = sel.value;
+  /* choosing a LOST status from the card asks why, same as the Lost button,
+     so the chart is fed from both routes and never half-filled */
+  if (chosen !== '__add' && FLApp.statusGroup(chosen) === 'lost') {
+    const e = FLApp.enquiriesAll().find(x => x.id === id);
+    if (e) {
+      const picked = await askReason(e.name || 'this enquiry', e.lostReason || FLApp.guessLostReason(e));
+      if (picked === null) { render(); return; }     /* cancelled — status unchanged */
+      e.status = chosen;
+      e.lostReason = picked;
+      FLApp.enquirySave(e);
+    }
+    render();
+    return;
+  }
   if (chosen !== '__add') { patch(id, 'status', chosen); render(); return; }
   render();                                   /* put the dropdown back first */
   const label = (await FLApp.flPrompt('What should the new status say?\n\ne.g. "Waiting on flowers", "Too expensive"') || '').trim();
@@ -436,39 +488,222 @@ function quoteLink(e) {
     '</div>';
 }
 
+/* ── "Won, lost & pending" — the CEO's chart, inside this page ────────
+   Jo's spec: three categories, lost broken down by reason, months counted
+   on the date the enquiry CAME IN (not the event date — "we got 23 enquiries
+   in August and won 6" is the sentence that makes sense for selling).
+   Collapsed by default with the headline on the strip, so the page still
+   opens as a work list. */
+const REASON_COLOURS = ['#550318', '#8a2d43', '#b36475', '#d7a7b0'];
+let chartMonth = 'all';
+let chartOpen = false;
+function toggleChart() { chartOpen = !chartOpen; render(); }
+function setChartMonth(m) { chartMonth = m; render(); }
+
+function chartMonths() {
+  const ms = [...new Set(FLApp.enquiriesAll().map(e => (e.enqDate || '').slice(0, 7)).filter(Boolean))];
+  return ms.sort().reverse().slice(0, 6).reverse();
+}
+function chartData(m) {
+  const rows = FLApp.enquiriesAll().filter(e => m === 'all' || (e.enqDate || '').slice(0, 7) === m);
+  const d = { won: 0, lost: 0, pending: 0, reasons: {}, pend: [] };
+  rows.forEach(e => {
+    const s = FLApp.enquiryState(e);
+    d[s]++;
+    if (s === 'lost') { const r = FLApp.lostReasonOf(e); d.reasons[r] = (d.reasons[r] || 0) + 1; }
+    if (s === 'pending') d.pend.push(e.name || 'Untitled');
+  });
+  /* biggest reason first; anything past the fourth folds into Other, because
+     four slivers of one tell you nothing a line of text would not */
+  let list = Object.keys(d.reasons).map(k => [k, d.reasons[k]]).sort((a, b) => b[1] - a[1]);
+  if (list.length > 4) {
+    const rest = list.slice(3).reduce((s, x) => s + x[1], 0);
+    list = list.slice(0, 3).concat([['Other', rest]]);
+  }
+  d.list = list;
+  return d;
+}
+function donutSvg(list, total) {
+  const R = 68, C = 2 * Math.PI * R;
+  let off = 0, arcs = '';
+  list.forEach((x, i) => {
+    const len = x[1] / total * C;
+    arcs += '<circle r="' + R + '" fill="none" stroke="' + REASON_COLOURS[i % 4] +
+      '" stroke-width="26" stroke-dasharray="' + Math.max(0, len - 3) + ' ' + (C - len + 3) +
+      '" stroke-dashoffset="' + (-off) + '"><title>' + esc(x[0]) + ' — ' +
+      Math.round(x[1] / total * 100) + '%</title></circle>';
+    off += len;
+  });
+  const top = list[0], pc = Math.round(top[1] / total * 100);
+  return '<svg viewBox="0 0 170 170" class="nq-donut" aria-hidden="true">' +
+    '<g transform="translate(85,85) rotate(-90)">' + arcs + '</g>' +
+    '<text x="85" y="80" text-anchor="middle" class="nq-mid">' + pc + '%</text>' +
+    '<text x="85" y="96" text-anchor="middle" class="nq-midsub">' +
+      esc(top[0].split(' ')[0].toUpperCase()) + '</text></svg>';
+}
+function renderChart() {
+  const host = document.getElementById('chartWrap');
+  if (!host) return;
+  const all = chartData('all');
+  const settledAll = all.won + all.lost;
+  const convAll = settledAll ? Math.round(all.won / settledAll * 100) : 0;
+  const topAll = all.list[0];
+  const head = settledAll
+    ? convAll + '% won' + (topAll ? ' · ' + Math.round(topAll[1] / all.lost * 100) + '% of losses on ' +
+        topAll[0].toLowerCase().split(' ')[0] : '')
+    : 'nothing settled yet';
+
+  let html = '<button type="button" class="nq-strip" onclick="toggleChart()">' +
+    '<span><span class="s1">Won, lost &amp; pending</span><br><span class="s2">' + esc(head) + '</span></span>' +
+    '<span class="s3">' + (chartOpen ? '⌄' : '›') + '</span></button>';
+
+  if (chartOpen) {
+    const months = chartMonths();
+    if (months.indexOf(chartMonth) === -1 && chartMonth !== 'all') chartMonth = 'all';
+    const d = chartData(chartMonth);
+    const total = d.won + d.lost + d.pending;
+    const settled = d.won + d.lost;
+    const conv = settled ? Math.round(d.won / settled * 100) : 0;
+    html += '<div class="nq-panel"><div class="nq-months">' +
+      '<button type="button" class="' + (chartMonth === 'all' ? 'on' : '') + '" onclick="setChartMonth(\'all\')">All</button>' +
+      months.map(m => '<button type="button" class="' + (chartMonth === m ? 'on' : '') +
+        '" onclick="setChartMonth(\'' + m + '\')">' + MONTHS_SHORT[+m.slice(5, 7) - 1] + '</button>').join('') +
+      '</div>';
+
+    if (!total) {
+      html += '<div class="nq-thin">No enquiries came in that month.</div></div>';
+      host.innerHTML = html; return;
+    }
+    /* counts on the bar, never percentages — the bar is of everything while
+       the conversion is of the settled only, and two different percentages
+       on one small card is how you confuse someone */
+    html += '<div class="nq-bar">' +
+      (d.won ? '<span style="flex:' + d.won + ';background:var(--good);">WON ' + d.won + '</span>' : '') +
+      (d.lost ? '<span style="flex:' + d.lost + ';background:var(--rouge);">LOST ' + d.lost + '</span>' : '') +
+      (d.pending ? '<span style="flex:' + d.pending + ';background:#8a6d3b;">' +
+        (d.pending > 2 ? 'PENDING ' + d.pending : '') + '</span>' : '') + '</div>' +
+      '<div class="nq-key"><span><i style="background:var(--good)"></i>Won</span>' +
+      '<span><i style="background:var(--rouge)"></i>Lost</span>' +
+      '<span><i style="background:#8a6d3b"></i>Pending — not decided yet</span></div>';
+
+    if (d.lost >= 5) {
+      html += '<div class="nq-dwrap">' + donutSvg(d.list, d.lost) +
+        '<div class="nq-legend"><div class="nq-lrow hd">Why the ' + d.lost + ' were lost</div>' +
+        d.list.map((x, i) => '<div class="nq-lrow"><span class="sw" style="background:' +
+          REASON_COLOURS[i % 4] + '"></span><span class="nm">' + esc(x[0]) + '</span><span class="pc">' +
+          Math.round(x[1] / d.lost * 100) + '%</span></div>').join('') + '</div></div>';
+    } else if (d.lost) {
+      html += '<div class="nq-thin"><b>Only ' + d.lost + ' lost — too few for a chart:</b><ul>' +
+        d.list.map(x => '<li>' + esc(x[0]) + (x[1] > 1 ? ' × ' + x[1] : '') + '</li>').join('') + '</ul></div>';
+    }
+    if (d.pending) {
+      html += '<div class="nq-pend"><b>' + d.pending + ' still pending</b> — ' +
+        esc(d.pend.slice(0, 4).join(' · ')) + (d.pend.length > 4 ? ' and ' + (d.pend.length - 4) + ' more' : '') + '</div>';
+    }
+    html += '<div class="nq-foot"><b>' + total + ' enquir' + (total === 1 ? 'y' : 'ies') + '</b> · ' +
+      d.won + ' won, ' + d.lost + ' lost, ' + d.pending + ' pending' +
+      (settled ? ' · <b>' + conv + '% won</b> of the ' + settled + ' settled' : '') + '</div></div>';
+  }
+  host.innerHTML = html;
+}
+
 function toggleRow(id) { openId = (openId === id) ? null : id; render(); }
 function toggleSettled() { showSettled = !showSettled; render(); }
 function clearFocus() { history.replaceState(null, '', 'enquiries.html'); location.reload(); }
 /* the Won / Lost buttons on a stranded enquiry */
-function settleAs(id, group) {
+async function settleAs(id, group) {
   const e = FLApp.enquiriesAll().find(x => x.id === id);
   if (!e) return;
-  e.status = (group === 'won') ? 'confirmed' : 'lost';
+  if (group === 'lost') { await markLost(e); return; }
+  e.status = 'confirmed';
   FLApp.enquirySave(e);
   render();
 }
 
+/* ── Marking one Lost asks why, with the answer already filled in ────
+   The reason is read out of the notes he has already written, so almost
+   every time this is one glance and a tap. It is asked rather than assumed
+   because the chart is built on the stored answer — a guess that nobody
+   ever sees would quietly drift wrong and no one would know. */
+async function markLost(e) {
+  const guess = FLApp.guessLostReason(e);
+  const picked = await askReason(e.name || 'this enquiry', guess);
+  if (picked === null) return;                 /* cancelled — change nothing */
+  e.status = 'lost';
+  e.lostReason = picked;
+  FLApp.enquirySave(e);
+  render();
+}
+function askReason(who, guess) {
+  return new Promise(resolve => {
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;background:rgba(58,2,16,.45);display:flex;' +
+      'align-items:center;justify-content:center;z-index:10000;padding:18px;';
+    mask.innerHTML =
+      '<div style="background:#fff;border-radius:6px;max-width:360px;width:100%;overflow:hidden;' +
+        'box-shadow:0 12px 40px rgba(0,0,0,.3);font-family:Lato,Arial,sans-serif;">' +
+        '<div style="background:var(--rouge);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;">Why was it lost?</div>' +
+        '<div style="padding:15px;">' +
+          '<p style="font-size:13.5px;color:var(--terra);margin-bottom:4px;">' + esc(who) + '</p>' +
+          (guess ? '<p style="font-size:11.5px;color:var(--muted);margin-bottom:11px;">Taken from your notes — change it if it is wrong.</p>'
+                 : '<p style="font-size:11.5px;color:var(--muted);margin-bottom:11px;">Nothing in your notes said why. Pick one.</p>') +
+          '<div style="display:flex;flex-direction:column;gap:6px;">' +
+            FLApp.LOST_REASONS.map(r =>
+              '<button data-r="' + esc(r) + '" style="text-align:left;padding:10px 12px;border-radius:5px;' +
+              'border:1px solid ' + (r === guess ? 'var(--champagne)' : 'var(--border)') + ';' +
+              'background:' + (r === guess ? '#FBF2E2' : '#fff') + ';font-size:13px;cursor:pointer;' +
+              'font-family:inherit;color:var(--terra);font-weight:' + (r === guess ? '700' : '400') + ';">' +
+              esc(r) + (r === guess ? ' &nbsp;·&nbsp; <span style="color:#8a6d3b;font-size:11px;">from your notes</span>' : '') +
+              '</button>').join('') +
+          '</div>' +
+          '<div style="text-align:right;margin-top:12px;"><button data-r="" style="background:none;border:none;' +
+            'color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;">Cancel</button></div>' +
+        '</div></div>';
+    mask.addEventListener('click', ev => {
+      const b = ev.target.closest('button');
+      if (!b) return;
+      mask.remove();
+      resolve(b.getAttribute('data-r') || null);
+    });
+    document.body.appendChild(mask);
+  });
+}
+
+/* The row needs a short word. "Lost / Declined" and "Awaiting Response" are
+   right on the card, where there is room, but across a phone row they push
+   the client's name out of existence. The full label is still one tap away. */
+const SHORT_STATUS = { new:'New', contacted:'Contacted', negotiating:'Negotiating',
+                       awaiting:'Awaiting', confirmed:'Won', lost:'Lost' };
+function shortStatus(v) {
+  const k = String(v || 'new').toLowerCase();
+  if (SHORT_STATUS[k]) return SHORT_STATUS[k];
+  return statusMeta(k).l.split(/[s/]+/)[0];       /* a custom word: first word only */
+}
 function collapsedRow(e, highlight) {
   const sm = statusMeta(e.status || 'new');
-  const pile = pileOf(e);
-  const when = e.eventDate ? 'event ' + fmtDate(e.eventDate) : (e.enqDate ? 'enq ' + fmtDate(e.enqDate) : 'no date');
+  /* The enquiry date leads, because the list is ordered by it. Years are
+     dropped here: "enq 29 Sep 2026 · event 4 Oct 2026" was long enough to
+     squeeze the client's name off the row entirely on a phone. */
+  const when = (e.enqDate ? fmtShort(e.enqDate) : 'no date') +
+               (e.eventDate ? ' → ' + fmtShort(e.eventDate) : '');
   const val = (parseFloat(e.quoteValue) || 0) ? AEDn(e.quoteValue) : '—';
   /* Paid wins over the status word on the row too — the card already shows
      "Paid", and the two disagreeing is what hid the problem for weeks. */
-  const tail = (pile === 'settle' && isAdmin)
-    ? '<span class="settle">' +
-        '<button type="button" class="won" onclick="event.stopPropagation();settleAs(\'' + e.id + '\',\'won\')">Won</button>' +
-        '<button type="button" class="lost" onclick="event.stopPropagation();settleAs(\'' + e.id + '\',\'lost\')">Lost</button>' +
-      '</span>'
-    : e.paid
-      ? '<span class="pl" style="background:#E3EFE7;color:var(--good);border-color:#BFD8C6;">🥳 Paid</span>'
-      : '<span class="pl" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + esc(sm.l) + '</span>';
+  const tail = e.paid
+    ? '<span class="pl" style="background:#E3EFE7;color:var(--good);border-color:#BFD8C6;">🥳 Paid</span>'
+    : '<span class="pl" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + esc(shortStatus(e.status)) + '</span>';
+  /* Two lines, not one. A name, a value and a status word like "Lost /
+     Declined" plus two dates will not fit across a phone — the first attempt
+     squeezed the client's name down to nothing. Name and outcome on top,
+     dates underneath where there is room for them. */
   return '<button type="button" class="erow' + (openId === e.id ? ' on' : '') + (highlight ? ' hit' : '') +
       '" onclick="toggleRow(\'' + e.id + '\')">' +
       '<span class="ch">' + (openId === e.id ? '▾' : '›') + '</span>' +
-      '<span class="nm">' + esc(e.name || 'Untitled') + '</span>' +
-      '<span class="dt">' + when + '</span>' +
-      '<span class="val">' + val + '</span>' + tail +
+      '<span class="body">' +
+        '<span class="top"><span class="nm">' + esc(e.name || 'Untitled') + '</span>' +
+          '<span class="val">' + val + '</span>' + tail + '</span>' +
+        '<span class="dt">' + when + '</span>' +
+      '</span>' +
     '</button>' +
     (openId === e.id ? '<div class="ebody">' + cardBody(e) + '</div>' : '');
 }
@@ -510,37 +745,39 @@ function render() {
     rows = rows.filter(e => focusIds.has(e.id));
   }
 
-  /* the three numbers above the list */
-  const live = all.filter(FLApp.enquiryIsOpen);
-  const chasing = live.filter(e => e.followUpDate && e.followUpDate <= today);
-  document.getElementById('kpis').innerHTML =
-    '<div class="kpi' + (chasing.length ? ' act' : '') + '"><div class="k">Chase today</div><div class="v">' + chasing.length + '</div></div>' +
-    '<div class="kpi"><div class="k">On the table</div><div class="v">' + AEDn(live.reduce((s, e) => s + (parseFloat(e.quoteValue) || 0), 0)) + '</div></div>' +
-    '<div class="kpi"><div class="k">Open enquiries</div><div class="v">' + live.length + '</div></div>';
+  renderChart();
+  document.getElementById('kpis').innerHTML = '';   /* the chart replaced the three tiles */
 
   if (!rows.length) {
     box.innerHTML = '<div class="empty">' + (all.length ? 'Nothing here right now.' : 'No enquiries logged yet.') + '</div>';
     return;
   }
 
-  const piles = {};
-  rows.forEach(e => { const p = pileOf(e); (piles[p] = piles[p] || []).push(e); });
+  /* one plain list, newest enquiry first. The only thing lifted out is an
+     undecided enquiry whose month has gone — it is asked about rather than
+     left to drift, and it never folds away unanswered. */
+  const askRows = rows.filter(needsSettling);
+  const visible = rows.filter(e => !needsSettling(e) && !monthGone(e));
+  const older   = rows.filter(e => !needsSettling(e) && monthGone(e));
 
-  let html = '';
-  PILES.forEach(p => {
-    const list = piles[p.k];
-    if (!list || !list.length) return;
-    html += '<div class="grp">' + (p.k === 'settle' ? '⚠ ' : '') + p.t +
-            (p.hint ? ' <span class="hint">' + p.hint + '</span>' : '') +
-            '<i></i><em>' + list.length + '</em></div>' +
-            list.map(e => collapsedRow(e, !!focusIds)).join('');
-  });
-  const done = piles.done || [];
-  if (done.length) {
+  let html = askRows.map(e =>
+    '<div class="ask-row"><span>⚠</span>' +
+    '<span class="nm">' + esc(e.name || 'Untitled') + ' — ' +
+      (e.eventDate ? 'event ' + fmtDate(e.eventDate) + ', gone' : 'no event date') + '</span>' +
+    (isAdmin
+      ? '<span class="settle">' +
+          '<button type="button" class="won" onclick="settleAs(\'' + e.id + '\',\'won\')">Won</button>' +
+          '<button type="button" class="lost" onclick="settleAs(\'' + e.id + '\',\'lost\')">Lost</button>' +
+        '</span>'
+      : '') + '</div>').join('');
+
+  html += visible.map(e => collapsedRow(e, !!focusIds)).join('');
+
+  if (older.length) {
     html += '<button type="button" class="fold" onclick="toggleSettled()">' +
-      (showSettled ? '▴ &nbsp;Hide' : '▾ &nbsp;Show') + ' <b>' + done.length + ' settled enquir' +
-      (done.length === 1 ? 'y' : 'ies') + '</b> — finished business</button>' +
-      (showSettled ? '<div style="margin-top:9px;">' + done.map(e => collapsedRow(e, !!focusIds)).join('') + '</div>' : '');
+      (showSettled ? '▴ &nbsp;Hide' : '▾ &nbsp;Show') + ' <b>' + older.length + ' older enquir' +
+      (older.length === 1 ? 'y' : 'ies') + '</b> — event month has passed</button>' +
+      (showSettled ? '<div style="margin-top:9px;">' + older.map(e => collapsedRow(e, !!focusIds)).join('') + '</div>' : '');
   }
   box.innerHTML = html;
 }

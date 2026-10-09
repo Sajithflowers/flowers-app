@@ -698,6 +698,45 @@ const FLApp = (() => {
      whatever the status still says; the word itself is left untouched, so
      unticking Paid puts everything back. */
   function enquiryWon(e) { return !!(e && (e.paid || statusGroup(e.status) === 'won')); }
+  /* Jo's three buckets. Pending is simply "not decided yet" — Sajith's rule,
+     and the simpler one: it does not matter whether an event date exists, it
+     matters whether anyone has said won or lost. */
+  function enquiryState(e) {
+    if (enquiryWon(e)) return 'won';
+    if (statusGroup(e && e.status) === 'lost') return 'lost';
+    return 'pending';
+  }
+
+  /* ── Why an enquiry was lost ─────────────────────────────────────────
+     Sajith already writes the reason in the notes — "No budget (500 AED)",
+     "Choosed to take own florist". Rather than ask him to fill in a second
+     field, this reads what he wrote and offers it back for him to confirm
+     when he marks one Lost. Measured at 20 of 21 correct on his own data.
+     The stored answer (`lostReason`) is what the chart counts; the guess is
+     only ever a starting suggestion, never the final word. */
+  const LOST_REASONS = ['Price / budget', 'No response', 'Client cancelled',
+                        'Went elsewhere', 'Still deciding', 'Other'];
+  /* first match wins, so the specific patterns come before the broad ones */
+  const REASON_HINTS = [
+    ['Went elsewhere',  /own florist|another florist|someone else|different (florist|supplier)/i],
+    ['Client cancelled', /didn'?t proceed|did not proceed|cancell?ed|no longer need|doesn'?t need|does not need/i],
+    ['No response',     /no respon|not respon|no reply|didn'?t reply|did not reply|ghost|went quiet/i],
+    ['Price / budget',  /budget|afford|too high|price|no money|cheap|expensive|\bgp\b/i],
+    ['Still deciding',  /still choos|still on chat|still think|waiting for (a )?(respond|response|additional)|contact me once/i]
+  ];
+  function guessLostReason(e) {
+    const txt = ((e && e.messages || []).map(m => m && m.text || '').join(' · ') + ' ' + ((e && e.notes) || ''));
+    if (!txt.trim()) return '';
+    for (let i = 0; i < REASON_HINTS.length; i++) {
+      if (REASON_HINTS[i][1].test(txt)) return REASON_HINTS[i][0];
+    }
+    return '';
+  }
+  /* what the chart counts: the confirmed answer, else the guess, else unknown */
+  function lostReasonOf(e) {
+    if (e && e.lostReason && LOST_REASONS.indexOf(e.lostReason) !== -1) return e.lostReason;
+    return guessLostReason(e) || 'Not recorded';
+  }
   function enquiryIsOpen(e) { return !(e && e.paid) && statusGroup(e && e.status) === 'open'; }
   function addCustomStatus(label, group) {
     const l = String(label || '').trim();
@@ -1093,20 +1132,24 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
+      ['Enquiries is one simple list again',
+       'Newest enquiry first, no groups. Anything whose event month has passed folds away at the bottom — so you see what is live, not just what was paid.'],
+      ['Why you lose work',
+       'A chart at the top of Enquiries: won, lost and pending, and what the losses were. Mark one Lost and it offers the reason already read from your own notes.'],
       ['Your sales figure was wrong',
        'The dashboard showed AED 0 for this month while orders were already sold. Sales now counts Tracker orders, not only finished GP sheets.'],
       ['Search the Tracker',
        'A search box above the table — order number, client name or mobile. Either phone format finds the same row.'],
       ['You will know when a sheet is sent back',
-       'A sheet the CEO returns used to disappear from your home screen. It now shows as "sent back — needs fixing".'],
-      ['This month is no longer a gap',
-       'The Sales chart shows it in pale rouge, turning solid as you make each GP sheet.']
+       'A sheet the CEO returns used to disappear from your home screen. It now shows as "sent back — needs fixing".']
     ],
     ceo: [
       ['Review without going back and forth',
-       'After you approve or send one back, a Next button takes you straight to the following sheet.'],
-      ['It stays inside one month',
-       'Reviewing September will not carry you into October. When the month is finished it says so, and you choose the next one yourself.'],
+       'After you approve or send one back, a Next button takes you straight to the following sheet. It stays inside one month — reviewing September will not carry you into October.'],
+      ['Won, lost and pending',
+       'A chart at the top of Event Enquiries, by the month each enquiry came in, with the reasons behind the losses.'],
+      ['Enquiries shows everything now',
+       'Not only the ones already paid. Anything from this month onward stays on screen whatever happened to it.'],
       ['Sales now shows two figures',
        'What was sold this month, and what is being delivered this month. They answer different questions and are not meant to match.']
     ],
@@ -1661,7 +1704,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.34';
+  const APP_VERSION = '5.7.35';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2224,6 +2267,7 @@ const FLApp = (() => {
     enquiriesAll, enquirySave, enquiryDelete,
     allStatuses, statusMetaOf, statusGroup, enquiryIsOpen, addCustomStatus, removeCustomStatus,
     statusInUse, STATUS_GROUPS, BUILT_IN_STATUSES, tidyActivityHistory, enquiryWon,
+    enquiryState, LOST_REASONS, guessLostReason, lostReasonOf,
     calendarAll, calendarSave, calendarDelete, calendarAddComment,
     quotesAll, quoteGet, quoteSave, quoteDelete,
     proposalsAll, proposalGet, proposalSave, proposalDelete,
