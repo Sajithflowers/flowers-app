@@ -1132,26 +1132,22 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Enquiries is one simple list again',
-       'Newest enquiry first, no groups. Anything whose event month has passed folds away at the bottom — so you see what is live, not just what was paid.'],
-      ['Why you lose work',
-       'A chart at the top of Enquiries: won, lost and pending, and what the losses were. Mark one Lost and it offers the reason already read from your own notes.'],
-      ['Your sales figure was wrong',
-       'The dashboard showed AED 0 for this month while orders were already sold. Sales now counts Tracker orders, not only finished GP sheets.'],
-      ['Search the Tracker',
-       'A search box above the table — order number, client name or mobile. Either phone format finds the same row.'],
-      ['You will know when a sheet is sent back',
-       'A sheet the CEO returns used to disappear from your home screen. It now shows as "sent back — needs fixing".']
+      ['Quotations print properly on the PC',
+       'The PC was cutting the right edge and the top off every quote. It now makes the same clean one-page PDF the tablet makes. Proposals and timelines too.'],
+      ['Move an item up or down',
+       'Grab the handle on the left of any line in a quotation and drag it where you want it. No more deleting and retyping to fix the order.'],
+      ['It warns you before a double entry',
+       'Add an enquiry for the same client and the same event day and it will ask first. You can still add it.'],
+      ['New bank details',
+       'Abu Dhabi Islamic Bank, on both quotations and proposals. Quotes you already sent keep the old details.'],
+      ['The won / lost card reads cleanly',
+       'The figures at the top now follow the month you pick, and the reasons list shows how many clients rather than a percentage.']
     ],
     ceo: [
-      ['Review without going back and forth',
-       'After you approve or send one back, a Next button takes you straight to the following sheet. It stays inside one month — reviewing September will not carry you into October.'],
-      ['Won, lost and pending',
-       'A chart at the top of Event Enquiries, by the month each enquiry came in, with the reasons behind the losses.'],
-      ['Enquiries shows everything now',
-       'Not only the ones already paid. Anything from this month onward stays on screen whatever happened to it.'],
-      ['Sales now shows two figures',
-       'What was sold this month, and what is being delivered this month. They answer different questions and are not meant to match.']
+      ['The won / lost card follows the month you pick',
+       'Choose October and the line at the top gives you October\'s figures, not the all-time ones. The middle of the ring shows how many were lost, and each reason shows how many clients it was.'],
+      ['Newest month first',
+       'The month buttons now run Oct, Sep, Aug, Jul.']
     ],
     finance: []
   };
@@ -1704,7 +1700,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.35';
+  const APP_VERSION = '5.7.36';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -1963,12 +1959,17 @@ const FLApp = (() => {
       mask.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') done(); });
     });
   }
-  function flConfirm(message) {
+  function flConfirm(message, okWord, cancelWord, emphasis) {
     injectModalStyles();
     return new Promise(resolve => {
       const mask = document.createElement('div');
       mask.className = 'fl-modal-mask';
-      mask.innerHTML = '<div class="fl-modal-box"><p></p><div class="fl-modal-actions"><button id="flC-cancel">Cancel</button><button class="primary" id="flC-ok">OK</button></div></div>';
+      const keep = emphasis === 'cancel' ? 'cancel' : 'ok';
+      mask.innerHTML = '<div class="fl-modal-box"><p></p><div class="fl-modal-actions">' +
+        '<button class="' + (keep === 'cancel' ? 'primary' : '') + '" id="flC-cancel"></button>' +
+        '<button class="' + (keep === 'ok' ? 'primary' : '') + '" id="flC-ok"></button></div></div>';
+      mask.querySelector('#flC-ok').textContent = okWord || 'OK';
+      mask.querySelector('#flC-cancel').textContent = cancelWord || 'Cancel';
       mask.querySelector('p').textContent = message;
       document.body.appendChild(mask);
       const done = (v) => { mask.remove(); resolve(v); };
@@ -2022,17 +2023,9 @@ const FLApp = (() => {
     return { width: A4W, height: Math.max(A4H, naturalH) };
   }
   async function exportPdf(el, filename) {
-    if (!isAndroidApp()) {
-      const { width, height } = exportPageSize(el);
-      const pageStyle = document.createElement('style');
-      pageStyle.textContent = '@page{size:' + (width / 72 * 25.4) + 'mm ' + (height / 72 * 25.4) + 'mm;}';
-      document.head.appendChild(pageStyle);
-      window.print();
-      pageStyle.remove();
-      return;
-    }
     if (!window.jspdf || !window.html2canvas) {
-      await flAlert('PDF export needs an app update — please update Flowers.ae Team Tools and try again.');
+      /* only the three editor pages load them; anything else still prints */
+      window.print();
       return;
     }
     const hideStyle = document.createElement('style');
@@ -2050,11 +2043,15 @@ const FLApp = (() => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'pt', format: [pageWidth, pageHeight] });
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidth, pageHeight);
-      const base64 = pdf.output('datauristring').split(',')[1];
-      const written = await Capacitor.Plugins.Filesystem.writeFile({
-        path: filename, data: base64, directory: 'DOCUMENTS', recursive: true
-      });
-      await Capacitor.Plugins.Share.share({ title: filename, url: written.uri, dialogTitle: 'Save or send ' + filename });
+      if (isAndroidApp()) {
+        const base64 = pdf.output('datauristring').split(',')[1];
+        const written = await Capacitor.Plugins.Filesystem.writeFile({
+          path: filename, data: base64, directory: 'DOCUMENTS', recursive: true
+        });
+        await Capacitor.Plugins.Share.share({ title: filename, url: written.uri, dialogTitle: 'Save or send ' + filename });
+      } else {
+        pdf.save(filename);   /* PC: the browser's own save dialog */
+      }
     } catch (e) {
       await flAlert('Could not save the PDF: ' + (e.message || e));
     } finally {

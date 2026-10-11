@@ -149,7 +149,7 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
   padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);font-weight:700;}
 .nq-months button.on{background:var(--rouge);color:#fff;border-color:var(--rouge);}
 .nq-bar{display:flex;height:25px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:6px;}
-.nq-bar span{display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;}
+.nq-bar span{display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;min-width:0;overflow:hidden;white-space:nowrap;}
 .nq-key{display:flex;gap:13px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-bottom:12px;}
 .nq-key i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
 .nq-dwrap{display:flex;gap:15px;align-items:center;flex-wrap:wrap;}
@@ -162,10 +162,11 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .nq-lrow.hd{font-weight:800;border-bottom:1px solid var(--border);padding-bottom:3px;}
 .nq-lrow .sw{width:11px;height:11px;border-radius:2px;flex:0 0 11px;}
 .nq-lrow .nm{flex:1;} .nq-lrow .pc{font-variant-numeric:tabular-nums;font-weight:700;}
-.nq-thin{background:#FBF2E2;border:1px dashed var(--champagne);border-radius:5px;padding:10px 13px;font-size:12.5px;}
-.nq-thin ul{margin:6px 0 0;padding-left:17px;}
-.nq-pend{background:#FBF2E2;border-radius:5px;padding:8px 12px;font-size:11.5px;margin-top:10px;}
-.nq-pend b{color:#8a6d3b;}
+.nq-why{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;}
+.nq-solo{font-size:13px;color:var(--terra);margin:0 0 2px;}
+.nq-solo b{font-weight:600;}
+.nq-empty{font-size:12.5px;color:var(--muted);font-style:italic;padding:10px 0;}
+.nq-sub{font-size:10.5px;color:var(--muted);margin-top:4px;}
 .nq-foot{font-size:10.5px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
 .nq-foot b{color:var(--terra);}
 /* an undecided enquiry whose month has gone, lifted to the top to be answered */
@@ -281,6 +282,28 @@ function waDigits(mobile) {
   else if (!d.startsWith('971') && d.length <= 10) d = '971' + d;
   return d;
 }
+/* same normalising the Tracker search uses, so +971509583390 and
+   0509583390 are one person */
+function mobKey(m) {
+  const d = String(m || '').replace(/\D/g, '').replace(/^00/, '')
+    .replace(/^971/, '').replace(/^0+/, '');
+  return d.length >= 9 ? d.slice(-9) : '';
+}
+function nameKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
+/* An enquiry already on file for the same person and the same event day.
+   Returns the row, or null. */
+function findDuplicate(name, mobile, eventDate, skipId) {
+  if (!eventDate) return null;          /* no event day, nothing to compare */
+  const mk = mobKey(mobile), nk = nameKey(name);
+  return FLApp.enquiriesAll().find(e => {
+    if (skipId && e.id === skipId) return false;
+    if ((e.eventDate || '') !== eventDate) return false;
+    const em = mobKey(e.mobile);
+    return (mk && em) ? mk === em : nk && nameKey(e.name) === nk;
+  }) || null;
+}
+
 function chanceColor(pct) {
   if (pct >= 70) return 'var(--good)';
   if (pct >= 40) return '#8a6d3b';
@@ -350,6 +373,18 @@ async function addEnquiry() {
   const chance = Math.max(0, Math.min(100, parseInt(document.getElementById('a-chance').value) || 0));
   const quoteSentDate = document.getElementById('a-quotesent').checked ? todayISO() : '';
   if (!name) { await FLApp.flAlert('Client name is needed.'); return; }
+  const twin = findDuplicate(name, mobile, eventDate);
+  if (twin) {
+    const nl = String.fromCharCode(10);
+    const go = await FLApp.flConfirm([
+      'You already have this enquiry.', '',
+      twin.name + (twin.mobile ? '  ·  ' + twin.mobile : ''),
+      'Event ' + fmtDate(twin.eventDate) +
+        (twin.enqDate ? '  ·  added ' + fmtDate(twin.enqDate) : ''),
+      '', 'Add it anyway?'
+    ].join(nl), 'Add anyway', 'Cancel', 'cancel');
+    if (!go) return;   /* his row stays in the boxes so nothing is retyped */
+  }
   FLApp.enquirySave({ id: 'nq' + Date.now(), name, mobile, occasion, enqDate, eventDate, status, chance, quoteSentDate });
   document.getElementById('a-name').value = '';
   document.getElementById('a-mobile').value = '';
@@ -502,7 +537,7 @@ function setChartMonth(m) { chartMonth = m; render(); }
 
 function chartMonths() {
   const ms = [...new Set(FLApp.enquiriesAll().map(e => (e.enqDate || '').slice(0, 7)).filter(Boolean))];
-  return ms.sort().reverse().slice(0, 6).reverse();
+  return ms.sort().reverse().slice(0, 6);   /* newest month first */
 }
 function chartData(m) {
   const rows = FLApp.enquiriesAll().filter(e => m === 'all' || (e.enqDate || '').slice(0, 7) === m);
@@ -534,36 +569,40 @@ function donutSvg(list, total) {
       Math.round(x[1] / total * 100) + '%</title></circle>';
     off += len;
   });
-  const top = list[0], pc = Math.round(top[1] / total * 100);
+  /* The middle used to repeat the first legend row word for word. It now
+     carries the one number the ring cannot show: how big the ring is. */
   return '<svg viewBox="0 0 170 170" class="nq-donut" aria-hidden="true">' +
     '<g transform="translate(85,85) rotate(-90)">' + arcs + '</g>' +
-    '<text x="85" y="80" text-anchor="middle" class="nq-mid">' + pc + '%</text>' +
-    '<text x="85" y="96" text-anchor="middle" class="nq-midsub">' +
-      esc(top[0].split(' ')[0].toUpperCase()) + '</text></svg>';
+    '<text x="85" y="80" text-anchor="middle" class="nq-mid">' + total + '</text>' +
+    '<text x="85" y="96" text-anchor="middle" class="nq-midsub">LOST</text></svg>';
 }
 function renderChart() {
   const host = document.getElementById('chartWrap');
   if (!host) return;
-  const all = chartData('all');
-  const settledAll = all.won + all.lost;
-  const convAll = settledAll ? Math.round(all.won / settledAll * 100) : 0;
-  const topAll = all.list[0];
-  const head = settledAll
-    ? convAll + '% won' + (topAll ? ' · ' + Math.round(topAll[1] / all.lost * 100) + '% of losses on ' +
-        topAll[0].toLowerCase().split(' ')[0] : '')
-    : 'nothing settled yet';
+  const months = chartMonths();
+  if (chartMonth !== 'all' && months.indexOf(chartMonth) === -1) chartMonth = 'all';
+
+  /* The strip must describe WHAT IS SELECTED. It used to always show the
+     all-time figures, so picking October left the header contradicting the
+     panel right underneath it. */
+  const d = chartData(chartMonth);
+  const total = d.won + d.lost + d.pending;
+  const settled = d.won + d.lost;
+  const conv = settled ? Math.round(d.won / settled * 100) : 0;
+  const scope = chartMonth === 'all' ? 'All enquiries'
+              : MONTHS_SHORT[+chartMonth.slice(5, 7) - 1] + ' ' + chartMonth.slice(0, 4);
+  const top = d.list[0];
+  /* One place, full meaning. The footer used to print the same percentage
+     again and only the words 'of the N settled' were new, so they moved up. */
+  const head = !total ? scope + ' · nothing yet'
+    : scope + ' · ' + (settled ? conv + '% won of ' + settled + ' settled'
+                               : 'none settled yet');
 
   let html = '<button type="button" class="nq-strip" onclick="toggleChart()">' +
     '<span><span class="s1">Won, lost &amp; pending</span><br><span class="s2">' + esc(head) + '</span></span>' +
     '<span class="s3">' + (chartOpen ? '⌄' : '›') + '</span></button>';
 
   if (chartOpen) {
-    const months = chartMonths();
-    if (months.indexOf(chartMonth) === -1 && chartMonth !== 'all') chartMonth = 'all';
-    const d = chartData(chartMonth);
-    const total = d.won + d.lost + d.pending;
-    const settled = d.won + d.lost;
-    const conv = settled ? Math.round(d.won / settled * 100) : 0;
     html += '<div class="nq-panel"><div class="nq-months">' +
       '<button type="button" class="' + (chartMonth === 'all' ? 'on' : '') + '" onclick="setChartMonth(\'all\')">All</button>' +
       months.map(m => '<button type="button" class="' + (chartMonth === m ? 'on' : '') +
@@ -571,38 +610,57 @@ function renderChart() {
       '</div>';
 
     if (!total) {
-      html += '<div class="nq-thin">No enquiries came in that month.</div></div>';
+      html += '<div class="nq-empty">No enquiries came in that month.</div></div>';
       host.innerHTML = html; return;
     }
-    /* counts on the bar, never percentages — the bar is of everything while
-       the conversion is of the settled only, and two different percentages
-       on one small card is how you confuse someone */
-    html += '<div class="nq-bar">' +
-      (d.won ? '<span style="flex:' + d.won + ';background:var(--good);">WON ' + d.won + '</span>' : '') +
-      (d.lost ? '<span style="flex:' + d.lost + ';background:var(--rouge);">LOST ' + d.lost + '</span>' : '') +
-      (d.pending ? '<span style="flex:' + d.pending + ';background:#8a6d3b;">' +
-        (d.pending > 2 ? 'PENDING ' + d.pending : '') + '</span>' : '') + '</div>' +
-      '<div class="nq-key"><span><i style="background:var(--good)"></i>Won</span>' +
-      '<span><i style="background:var(--rouge)"></i>Lost</span>' +
-      '<span><i style="background:#8a6d3b"></i>Pending — not decided yet</span></div>';
 
-    if (d.lost >= 5) {
-      html += '<div class="nq-dwrap">' + donutSvg(d.list, d.lost) +
-        '<div class="nq-legend"><div class="nq-lrow hd">Why the ' + d.lost + ' were lost</div>' +
-        d.list.map((x, i) => '<div class="nq-lrow"><span class="sw" style="background:' +
-          REASON_COLOURS[i % 4] + '"></span><span class="nm">' + esc(x[0]) + '</span><span class="pc">' +
-          Math.round(x[1] / d.lost * 100) + '%</span></div>').join('') + '</div></div>';
-    } else if (d.lost) {
-      html += '<div class="nq-thin"><b>Only ' + d.lost + ' lost — too few for a chart:</b><ul>' +
-        d.list.map(x => '<li>' + esc(x[0]) + (x[1] > 1 ? ' × ' + x[1] : '') + '</li>').join('') + '</ul></div>';
+    /* counts on the bar, never percentages — the bar covers everything while
+       the conversion covers only the settled, and two different percentages
+       on one small card is how you confuse someone */
+    /* A narrow slice cannot hold its word. Drop to the number, then to
+       nothing, rather than letting "PENDING" spill over the next block. */
+    const seg = (word, n, colour) => {
+      if (!n) return '';
+      const share = n / total;
+      const label = share >= 0.17 ? word + ' ' + n : share >= 0.075 ? String(n) : '';
+      return '<span style="flex:' + n + ';background:' + colour + ';" title="' +
+        word + ' ' + n + '">' + label + '</span>';
+    };
+    html += '<div class="nq-bar">' + seg('WON', d.won, 'var(--good)') +
+      seg('LOST', d.lost, 'var(--rouge)') + seg('PENDING', d.pending, '#8a6d3b') + '</div>';
+
+    /* One visual language for the reasons, whatever the size of the month.
+       A boxed amber warning for "only 1 lost" read as an error on a card
+       that was working perfectly. Two or more reasons draw the ring; a
+       single reason is one plain line, because a ring at 100% says nothing. */
+    if (d.lost) {
+      html += '<div class="nq-why">Why the ' + d.lost + (d.lost === 1 ? ' was' : ' were') + ' lost</div>';
+      if (d.list.length >= 2) {
+        /* counts, not percentages — the ring is already drawing the
+           proportion, and what it cannot say is how many clients that is */
+        html += '<div class="nq-dwrap">' + donutSvg(d.list, d.lost) +
+          '<div class="nq-legend">' +
+          d.list.map((x, i) => '<div class="nq-lrow"><span class="sw" style="background:' +
+            REASON_COLOURS[i % 4] + '"></span><span class="nm">' + esc(x[0]) + '</span><span class="pc">' +
+            x[1] + '</span></div>').join('') + '</div></div>';
+      } else {
+        /* one reason is a fact, not a chart. A swatch and 100% is a
+           bar chart with one bar. */
+        const only = d.list[0][0];
+        const lead = d.lost === 1 ? 'It was on' : d.lost === 2 ? 'Both on' : 'All ' + d.lost + ' on';
+        html += '<div class="nq-solo">' + (only === 'Not recorded'
+          ? (d.lost === 1 ? 'No reason recorded.' : 'No reason recorded for ' +
+             (d.lost === 2 ? 'either.' : 'any of them.'))
+          : lead + ' <b>' + esc(only.toLowerCase()) + '</b>.') + '</div>';
+      }
     }
-    if (d.pending) {
-      html += '<div class="nq-pend"><b>' + d.pending + ' still pending</b> — ' +
-        esc(d.pend.slice(0, 4).join(' · ')) + (d.pend.length > 4 ? ' and ' + (d.pend.length - 4) + ' more' : '') + '</div>';
-    }
-    html += '<div class="nq-foot"><b>' + total + ' enquir' + (total === 1 ? 'y' : 'ies') + '</b> · ' +
-      d.won + ' won, ' + d.lost + ' lost, ' + d.pending + ' pending' +
-      (settled ? ' · <b>' + conv + '% won</b> of the ' + settled + ' settled' : '') + '</div></div>';
+
+    html += '<div class="nq-foot"><b>' + total + ' enquir' + (total === 1 ? 'y' : 'ies') + '</b>' +
+      (chartMonth === 'all' ? ' in all' : ' this month') +
+      (d.pending ? '<div class="nq-sub">Still waiting: ' +
+        esc(d.pend.slice(0, 3).join(', ')) +
+        (d.pend.length > 3 ? ' <b>+' + (d.pend.length - 3) + ' more</b>' : '') + '</div>' : '') +
+      '</div></div>';
   }
   host.innerHTML = html;
 }

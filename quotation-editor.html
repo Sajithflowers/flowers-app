@@ -102,6 +102,7 @@ tbody tr:last-child td{border-bottom:none;}
 .pay-chip .dot{width:4px;height:4px;border-radius:50%;background:var(--sage);flex-shrink:0;}
 .bank-line{font-size:12px;line-height:2;color:var(--terra);}
 .bank-line b{color:var(--muted);font-weight:600;font-size:10px;letter-spacing:.4px;display:inline-block;width:112px;}
+.bank-line span{display:inline-block;vertical-align:top;max-width:calc(100% - 118px);}
 
 .contact-strip{margin:8px 46px 0;padding:18px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:var(--paper);}
 .contact-strip .who{font-size:11.5px;color:var(--terra);}
@@ -110,6 +111,15 @@ tbody tr:last-child td{border-bottom:none;}
 
 .sign-off{text-align:center;padding:22px 46px 8px;font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:var(--rouge);background:var(--paper);font-weight:700;}
 .trn-note{text-align:center;font-size:9px;color:var(--muted);opacity:.7;padding:6px 46px 32px;background:var(--paper);}
+
+.line-items td.grip{width:1%;padding-right:10px;}
+.drag-handle{display:flex;align-items:center;justify-content:center;width:22px;height:28px;
+  border-radius:4px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;
+  transition:background .12s,color .12s;}
+.drag-handle:hover{background:var(--lace);color:var(--rouge);}
+#items-body tr.lift{background:var(--paper);box-shadow:0 8px 22px rgba(58,2,16,.18);
+  position:relative;z-index:3;}
+#items-body tr.lift .drag-handle{cursor:grabbing;color:var(--rouge);}
 
 @media print {
   .no-print{display:none!important;}
@@ -199,10 +209,11 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="line-items">
     <table>
       <thead>
-        <tr><th>Description</th><th class="num">Qty</th><th class="num">Unit Price</th><th class="num">Total</th><th class="num no-print"></th></tr>
+        <tr><th class="no-print"></th><th>Description</th><th class="num">Qty</th><th class="num">Unit Price</th><th class="num">Total</th><th class="num no-print"></th></tr>
       </thead>
       <tbody id="items-body">
         <tr>
+          <td class="grip no-print"></td>
           <td contenteditable="true">Item description</td>
           <td class="num" contenteditable="true" oninput="recalc()">1</td><td class="num" contenteditable="true" oninput="recalc()">AED 0.00</td><td class="num">AED 0.00</td>
           <td class="num no-print"><button class="row-del" onclick="this.closest('tr').remove(); recalc(); scheduleSave();" title="Remove item" type="button">&times;</button></td>
@@ -234,9 +245,10 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="footer-col">
       <h3 contenteditable="true">Bank Details</h3>
       <div class="bank-line">
-        <b>Bank</b><span contenteditable="true">Wio Bank</span><br>
+        <b>Bank</b><span contenteditable="true">Abu Dhabi Islamic Bank</span><br>
         <b>Account Name</b><span contenteditable="true">Flowers AE L.L.C</span><br>
-        <b>IBAN</b><span contenteditable="true">AE81 0860 0000 0971 7343 861</span>
+        <b>Account No</b><span contenteditable="true">16861194</span><br>
+        <b>IBAN</b><span contenteditable="true">AE70 0500 0000 0001 6861 194</span>
       </div>
     </div>
   </div>
@@ -356,6 +368,81 @@ function fmt(n) {
   return 'AED ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/* The money cells, found without counting. Old rows (saved before the
+   handle existed) have no classes either, so fall back to the last three
+   number cells — the layout has always been ... qty, price, total, x. */
+function cellsOf(tr) {
+  const named = { qty: tr.querySelector('.qty'), price: tr.querySelector('.price'),
+                  total: tr.querySelector('.total') };
+  if (named.qty && named.price && named.total) return named;
+  const nums = [...tr.querySelectorAll('td.num')].filter(td => !td.querySelector('button'));
+  if (nums.length < 3) return null;
+  const [qty, price, total] = nums.slice(-3);
+  qty.classList.add('qty'); price.classList.add('price'); total.classList.add('total');
+  return { qty, price, total };
+}
+
+/* Give a row its handle if it has not got one. Runs on every row at load,
+   so a quotation written last month opens draggable like any other. */
+const HANDLE = '<span class="drag-handle" title="Drag to move">' +
+  '<svg width="11" height="17" viewBox="0 0 11 17" fill="currentColor" aria-hidden="true">' +
+  [3, 8, 13].map(y => '<circle cx="2.2" cy="' + y + '" r="1.5"/>' +
+    '<circle cx="8.8" cy="' + y + '" r="1.5"/>').join('') + '</svg></span>';
+function fitRow(tr) {
+  let g = tr.querySelector('td.grip');
+  if (!g) {
+    g = document.createElement('td');
+    g.className = 'grip no-print';
+    tr.insertBefore(g, tr.firstChild);
+  }
+  if (!g.querySelector('.drag-handle')) g.innerHTML = HANDLE;
+  cellsOf(tr);
+}
+function fitAllRows() {
+  const head = document.querySelector('.line-items thead tr');
+  if (head && !head.querySelector('th.no-print:first-child')) {
+    const th = document.createElement('th');
+    th.className = 'no-print';
+    head.insertBefore(th, head.firstChild);
+  }
+  document.querySelectorAll('#items-body tr').forEach(fitRow);
+}
+
+/* Pointer events, so one code path covers the mouse on the PC and a finger
+   on the tablet. Dragging starts ONLY from the handle, so tapping a price
+   to edit it behaves exactly as it always has. */
+function wireDragging() {
+  const body = document.getElementById('items-body');
+  if (!body || body.dataset.dragWired) return;
+  body.dataset.dragWired = '1';
+  let row = null, from = -1;
+  body.addEventListener('pointerdown', e => {
+    const h = e.target.closest('.drag-handle');
+    if (!h) return;
+    row = h.closest('tr');
+    from = [...body.rows].indexOf(row);
+    row.classList.add('lift');
+    h.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  body.addEventListener('pointermove', e => {
+    if (!row) return;
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const over = under && under.closest ? under.closest('tr') : null;
+    if (!over || over === row || over.parentNode !== body) return;
+    const box = over.getBoundingClientRect();
+    body.insertBefore(row, e.clientY > box.top + box.height / 2 ? over.nextSibling : over);
+  });
+  const drop = () => {
+    if (!row) return;
+    row.classList.remove('lift');
+    if ([...body.rows].indexOf(row) !== from) scheduleSave();
+    row = null;
+  };
+  body.addEventListener('pointerup', drop);
+  body.addEventListener('pointercancel', drop);
+}
+
 function parseAED(s) {
   return parseFloat(String(s).replace(/[^0-9.]/g, '')) || 0;
 }
@@ -363,26 +450,35 @@ function parseAED(s) {
 function addItem() {
   const tbody = document.getElementById('items-body');
   const tr = document.createElement('tr');
-  tr.innerHTML = '<td contenteditable="true">New Item</td>'
-    + '<td class="num" contenteditable="true" oninput="recalc()">1</td>'
-    + '<td class="num" contenteditable="true" oninput="recalc()">AED 0.00</td>'
-    + '<td class="num">AED 0.00</td>'
+  tr.innerHTML = '<td class="grip no-print"></td>'
+    + '<td contenteditable="true">New Item</td>'
+    + '<td class="num qty" contenteditable="true" oninput="recalc()">1</td>'
+    + '<td class="num price" contenteditable="true" oninput="recalc()">AED 0.00</td>'
+    + '<td class="num total">AED 0.00</td>'
     + '<td class="num no-print"><button class="row-del" onclick="this.closest(\'tr\').remove(); recalc(); scheduleSave();" title="Remove item" type="button">&times;</button></td>';
   tbody.appendChild(tr);
-  tr.children[0].focus();
+  fitRow(tr);
+  tr.querySelector('td:not(.grip)').focus();
   recalc();
   scheduleSave();
 }
+
+fitAllRows();
+wireDragging();
 
 function recalc() {
   // Unit prices already include VAT — so VAT is broken OUT of the total,
   // never added on top of it (that would double-charge tax).
   let subtotal = 0; // VAT-inclusive sum of line items, read live from the table
   document.querySelectorAll('#items-body tr').forEach(tr => {
-    const qty = parseFloat(tr.children[1].textContent) || 0;
-    const price = parseAED(tr.children[2].textContent);
+    /* by class, never by position — a quote saved before the handle
+       existed has one cell fewer, and counting would read the wrong ones */
+    const c = cellsOf(tr);
+    if (!c) return;
+    const qty = parseFloat(c.qty.textContent) || 0;
+    const price = parseAED(c.price.textContent);
     const lineTotal = qty * price;
-    tr.children[3].textContent = fmt(lineTotal);
+    c.total.textContent = fmt(lineTotal);
     subtotal += lineTotal;
   });
   const val = parseFloat(document.getElementById('discount-input').value) || 0;
