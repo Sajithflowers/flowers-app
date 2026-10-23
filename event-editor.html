@@ -34,6 +34,7 @@ input:focus,textarea:focus{border-color:var(--champagne);background:#fff;}
 .line input{padding:9px 8px;font-size:13px;}
 .line .ncell{display:flex;align-items:center;gap:4px;min-width:0;}
 .line .ncell input{flex:1;min-width:0;}
+.read-tag{grid-column:1 / -1;font-size:10.5px;color:var(--good);margin:-2px 0 4px 42px;letter-spacing:.2px;}
 .inv-chip{width:34px;height:34px;border:1px solid var(--champagne);border-radius:2px;overflow:hidden;flex-shrink:0;cursor:pointer;padding:0;background:#fff;}
 .inv-chip img{width:100%;height:100%;object-fit:cover;display:block;}
 .line .tot{font-size:12.5px;font-weight:700;color:var(--terra);text-align:right;}
@@ -258,6 +259,16 @@ function renderLines(sec) {
       refresh();
     };
     [n, q, p].forEach(x => x.addEventListener('input', upd));
+    /* both boxes stay ordinary inputs — he can type over either at any time.
+       The note just says where the first guess came from, and goes the moment
+       he edits the price himself. */
+    if (l.readFrom) {
+      const tag = document.createElement('div');
+      tag.className = 'read-tag';
+      tag.textContent = '✓ read from the invoice — ' + l.readFrom;
+      row.appendChild(tag);
+      p.addEventListener('input', () => { tag.remove(); l.readFrom = null; }, { once: true });
+    }
     tot.textContent = AED((parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0));
     row.querySelector('.del').onclick = async () => {
       if (l.img && !(await FLApp.flConfirm('Remove this invoice line and its image?'))) return;
@@ -298,15 +309,30 @@ function compressImage(dataURL, maxSide) {
   });
 }
 async function pdfToImages(file) {
-  /* render PDF pages to images with the bundled pdf.js (works offline in the app) */
+  /* render PDF pages to images with the bundled pdf.js (works offline in the app).
+     The same pass now also keeps the page TEXT — a PDF invoice carries its words
+     inside the file, so the supplier and the total can be read rather than typed. */
   const pdfjsLib = await import('./vendor/pdf.min.mjs');
   pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const pages = [];
+  const textLines = [];
   const nPages = Math.min(pdf.numPages, 6);
   for (let p = 1; p <= nPages; p++) {
     const page = await pdf.getPage(p);
+    try {
+      /* rebuild the lines: a jump in the vertical position means a new line */
+      const tc = await page.getTextContent();
+      let lastY = null, line = '';
+      for (const it of tc.items) {
+        const y = Math.round(it.transform[5]);
+        if (lastY !== null && Math.abs(y - lastY) > 3) { textLines.push(line.trim()); line = ''; }
+        line += it.str + ' ';
+        lastY = y;
+      }
+      if (line.trim()) textLines.push(line.trim());
+    } catch (e) { /* a scanned PDF has no text — carry on with the picture */ }
     let vp = page.getViewport({ scale: 1 });
     const scale = 1000 / vp.width;
     vp = page.getViewport({ scale });
@@ -315,7 +341,67 @@ async function pdfToImages(file) {
     await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
     pages.push(c.toDataURL('image/jpeg', 0.72));
   }
+  pages.lines = textLines.filter(Boolean);
   return pages;
+}
+
+/* ── reading a supplier invoice ──────────────────────────────
+   Deliberately cautious. It does not take the first number that looks like a
+   total: it takes THREE — taxable, VAT and grand total — and uses them only if
+   they add up. Anything else and it returns nothing, so a wrong figure can
+   never land in a sheet the CEO approves. */
+const INV_MONEY = /\d{1,3}(?:,\d{3})*\.\d{2}|\d+\.\d{2}/g;
+function readInvoice(lines) {
+  if (!lines || lines.length < 3) return null;
+  const num = x => parseFloat(String(x).replace(/,/g, ''));
+  const out = { company: '', invoiceNo: '', taxable: null, vat: null, total: null };
+
+  /* the supplier: the first real line that is not a heading, our own name,
+     or part of their address */
+  for (const raw of lines.slice(0, 6)) {
+    const t = (raw || '').trim();
+    if (!/[A-Za-z]/.test(t)) continue;
+    if (/^(tax\s*invoice|invoice|proforma|bill\s*to|trn|date)\b/i.test(t)) continue;
+    if (/flowers\.?\s*ae|flowers ae llc/i.test(t)) continue;          /* that is us */
+    if (/^(warehouse|tel|p\.?o\.?\s*box|office|shop|street|industrial|email)/i.test(t)) continue;
+    out.company = t.replace(/\s{2,}/g, ' ').trim().slice(0, 60);
+    break;
+  }
+
+  /* the invoice number, however they space it */
+  for (const raw of lines) {
+    const m = (raw || '').match(/invoice\s*(?:no\.?|number|#)\s*:?\s*([A-Za-z0-9][A-Za-z0-9 \/-]{2,24})/i);
+    if (m) { out.invoiceNo = m[1].replace(/\s*-\s*/g, '-').replace(/\s+/g, ' ').trim(); break; }
+  }
+
+  /* the totals row: three figures that reconcile */
+  for (const raw of lines) {
+    if (!/^\s*(grand\s+)?total\b/i.test(raw || '')) continue;
+    const m = (raw.match(INV_MONEY) || []);
+    if (m.length < 3) continue;
+    const [a, b, c] = m.slice(-3).map(num);
+    if (b > 0 && b < a && Math.abs(a + b - c) < 0.05) {
+      out.taxable = a; out.vat = b; out.total = c;
+      return out;
+    }
+  }
+
+  /* or clearly labelled lines that reconcile the same way */
+  const find = re => {
+    for (const raw of lines) if (re.test(raw || '')) {
+      const m = raw.match(INV_MONEY);
+      if (m) return num(m[m.length - 1]);
+    }
+    return null;
+  };
+  const sub = find(/\b(taxable|sub\s*total|subtotal|net\s*amount|amount\s*before\s*vat|total\s*excl)/i);
+  const vat = find(/\bvat\b/i);
+  const tot = find(/\b(total\s*amt|grand\s*total|total\s*amount|net\s*payable)/i);
+  if (sub != null && vat != null && tot != null && Math.abs(sub + vat - tot) < 0.05) {
+    out.taxable = sub; out.vat = vat; out.total = tot;
+    return out;
+  }
+  return out.taxable != null ? out : null;
 }
 
 document.getElementById('invFile').addEventListener('change', async e => {
@@ -336,8 +422,19 @@ document.getElementById('invFile').addEventListener('change', async e => {
         continue;
       }
       const invoiceNum = (ev.flowers || []).filter(l => l.img).length + 1;
-      const label = file.name ? file.name.replace(/\.(pdf|png|jpe?g|webp)$/i, '').slice(0, 40) : ('INVOICE ' + invoiceNum);
-      (ev.flowers = ev.flowers || []).push({ name: label, qty: 1, price: '', img: pages[0], imgs: pages });
+      let label = file.name ? file.name.replace(/\.(pdf|png|jpe?g|webp)$/i, '').slice(0, 40) : ('INVOICE ' + invoiceNum);
+      let price = '', readFrom = null;
+      /* a PDF carries its own words; a photo does not, and then this simply
+         does nothing and he types the amount exactly as before */
+      const found = pages.lines ? readInvoice(pages.lines) : null;
+      if (found && found.taxable != null) {
+        if (found.company) label = (found.company + (found.invoiceNo ? ' — ' + found.invoiceNo : '')).slice(0, 70);
+        price = found.taxable.toFixed(2);
+        readFrom = 'taxable ' + found.taxable.toFixed(2) +
+                   (found.vat != null ? ' + VAT ' + found.vat.toFixed(2) : '') +
+                   (found.total != null ? ' = ' + found.total.toFixed(2) : '');
+      }
+      (ev.flowers = ev.flowers || []).push({ name: label, qty: 1, price: price, img: pages[0], imgs: pages, readFrom: readFrom });
     }
     renderLines('flowers');
     refresh();

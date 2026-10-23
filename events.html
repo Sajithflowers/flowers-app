@@ -73,6 +73,48 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 .trk-grid input:focus{border-color:var(--champagne);background:#fff;}
 .trk-add{grid-column:1/-1;padding:12px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
 
+/* ── Events contribution report ── */
+.rep-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 12px;}
+.rep-ctl .lbl{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);}
+.rep-pdf{margin-left:auto;background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));color:var(--champagne);
+  border:none;border-radius:2px;padding:10px 16px;font:700 10px/1 'Lato',Arial;letter-spacing:1.5px;
+  text-transform:uppercase;cursor:pointer;}
+.rep{background:#fff;border:1px solid var(--border);border-radius:3px;overflow:hidden;color:#2E2522;}
+.rep .rh{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 72%);color:#fff;
+  padding:19px 24px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
+.rep .rwm{font-family:'EB Garamond',Georgia,serif;font-size:19px;letter-spacing:2.4px;}
+.rep .rwm small{display:block;font-family:'Lato',Arial,sans-serif;font-size:7px;letter-spacing:3px;
+  color:var(--champagne);text-transform:uppercase;margin-top:3px;}
+.rep .rdt{text-align:right;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#D9B9C2;}
+.rep .rdt b{display:block;font-family:'EB Garamond',Georgia,serif;font-size:14px;letter-spacing:.4px;
+  color:#fff;text-transform:none;margin-bottom:2px;}
+.rep .rb{padding:19px 24px 21px;background:#fff;}
+.rep h4{font-family:'EB Garamond',Georgia,serif;font-size:14px;color:var(--rouge);margin:0 0 2px;}
+.rep .rsub{font-size:9.5px;color:var(--muted);margin:0 0 10px;}
+.rep .rk{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;
+  overflow:hidden;margin-bottom:17px;}
+.rep .rk > div{flex:1;background:#fff;padding:12px 14px;}
+.rep .rk .k{font-size:7px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.rep .rk .v{font-family:'EB Garamond',Georgia,serif;font-size:24px;color:var(--rouge-deep);line-height:1.1;margin-top:4px;}
+.rep .rk .s{font-size:9px;color:var(--muted);margin-top:2px;}
+.rep .rleg{display:flex;gap:15px;font-size:9px;color:#6b5a52;margin:6px 0 0 32px;}
+.rep .rleg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+.rep table{width:100%;border-collapse:collapse;font-size:11px;}
+.rep thead th{background:var(--rouge);color:#fff;text-align:left;font-size:7px;letter-spacing:1.1px;
+  text-transform:uppercase;padding:7px 8px;font-weight:700;}
+.rep th.n,.rep td.n{text-align:right;}
+.rep tbody td{padding:6px 8px;border-bottom:1px solid #EFE8E4;font-variant-numeric:tabular-nums;}
+.rep tbody tr:nth-child(even){background:#FBF8F5;}
+.rep tbody tr.ro td{color:#A99992;}
+.rep tbody tr.rs td{border-top:1.5px solid var(--champagne);background:#FBF4E6;font-weight:700;color:var(--rouge);}
+.rep td.ra{background:#FCF9F6;}
+.rep tbody tr:nth-child(even) td.ra{background:#F8F2ED;}
+.rep .rsh{font-weight:700;color:var(--rouge);}
+.rep .rsf{font-size:7.5px;color:var(--amber);letter-spacing:.5px;}
+.rep .rfoot{margin-top:13px;padding-top:10px;border-top:1px solid #EFE8E4;font-size:8.5px;
+  color:var(--muted);line-height:1.7;}
+.rep .rsig{margin-top:11px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#C3B5AE;text-align:center;}
+.rep .rempty{padding:26px 24px;text-align:center;color:var(--muted);font-size:12.5px;}
 .year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
 .chip.on{background:var(--rouge);color:var(--champagne);box-shadow:0 4px 14px rgba(85,3,24,.3);}
@@ -188,6 +230,14 @@ body.settled .drill,body.settled .ev,body.settled .section.active{animation:none
   <div id="tab-compare" class="section">
     <div class="year-chips" id="yearChips"></div>
     <div id="compareBox"></div>
+
+    <!-- Events contribution: what the department sold against what the whole
+         company billed. Built for the board pack, so it prints on its own. -->
+    <div id="contribWrap" style="margin-top:22px;">
+      <div class="month-head">EVENTS CONTRIBUTION</div>
+      <div class="rep-ctl no-print" id="repCtl"></div>
+      <div id="repDoc"></div>
+    </div>
     <p class="note">Includes your imported history from the Google/Excel sheet (Sep 2024 onwards) plus every event created in this app. Cost, profit &amp; GP show for app events only — the imported history has revenue only.</p>
   </div>
 </div>
@@ -224,7 +274,7 @@ function switchTab(t) {
   document.getElementById('tab-' + t).classList.add('active');
   if (t === 'tracker') renderTracker();
   if (t === 'monthly') renderMonthly();
-  if (t === 'compare') renderCompare();
+  if (t === 'compare') { renderCompare(); renderContribution(); }
 }
 
 /* ── Events list: Year → Month → events drill-down ──
@@ -755,10 +805,12 @@ let editMonths = false;
 function toggleEditMonths() {
   editMonths = !editMonths;
   renderCompare();
+  renderContribution();
 }
 function saveMonthOverride(ym, val) {
   FLApp.setMonthlyOverride(ym, val.trim() === '' ? null : val.replace(/,/g, ''));
   renderCompare();
+  renderContribution();
 }
 
 function allSalesRows() {
@@ -775,6 +827,22 @@ function allSalesRows() {
   FLApp.eventsAll().filter(e => e.date && !aggMonths.has(e.date.slice(0, 7))).forEach(e => {
     rows.push({ y: e.date.slice(0, 4), m: parseInt(e.date.slice(5, 7)), amount: calcEvent(e).after, src: 'app', ev: e });
   });
+  /* Orders taken but not yet costed. Without these the month in progress reads
+     as whatever has been written up so far, which is always an understatement.
+     Skipped for months that carry an imported total or a typed override. */
+  const costedNos = new Set(FLApp.eventsAll().map(e => String(e.orderNo || '').trim()).filter(Boolean));
+  const fixedMonths = new Set(Object.keys(FLApp.monthlyOverrides()));
+  aggMonths.forEach(m => fixedMonths.add(m));
+  FLApp.trackerAll().forEach(t => {
+    if (!t.eventDate) return;
+    const ym = t.eventDate.slice(0, 7);
+    if (fixedMonths.has(ym)) return;
+    if (costedNos.has(String(t.orderNo || '').trim())) return;
+    const rev = (parseFloat(t.revenue) || 0) * (1 - (parseFloat(t.discountPct) || 0) / 100);
+    if (!rev) return;
+    rows.push({ y: ym.slice(0, 4), m: parseInt(ym.slice(5, 7)), amount: rev, src: 'tracker' });
+  });
+
   /* admin's manual monthly totals beat everything for that month */
   Object.entries(FLApp.monthlyOverrides()).forEach(([ym, amt]) => {
     const y = ym.slice(0, 4), m = parseInt(ym.slice(5, 7));
@@ -853,7 +921,243 @@ function renderCompare() {
 function toggleYear(y) {
   if (yearSel.has(y)) yearSel.delete(y); else yearSel.add(y);
   renderCompare();
+  renderContribution();
 }
+
+/* ══════════════ EVENTS CONTRIBUTION REPORT ══════════════
+   Events revenue against the company's total trading income, for the board.
+
+   Two rules decide everything here and both exist to stop a wrong number
+   reaching a board pack:
+     1. A share is only ever calculated for a month where BOTH figures are
+        final. No company figure means no percentage — never an estimate.
+     2. A comparison between two years only ever covers the months they
+        share, or it is nine months of one against twelve of the other.
+   Nothing on this report is typed by hand; it is all derived. */
+let repYear = null, repCompare = false, repFoot = 0;
+/* repFoot 0 = note on screen but NOT in the PDF (his instruction)
+            1 = one line, in the PDF too
+            2 = the full basis of preparation, in the PDF too */
+
+const repAED0 = v => v == null ? '—' : Math.round(v).toLocaleString('en-US');
+const repPct = v => v == null ? '—' : v.toFixed(2) + '%';
+function repThisMonth() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function repToday() {
+  const d = new Date();
+  return d.getDate() + ' ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear();
+}
+/* events by month, from the same rows the comparison table uses */
+function repEvents() {
+  const out = {};
+  allSalesRows().forEach(r => {
+    const ym = r.y + '-' + String(r.m).padStart(2, '0');
+    out[ym] = (out[ym] || 0) + r.amount;
+  });
+  return out;
+}
+function repYears(ev, co) {
+  return [...new Set(Object.keys(ev).concat(Object.keys(co)).map(k => k.slice(0, 4)))].sort();
+}
+/* months of a year where both sides are final */
+function repClosed(y, ev, co) {
+  const out = [];
+  for (let m = 1; m <= 12; m++) {
+    const ym = y + '-' + String(m).padStart(2, '0');
+    if (ev[ym] != null && co[ym] != null) out.push(m);
+  }
+  return out;
+}
+
+function renderContribution() {
+  const wrap = document.getElementById('contribWrap');
+  if (!wrap) return;
+  if (!(FLApp.isAdmin() || FLApp.isCeo() || FLApp.role(FLApp.currentUser()) === 'finance')) {
+    wrap.style.display = 'none'; return;
+  }
+  const ev = repEvents(), co = FLApp.companyIncome();
+  const years = repYears(ev, co);
+  /* open on the newest year that actually has a finished month, so it never
+     opens empty on the first of January */
+  if (!repYear || years.indexOf(repYear) === -1) {
+    const withData = years.filter(y => repClosed(y, ev, co).length);
+    repYear = withData.length ? withData[withData.length - 1] : years[years.length - 1] || String(new Date().getFullYear());
+  }
+  const prev = String(+repYear - 1);
+  /* comparable only if the previous year has months that are final on BOTH
+     sides — otherwise the comparison columns would be a row of dashes */
+  const prevShared = repClosed(repYear, ev, co).filter(m => {
+    const ym = prev + '-' + String(m).padStart(2, '0');
+    return ev[ym] != null && co[ym] != null;
+  });
+  const hasPrev = prevShared.length > 0;
+  if (repCompare && !hasPrev) repCompare = false;
+
+  /* controls */
+  document.getElementById('repCtl').innerHTML =
+    years.map(y => '<button class="chip ' + (y === repYear ? 'on' : '') + '" onclick="repSetYear(\'' + y + '\')">' + y + '</button>').join('') +
+    (hasPrev ? '<button class="chip ' + (repCompare ? 'on' : '') + '" style="border-color:var(--champagne);" onclick="repToggleCompare()">' +
+      (repCompare ? '✓ COMPARING ' + prev : '+ COMPARE ' + prev) + '</button>' : '') +
+    (FLApp.isAdmin() ? '<button class="chip" onclick="repEditCompany()">✎ COMPANY TOTALS</button>' : '') +
+    '<span class="lbl" style="margin-left:6px;">Basis note in the PDF</span>' +
+    ['Leave out', 'One line', 'In full'].map((t, i) =>
+      '<button class="chip ' + (repFoot === i ? 'on' : '') + '" onclick="repSetFoot(' + i + ')">' + t + '</button>').join('') +
+    '<button class="rep-pdf" onclick="repPdf()">⤓ DOWNLOAD PDF</button>';
+
+  const closed = repClosed(repYear, ev, co);
+  if (!closed.length) {
+    document.getElementById('repDoc').innerHTML =
+      '<div class="rep"><div class="rempty">No month of ' + repYear + ' can be reported yet.<br>' +
+      'A share is shown once the company total trading income for a month has been entered.</div></div>';
+    return;
+  }
+  /* a comparison must cover the same months on both sides */
+  const use = repCompare ? prevShared : closed;
+  const firstM = MONTH_NAMES[use[0] - 1].slice(0, 3), lastM = MONTH_NAMES[use[use.length - 1] - 1].slice(0, 3);
+  const K = (y, m) => y + '-' + String(m).padStart(2, '0');
+  const tot = (y, src) => use.reduce((a, m) => a + (src[K(y, m)] || 0), 0);
+  const e = tot(repYear, ev), c = tot(repYear, co), sh = c ? e / c * 100 : null;
+  const e2 = hasPrev ? tot(prev, ev) : 0, c2 = hasPrev ? tot(prev, co) : 0;
+  const sh2 = c2 ? e2 / c2 * 100 : null;
+
+  /* ── chart ── */
+  const W = 720, H = 190, PADL = 32, BASE = H - 24, TOP = 12;
+  let mx = 0;
+  use.forEach(m => {
+    const a = co[K(repYear, m)] ? ev[K(repYear, m)] / co[K(repYear, m)] * 100 : 0;
+    mx = Math.max(mx, a);
+    if (repCompare && co[K(prev, m)]) mx = Math.max(mx, ev[K(prev, m)] / co[K(prev, m)] * 100);
+  });
+  mx = mx * 1.16 || 1;
+  const bw = (W - PADL - 10) / use.length;
+  let g = '';
+  [2, 4, 6, 8, 10, 12].forEach(v => {
+    if (v > mx) return;
+    const y = BASE - (v / mx) * (BASE - TOP);
+    g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="#EFE8E4"/>' +
+      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="8" fill="#B9A9A2">' + v + '%</text>';
+  });
+  use.forEach((m, k) => {
+    const x = PADL + k * bw;
+    const sMain = ev[K(repYear, m)] / co[K(repYear, m)] * 100;
+    const hMain = (sMain / mx) * (BASE - TOP);
+    if (repCompare) {
+      const sOld = co[K(prev, m)] ? ev[K(prev, m)] / co[K(prev, m)] * 100 : 0;
+      const hOld = (sOld / mx) * (BASE - TOP);
+      const w = bw * 0.33;
+      g += '<rect x="' + (x + bw * 0.1).toFixed(1) + '" y="' + (BASE - hOld).toFixed(1) + '" width="' + w.toFixed(1) +
+        '" height="' + Math.max(hOld, 0).toFixed(1) + '" fill="#D7A7B0" rx="1.5"/>' +
+        '<rect x="' + (x + bw * 0.48).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
+        '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
+        '<text x="' + (x + bw * 0.48 + w / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
+        '" text-anchor="middle" font-size="7.5" font-weight="700" fill="#550318">' + sMain.toFixed(1) + '</text>';
+    } else {
+      const w = bw * 0.5;
+      g += '<rect x="' + (x + bw * 0.25).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
+        '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
+        '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
+        '" text-anchor="middle" font-size="8" font-weight="700" fill="#550318">' + sMain.toFixed(2) + '</text>';
+    }
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="8" fill="#9B8E8A">' +
+      MONTH_NAMES[m - 1].slice(0, 3) + '</text>';
+  });
+  const chart = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" ' +
+    'aria-label="Event share of company total trading income by month">' + g +
+    '<line x1="' + PADL + '" y1="' + BASE + '" x2="' + (W - 6) + '" y2="' + BASE + '" stroke="#D8CCC4"/></svg>';
+
+  /* ── table ── */
+  const openYm = repThisMonth();
+  let th = '<tr><th>Month</th>';
+  if (repCompare) th += '<th class="n ra">Events ' + prev + '</th><th class="n ra">Company ' + prev + '</th><th class="n ra">Share</th>';
+  th += '<th class="n">Events ' + repYear + '</th><th class="n">Company ' + repYear + '</th><th class="n">Share</th></tr>';
+  let body = '', openName = null;
+  for (let m = 1; m <= 12; m++) {
+    const ym = K(repYear, m), ymp = K(prev, m);
+    const isOpen = (ym === openYm) || (ev[ym] != null && co[ym] == null && ym >= openYm);
+    if (isOpen && ev[ym] != null) openName = MONTH_NAMES[m - 1];
+    const blank = ev[ym] == null && co[ym] == null;
+    body += '<tr' + ((isOpen || blank) ? ' class="ro"' : '') + '><td>' + MONTH_NAMES[m - 1] + '</td>';
+    if (repCompare) {
+      const sp = (ev[ymp] != null && co[ymp]) ? ev[ymp] / co[ymp] * 100 : null;
+      body += '<td class="n ra">' + repAED0(ev[ymp]) + '</td><td class="n ra">' + repAED0(co[ymp]) +
+        '</td><td class="n ra">' + repPct(sp) + '</td>';
+    }
+    const sc = (ev[ym] != null && co[ym]) ? ev[ym] / co[ym] * 100 : null;
+    body += '<td class="n">' + repAED0(ev[ym]) + (isOpen && ev[ym] != null ? ' <span class="rsf">so far</span>' : '') + '</td>' +
+      '<td class="n">' + (co[ym] == null ? (ev[ym] != null ? 'not closed' : '—') : repAED0(co[ym])) + '</td>' +
+      '<td class="n rsh">' + repPct(sc) + '</td></tr>';
+    if (m === use[use.length - 1]) {
+      body += '<tr class="rs"><td>' + firstM + '–' + lastM + '</td>';
+      if (repCompare) body += '<td class="n">' + repAED0(e2) + '</td><td class="n">' + repAED0(c2) + '</td><td class="n">' + repPct(sh2) + '</td>';
+      body += '<td class="n">' + repAED0(e) + '</td><td class="n">' + repAED0(c) + '</td><td class="n">' + repPct(sh) + '</td></tr>';
+    }
+  }
+
+  /* ── the basis note ── */
+  const oneLine = 'All figures AED, inclusive of VAT on both sides' +
+    (openName ? '. ' + openName + ' ' + repYear + ' incomplete and excluded from totals' : '') +
+    (repCompare ? '. Comparison covers the same ' + use.length + ' months in both years' : '') +
+    '. Prepared ' + repToday() + ' from management records; unaudited.';
+  const full = '<b>Basis of preparation.</b> Event revenue is taken from the Events order tracker, ' +
+    'stated after discount. Company total trading income is as reported by the finance system for ' +
+    'each closed month. <b>Both are stated inclusive of VAT</b> and are therefore directly ' +
+    'comparable; no VAT adjustment has been applied. Event revenue forms part of company total ' +
+    'trading income, so the share expresses events as a proportion of the whole. All figures AED.<br>' +
+    '<b>Comparability.</b> The share is calculated only for months in which both figures are final.' +
+    (openName ? ' ' + openName + ' ' + repYear + ' is shown for information at AED ' +
+      repAED0(ev[K(repYear, MONTH_NAMES.indexOf(openName) + 1)]) + ' and marked <i>so far</i>; it ' +
+      'includes orders taken to date and the company figure for the month has not closed. It is ' +
+      'excluded from the ' + firstM + '–' + lastM + ' totals' + (repCompare ? ' and from the comparison' : '') + '.' : '') +
+    '<br><b>Prepared</b> ' + repToday() + ' from management records. Unaudited.';
+
+  document.getElementById('repDoc').innerHTML =
+    '<div class="rep" id="repPaper">' +
+      '<div class="rh"><div class="rwm">FLOWERS.AE<small>The Art of Gifting</small></div>' +
+        '<div class="rdt"><b>Events Contribution</b>' + firstM + '–' + lastM + ' ' + repYear +
+        ' · prepared ' + repToday() + '</div></div>' +
+      '<div class="rb">' +
+        '<div class="rk">' +
+          '<div><div class="k">Events revenue</div><div class="v">' + repAED0(e) +
+            '</div><div class="s">AED incl. VAT · ' + firstM + '–' + lastM + '</div></div>' +
+          '<div><div class="k">Company total trading income</div><div class="v">' + repAED0(c) +
+            '</div><div class="s">AED, same ' + use.length + ' months</div></div>' +
+          '<div><div class="k">Event share</div><div class="v">' + repPct(sh) + '</div><div class="s">' +
+            (repCompare && sh2 != null ? prev + ': ' + repPct(sh2) + ' · ' + (sh - sh2 >= 0 ? '+' : '') +
+              (sh - sh2).toFixed(2) + ' pts' : 'of company total trading income') + '</div></div>' +
+        '</div>' +
+        '<h4>Event share by month</h4><p class="rsub">Percentage of company total trading income' +
+          (repCompare ? ' — ' + repYear + ' against ' + prev : '') + '</p>' + chart +
+        (repCompare ? '<div class="rleg"><span><i style="background:#D7A7B0"></i>' + prev +
+          '</span><span><i style="background:#550318"></i>' + repYear + '</span></div>' : '') +
+        '<h4 style="margin-top:16px;">Monthly detail</h4>' +
+        '<p class="rsub">AED inclusive of VAT. Share shown only where both figures are final.</p>' +
+        '<table><thead>' + th + '</thead><tbody>' + body + '</tbody></table>' +
+        '<div class="rfoot' + (repFoot === 0 ? ' no-print' : '') + '">' +
+          (repFoot === 2 ? full : oneLine) + '</div>' +
+        '<div class="rsig">Flowers.ae · Events Department</div>' +
+      '</div>' +
+    '</div>';
+}
+function repSetYear(y) { repYear = y; renderContribution(); }
+function repToggleCompare() { repCompare = !repCompare; renderContribution(); }
+function repSetFoot(m) { repFoot = m; renderContribution(); }
+function repPdf() {
+  const el = document.getElementById('repPaper');
+  if (el) FLApp.exportPdf(el, 'Events contribution ' + repYear + '.pdf');
+}
+/* one figure a month, typed in once the accounts close */
+async function repEditCompany() {
+  const co = FLApp.companyIncome();
+  const ym = await FLApp.flPrompt('Which month? (YYYY-MM)', repThisMonth());
+  if (!ym || !/^\d{4}-\d{2}$/.test(ym.trim())) return;
+  const key = ym.trim();
+  const cur = co[key] != null ? String(co[key]) : '';
+  const val = await FLApp.flPrompt('Company total trading income for ' + key +
+    '\n(inclusive of VAT, as reported by finance). Leave blank to clear.', cur);
+  if (val === null) return;
+  FLApp.setCompanyIncome(key, val.trim() === '' ? null : val.trim());
+  renderContribution();
+}
+
 
 if (FLApp.isCeo()) document.querySelector('.fab').style.display = 'none';
 
@@ -870,7 +1174,7 @@ if (FLApp.syncEnabled()) {
       if (active === 'tab-events') renderEvents();
       if (active === 'tab-tracker') renderTracker();
       if (active === 'tab-monthly') renderMonthly();
-      if (active === 'tab-compare') renderCompare();
+      if (active === 'tab-compare') { renderCompare(); renderContribution(); }
     }
   });
   FLApp.syncNow();

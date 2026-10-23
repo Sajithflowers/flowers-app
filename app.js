@@ -1092,6 +1092,30 @@ const FLApp = (() => {
     scheduleSync();
   }
 
+  /* ── Company total trading income ─────────────────────────
+     What the whole company billed in a month, taken from the finance system
+     once the month closes and typed in here. Kept beside the monthly overrides
+     in the same synced document.
+
+     Deliberately NOT derived from anything in this app: it is the company's
+     reported figure and must stay exactly what finance reported, so that the
+     share calculated against it can be defended. A month with no figure simply
+     has no share — the report never estimates one. */
+  function companyIncome() { return metaDoc().company || {}; }
+  function setCompanyIncome(ym, amount) {
+    const d = metaDoc();
+    d.company = d.company || {};
+    const n = parseFloat(String(amount).replace(/,/g, ''));
+    if (amount === null || amount === '' || isNaN(n)) delete d.company[ym];
+    else d.company[ym] = n;
+    d.updated = new Date().toISOString();
+    localStorage.setItem(META_KEY, JSON.stringify(d));
+    markDirty('meta_monthly');
+    recordEvent('Company trading income ' + (isNaN(n) ? 'cleared' : 'set to AED ' + n.toLocaleString()) +
+                ' for ' + ym, currentUser().name);
+    scheduleSync();
+  }
+
   /* Team-wide settings ride inside the meta document, which already syncs — this
      avoids inventing a whole new sync kind for two numbers. */
   /* Only the email preference is a setting. The GP target, the cut-off day and the
@@ -1132,24 +1156,25 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Quotations print properly on the PC',
-       'The PC was cutting the right edge and the top off every quote. It now makes the same clean one-page PDF the tablet makes. Proposals and timelines too.'],
-      ['Move an item up or down',
-       'Grab the handle on the left of any line in a quotation and drag it where you want it. No more deleting and retyping to fix the order.'],
-      ['It warns you before a double entry',
-       'Add an enquiry for the same client and the same event day and it will ask first. You can still add it.'],
-      ['New bank details',
-       'Abu Dhabi Islamic Bank, on both quotations and proposals. Quotes you already sent keep the old details.'],
-      ['The won / lost card reads cleanly',
-       'The figures at the top now follow the month you pick, and the reasons list shows how many clients rather than a percentage.']
+      ['Invoices fill themselves in',
+       'Upload a supplier invoice as a PDF on a GP sheet and the supplier name, the invoice number and the taxable total appear on the line. Check it and change anything you disagree with — it is only a starting point.'],
+      ['The month in progress is no longer wrong',
+       'The year table counted only the sheets you had written up, so the current month always looked far too small. It now counts the Tracker as well and marks the figure "so far" until the month closes.'],
+      ['A report for the board',
+       'On the Compare tab: what events sold against what the whole company billed, month by month, with a share for each. One year at a time, a button to compare with last year, and Download PDF.'],
+      ['You enter the company figure',
+       'Use Company totals on that report to type what the company billed each month, once the accounts close. One number a month.']
     ],
     ceo: [
-      ['The won / lost card follows the month you pick',
-       'Choose October and the line at the top gives you October\'s figures, not the all-time ones. The middle of the ring shows how many were lost, and each reason shows how many clients it was.'],
-      ['Newest month first',
-       'The month buttons now run Oct, Sep, Aug, Jul.']
+      ['GP sheet lines name the supplier',
+       'An invoice line now reads "Bloom House Flowers LLC — DS-26-17518" with the taxable amount beside it, instead of a file name. Easier to check what you are approving.'],
+      ['How events compares with the whole company',
+       'A new section on the Compare tab shows events sales as a share of everything the company billed, month by month, with last year beside it if you want it.']
     ],
-    finance: []
+    finance: [
+      ['Events against company trading income',
+       'A new section on the Compare tab sets events sales against company total trading income, month by month. Both figures include VAT, and only months where both are final show a share.']
+    ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
   /* Only someone who actually UPGRADED should see a changelog. A brand-new
@@ -1700,7 +1725,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.36';
+  const APP_VERSION = '5.7.37';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2271,7 +2296,7 @@ const FLApp = (() => {
     expensesAll, expenseGet, expenseSave, expenseDelete,
     expenseCutoffDate, expenseCutoffPassed, expenseLineItemsForMonth, expenseMonthFullyApproved, expenseSheetStale, calcEventCommission,
     autoGenerateExpenseSheets, adminSignature, setAdminSignature,
-    monthlyOverrides, setMonthlyOverride,
+    monthlyOverrides, setMonthlyOverride, companyIncome, setCompanyIncome,
     syncNow, onSync, syncEnabled, storageIsFull,
     checkForUpdate, _updateBanner: showUpdateBanner,
     deviceName, setDeviceName, deviceId,
