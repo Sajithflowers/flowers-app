@@ -1156,8 +1156,10 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['The board report now makes a proper PDF',
-       'Download PDF on the contribution report was going through the Windows print dialog and coming out as three cut-off pages. It now makes the same clean single-page file your quotations make.']
+      ['The board report prints properly now',
+       'Download PDF was going through the Windows print dialog and coming out as three cut-off pages, and the writing was too small and too soft to read. Both fixed — one clean page, sharp type.'],
+      ['Every PDF is sharper',
+       'Quotations, proposals and timelines are captured at twice the detail they were, so printed copies hold up.']
     ],
     ceo: [],
     finance: []
@@ -1711,7 +1713,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.38';
+  const APP_VERSION = '5.7.39';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2049,7 +2051,11 @@ const FLApp = (() => {
          with autoPaging off and a page tall enough for everything) — capturing
          with html2canvas directly and placing that single image ourselves
          sidesteps its pagination logic altogether. */
-      const scale = (pageWidth / el.scrollWidth) * 1.5;
+      /* pixels per PDF point. At 1.5 the report's small tables came out soft;
+         3 is crisp in print. A very tall document steps back to 2 so a long
+         quotation full of invoice photos cannot exhaust memory on a phone. */
+      const perPoint = (pageHeight / pageWidth) > 3 ? 2 : 3;
+      const scale = (pageWidth / el.scrollWidth) * perPoint;
       const canvas = await html2canvas(el, { scale, windowWidth: el.scrollWidth, useCORS: true });
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'pt', format: [pageWidth, pageHeight] });

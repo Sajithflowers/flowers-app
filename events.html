@@ -85,35 +85,35 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 .rep .rwm{font-family:'EB Garamond',Georgia,serif;font-size:19px;letter-spacing:2.4px;}
 .rep .rwm small{display:block;font-family:'Lato',Arial,sans-serif;font-size:7px;letter-spacing:3px;
   color:var(--champagne);text-transform:uppercase;margin-top:3px;}
-.rep .rdt{text-align:right;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#D9B9C2;}
+.rep .rdt{text-align:right;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:#D9B9C2;}
 .rep .rdt b{display:block;font-family:'EB Garamond',Georgia,serif;font-size:14px;letter-spacing:.4px;
   color:#fff;text-transform:none;margin-bottom:2px;}
 .rep .rb{padding:19px 24px 21px;background:#fff;}
-.rep h4{font-family:'EB Garamond',Georgia,serif;font-size:14px;color:var(--rouge);margin:0 0 2px;}
-.rep .rsub{font-size:9.5px;color:var(--muted);margin:0 0 10px;}
+.rep h4{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);margin:0 0 2px;}
+.rep .rsub{font-size:11px;color:var(--muted);margin:0 0 10px;}
 .rep .rk{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;
   overflow:hidden;margin-bottom:17px;}
 .rep .rk > div{flex:1;background:#fff;padding:12px 14px;}
-.rep .rk .k{font-size:7px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.rep .rk .k{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700;}
 .rep .rk .v{font-family:'EB Garamond',Georgia,serif;font-size:24px;color:var(--rouge-deep);line-height:1.1;margin-top:4px;}
-.rep .rk .s{font-size:9px;color:var(--muted);margin-top:2px;}
-.rep .rleg{display:flex;gap:15px;font-size:9px;color:#6b5a52;margin:6px 0 0 32px;}
+.rep .rk .s{font-size:10.5px;color:var(--muted);margin-top:2px;}
+.rep .rleg{display:flex;gap:15px;font-size:10.5px;color:#6b5a52;margin:6px 0 0 32px;}
 .rep .rleg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
-.rep table{width:100%;border-collapse:collapse;font-size:11px;}
-.rep thead th{background:var(--rouge);color:#fff;text-align:left;font-size:7px;letter-spacing:1.1px;
+.rep table{width:100%;border-collapse:collapse;font-size:13px;}
+.rep thead th{background:var(--rouge);color:#fff;text-align:left;font-size:9px;letter-spacing:1.1px;
   text-transform:uppercase;padding:7px 8px;font-weight:700;}
 .rep th.n,.rep td.n{text-align:right;}
-.rep tbody td{padding:6px 8px;border-bottom:1px solid #EFE8E4;font-variant-numeric:tabular-nums;}
+.rep tbody td{padding:7px 9px;border-bottom:1px solid #EFE8E4;font-variant-numeric:tabular-nums;}
 .rep tbody tr:nth-child(even){background:#FBF8F5;}
 .rep tbody tr.ro td{color:#A99992;}
 .rep tbody tr.rs td{border-top:1.5px solid var(--champagne);background:#FBF4E6;font-weight:700;color:var(--rouge);}
 .rep td.ra{background:#FCF9F6;}
 .rep tbody tr:nth-child(even) td.ra{background:#F8F2ED;}
 .rep .rsh{font-weight:700;color:var(--rouge);}
-.rep .rsf{font-size:7.5px;color:var(--amber);letter-spacing:.5px;}
-.rep .rfoot{margin-top:13px;padding-top:10px;border-top:1px solid #EFE8E4;font-size:8.5px;
+.rep .rsf{font-size:9px;color:var(--amber);letter-spacing:.5px;}
+.rep .rfoot{margin-top:13px;padding-top:10px;border-top:1px solid #EFE8E4;font-size:10px;
   color:var(--muted);line-height:1.7;}
-.rep .rsig{margin-top:11px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#C3B5AE;text-align:center;}
+.rep .rsig{margin-top:11px;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#C3B5AE;text-align:center;}
 .rep .rempty{padding:26px 24px;text-align:center;color:var(--muted);font-size:12.5px;}
 .year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
@@ -1038,7 +1038,7 @@ function renderContribution() {
     if (v > mx) return;
     const y = BASE - (v / mx) * (BASE - TOP);
     g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="#EFE8E4"/>' +
-      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="8" fill="#B9A9A2">' + v + '%</text>';
+      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#B9A9A2">' + v + '%</text>';
   });
   use.forEach((m, k) => {
     const x = PADL + k * bw;
@@ -1053,15 +1053,15 @@ function renderContribution() {
         '<rect x="' + (x + bw * 0.48).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
         '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
         '<text x="' + (x + bw * 0.48 + w / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="7.5" font-weight="700" fill="#550318">' + sMain.toFixed(1) + '</text>';
+        '" text-anchor="middle" font-size="9.5" font-weight="700" fill="#550318">' + sMain.toFixed(1) + '</text>';
     } else {
       const w = bw * 0.5;
       g += '<rect x="' + (x + bw * 0.25).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
         '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
         '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="8" font-weight="700" fill="#550318">' + sMain.toFixed(2) + '</text>';
+        '" text-anchor="middle" font-size="10" font-weight="700" fill="#550318">' + sMain.toFixed(2) + '</text>';
     }
-    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="8" fill="#9B8E8A">' +
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="10" fill="#9B8E8A">' +
       MONTH_NAMES[m - 1].slice(0, 3) + '</text>';
   });
   const chart = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" ' +
