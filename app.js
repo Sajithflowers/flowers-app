@@ -1156,26 +1156,12 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Invoices fill themselves in',
-       'Upload a supplier invoice as a PDF on a GP sheet and the supplier name, the invoice number and the taxable total appear on the line. Check it and change anything you disagree with — it is only a starting point.'],
-      ['The month in progress is no longer wrong',
-       'The year table counted only the sheets you had written up, so the current month always looked far too small. It now counts the Tracker as well and marks the figure "so far" until the month closes.'],
-      ['A report for the board',
-       'On the Compare tab: what events sold against what the whole company billed, month by month, with a share for each. One year at a time, a button to compare with last year, and Download PDF.'],
-      ['You enter the company figure',
-       'Use Company totals on that report to type what the company billed each month, once the accounts close. One number a month.']
+      ['The board report now makes a proper PDF',
+       'Download PDF on the contribution report was going through the Windows print dialog and coming out as three cut-off pages. It now makes the same clean single-page file your quotations make.']
     ],
-    ceo: [
-      ['GP sheet lines name the supplier',
-       'An invoice line now reads "Bloom House Flowers LLC — DS-26-17518" with the taxable amount beside it, instead of a file name. Easier to check what you are approving.'],
-      ['How events compares with the whole company',
-       'A new section on the Compare tab shows events sales as a share of everything the company billed, month by month, with last year beside it if you want it.']
-    ],
-    finance: [
-      ['Events against company trading income',
-       'A new section on the Compare tab sets events sales against company total trading income, month by month. Both figures include VAT, and only months where both are final show a share.']
-    ]
-  };
+    ceo: [],
+    finance: []
+  };;
   const SEEN_VERSION_KEY = 'fl_last_version';
   /* Only someone who actually UPGRADED should see a changelog. A brand-new
      device has nothing to be told about, so it records the version quietly
@@ -1725,7 +1711,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.37';
+  const APP_VERSION = '5.7.38';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
