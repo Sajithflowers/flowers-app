@@ -1156,10 +1156,10 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['The board report prints properly now',
-       'Download PDF was going through the Windows print dialog and coming out as three cut-off pages, and the writing was too small and too soft to read. Both fixed — one clean page, sharp type.'],
-      ['Every PDF is sharper',
-       'Quotations, proposals and timelines are captured at twice the detail they were, so printed copies hold up.']
+      ['PDFs are no longer stretched',
+       'A page shorter than A4 was being pulled taller to fill the sheet, which stretched every letter. It now keeps its true shape. Quotations were never affected — they are taller than A4 — but the board report was.'],
+      ['And they are sharper',
+       'Every PDF is captured at twice the detail it was, so printed copies hold up.']
     ],
     ceo: [],
     finance: []
@@ -1713,7 +1713,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.39';
+  const APP_VERSION = '5.7.40';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -2031,6 +2031,10 @@ const FLApp = (() => {
      DOM's own layout, so nothing about how the text renders can change.
      Never shrinks below a standard A4 height — only grows past it. */
   function exportPageSize(el) {
+    /* A4 wide always; as tall as the content needs, but never shorter than A4
+       so the file still prints on ordinary paper. A document shorter than A4
+       leaves white space at the bottom — the image itself is drawn at its own
+       proportions, never stretched to fill. */
     const A4W = 595.28, A4H = 841.89;
     const naturalH = A4W * (el.scrollHeight / el.scrollWidth) * 1.02;
     return { width: A4W, height: Math.max(A4H, naturalH) };
@@ -2058,8 +2062,15 @@ const FLApp = (() => {
       const scale = (pageWidth / el.scrollWidth) * perPoint;
       const canvas = await html2canvas(el, { scale, windowWidth: el.scrollWidth, useCORS: true });
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit: 'pt', format: [pageWidth, pageHeight] });
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidth, pageHeight);
+      /* The page is sized from the capture, not the other way round. Handing
+         addImage the page height is what stretched a short report to fill A4
+         and elongated every letter; sizing the page to the image keeps a long
+         quotation filling its sheet exactly as it always did. Never shorter
+         than A4, so it still prints on ordinary paper. */
+      const drawH = pageWidth * (canvas.height / canvas.width);
+      const sheetH = Math.max(841.89, drawH);
+      const pdf = new jsPDF({ unit: 'pt', format: [pageWidth, sheetH] });
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidth, drawH);
       if (isAndroidApp()) {
         const base64 = pdf.output('datauristring').split(',')[1];
         const written = await Capacitor.Plugins.Filesystem.writeFile({
