@@ -242,3 +242,33 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+
+/* ── Added 27 Oct 2026 for the redesigned screens ──────────────────
+   Inter for words, JetBrains Mono for figures. Both are variable
+   fonts, so one file covers every weight — 78 KB for the pair.
+
+   NOTE the url() here has no "fonts/" prefix. A stylesheet resolves
+   url() against its OWN location, and this file already lives in
+   www/fonts/. The older rules above say url(fonts/fontN.woff2), which
+   resolves to www/fonts/fonts/ — a folder that does not exist — which
+   is why EB Garamond and Lato have never actually loaded. Left alone
+   on purpose: fixing it changes how the client-facing PDFs look, and
+   that is Sajith's call, not mine.                                   */
+@font-face{
+  font-family:'Inter';
+  src:url(inter-var.woff2) format('woff2');
+  font-weight:100 900;
+  font-style:normal;
+  font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,
+    U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url(jetbrainsmono-var.woff2) format('woff2');
+  font-weight:100 800;
+  font-style:normal;
+  font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,
+    U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}

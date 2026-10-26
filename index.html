@@ -11,77 +11,183 @@
 <meta name="theme-color" content="#550318">
 <title>Flowers.ae — Team Tools</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
+/* ── Login, redesigned 27 Oct 2026 ─────────────────────────────────
+   Every id and every handler below is unchanged — this is paint only.
+   Tokens live in theme.css. The petals are the ones that were always
+   here, drawn as shapes instead of emoji.                            */
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--champagne-soft:#F0E2C8;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;}
-body{font-family:'Lato',Arial,sans-serif;background:linear-gradient(165deg,#36081a 0%,#4B0D24 55%,#5d1230 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative;}
+body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden;position:relative;}
 
-/* floating petals */
-.petal{position:fixed;top:-30px;font-size:18px;opacity:0;animation:fall linear infinite;pointer-events:none;filter:saturate(.6) brightness(1.1);}
+/* the wash and the horizon, behind everything */
+.bg-wash,.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.bg-wash{background:
+  radial-gradient(540px 380px at 22% 24%,rgba(124,92,255,.26),transparent 70%),
+  radial-gradient(480px 400px at 78% 74%,rgba(196,75,240,.17),transparent 70%),
+  radial-gradient(420px 340px at 58% 6%,rgba(34,211,238,.1),transparent 70%);}
+.bg-grid{top:auto;bottom:0;height:46%;perspective:420px;perspective-origin:50% 0;opacity:.42;}
+.bg-grid i{position:absolute;inset:0;display:block;transform:rotateX(76deg);transform-origin:50% 0;
+  background-image:repeating-linear-gradient(to right,var(--p1) 0 1px,transparent 1px 64px),
+                   repeating-linear-gradient(to bottom,var(--p3) 0 1px,transparent 1px 64px);
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 38%,transparent 92%);
+  mask-image:linear-gradient(to bottom,transparent,#000 38%,transparent 92%);
+  animation:horizon 3.2s linear infinite;}
+@keyframes horizon{to{background-position:0 64px,0 64px;}}
+
+/* petals — same idea as before, drawn rather than typed */
+.petal{position:fixed;top:-8%;opacity:0;pointer-events:none;z-index:0;
+  animation:fall linear infinite;}
+.petal svg{display:block;width:100%;height:100%;}
 @keyframes fall{
-  0%{transform:translateY(-5vh) translateX(0) rotate(0deg);opacity:0;}
-  8%{opacity:.5;}
-  90%{opacity:.4;}
-  100%{transform:translateY(108vh) translateX(40px) rotate(320deg);opacity:0;}
-}
+  0%{transform:translate3d(0,-10%,0) rotate(0deg);opacity:0;}
+  10%{opacity:var(--o,.5);}
+  50%{transform:translate3d(14px,55vh,0) rotate(190deg);}
+  88%{opacity:var(--o,.5);}
+  100%{transform:translate3d(-10px,112vh,0) rotate(340deg);opacity:0;}}
+.petal.near{--o:.6;} .petal.mid{--o:.38;} .petal.far{--o:.22;}
 
-.logo{text-align:center;color:#fff;margin-bottom:30px;animation:riseIn .9s cubic-bezier(.2,.7,.3,1) both;}
-.logo .mark{font-size:40px;animation:bloom 3.5s ease-in-out infinite;}
-@keyframes bloom{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-.logo h1{font-family:'EB Garamond',Georgia,serif;font-size:30px;font-weight:700;letter-spacing:4px;margin-top:10px;}
-.logo .rule{width:60px;height:2px;background:var(--champagne);margin:12px auto 8px;animation:ruleGrow 1.2s .3s cubic-bezier(.2,.7,.3,1) both;}
-@keyframes ruleGrow{from{width:0;opacity:0;}to{width:60px;opacity:1;}}
-.logo p{font-size:10px;color:var(--champagne);letter-spacing:6px;text-transform:uppercase;}
+/* the florist, drawn stroke by stroke */
+.florist{display:block;margin:0 auto -18px;position:relative;z-index:2;
+  filter:drop-shadow(0 0 8px var(--glow));}
+.florist path,.florist circle{fill:none;stroke:var(--p1);stroke-width:2.1;
+  stroke-linecap:round;stroke-linejoin:round;}
+.florist .accent{stroke:var(--p2);}
+.florist .stem{stroke:var(--p4);stroke-width:1.8;}
+.florist .eye{stroke:var(--p2);stroke-width:2.3;}
+.florist .d{stroke-dasharray:var(--len,160);stroke-dashoffset:var(--len,160);
+  animation:draw .72s cubic-bezier(.4,0,.2,1) var(--dd,.2s) both;}
+@keyframes draw{to{stroke-dashoffset:0;}}
+.florist .bloom{opacity:0;transform-origin:center;
+  animation:bloomIn .5s cubic-bezier(.2,1.5,.4,1) var(--bd,1.1s) both;}
+@keyframes bloomIn{from{opacity:0;scale:.1;}to{opacity:1;scale:1;}}
+.florist .arms{animation:offer 4.6s ease-in-out 2.2s infinite;transform-origin:60% 70%;}
+@keyframes offer{0%,100%{rotate:0deg;translate:0 0;}40%{rotate:-4deg;translate:3px -2px;}}
 
-.card{background:rgba(255,255,255,.985);border-radius:4px;border-top:3px solid var(--champagne);padding:28px 24px;width:100%;max-width:380px;box-shadow:0 24px 70px rgba(0,0,0,.45);animation:riseIn .9s .15s cubic-bezier(.2,.7,.3,1) both;}
-@keyframes riseIn{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
-.card h2{font-family:'EB Garamond',Georgia,serif;font-size:20px;color:var(--rouge);margin-bottom:18px;text-align:center;font-weight:700;letter-spacing:.5px;}
+.logo{text-align:center;position:relative;z-index:2;margin-bottom:22px;
+  animation:riseIn .7s cubic-bezier(.2,.9,.25,1) both;}
+.logo h1{font-weight:300;font-size:21px;letter-spacing:7px;color:var(--tx);}
+.logo .rule{width:0;height:1.5px;margin:14px auto 9px;
+  background:linear-gradient(90deg,transparent,var(--p2),transparent);
+  animation:ruleGrow .7s cubic-bezier(.2,.8,.25,1) 1.25s both;}
+@keyframes ruleGrow{from{width:0;opacity:0;}to{width:58px;opacity:1;}}
+.logo p{font-size:9.5px;color:var(--tx3);letter-spacing:3.4px;text-transform:uppercase;}
 
-.user-list{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
-.user-btn{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid #E4DCD2;border-radius:3px;background:var(--lace);font-family:'Lato',Arial,sans-serif;font-size:15px;font-weight:700;color:var(--terra);cursor:pointer;text-align:left;width:100%;transition:all .25s ease;}
-.user-btn:active{transform:scale(.98);}
-.user-btn.selected{border-color:var(--champagne);background:#FBF6EC;box-shadow:0 3px 14px rgba(230,204,161,.35);}
-.user-btn .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--rouge),#7d1b35);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:17px;font-weight:700;flex-shrink:0;transition:transform .25s;}
-.user-btn.selected .avatar{transform:scale(1.08);}
+/* the card, with a light travelling its border */
+.cardwrap{position:relative;width:100%;max-width:360px;border-radius:18px;z-index:2;
+  box-shadow:0 26px 70px rgba(0,0,0,.62),0 0 70px var(--heroGlow);
+  animation:riseIn .72s cubic-bezier(.2,.9,.25,1) .1s both;}
+@keyframes riseIn{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:none;}}
+.beam{position:absolute;inset:0;border-radius:inherit;overflow:hidden;}
+.beam::before{content:'';position:absolute;left:50%;top:50%;width:230%;aspect-ratio:1;
+  translate:-50% -50%;animation:beamspin 4.5s linear infinite;
+  background:conic-gradient(transparent 0 70%,var(--p3) 82%,var(--p2) 90%,var(--p1) 95%,transparent 100%);}
+@keyframes beamspin{to{rotate:360deg;}}
+.card{position:relative;margin:1.5px;border-radius:16.5px;background:var(--card);
+  padding:26px 22px;}
+.card h2{font-size:15px;color:var(--tx);margin-bottom:18px;text-align:center;font-weight:700;}
 
-input{width:100%;padding:13px 15px;border:1px solid #E4DCD2;border-radius:3px;font-size:16px;font-family:'Lato',Arial,sans-serif;background:var(--lace);outline:none;margin-bottom:10px;transition:border-color .25s,box-shadow .25s;}
-input:focus{border-color:var(--champagne);background:#fff;box-shadow:0 0 0 3px rgba(230,204,161,.25);}
+/* fields — 16px keeps iOS from zooming on focus */
+input{width:100%;padding:14px 15px;border:1px solid var(--insetLine);border-radius:var(--r);
+  font-size:16px;font-family:var(--ui);background:var(--inset);color:var(--tx);
+  outline:none;margin-bottom:11px;transition:border-color .2s,box-shadow .2s;}
+input::placeholder{color:var(--tx3);}
+input:focus{border-color:var(--acc);background:rgba(124,92,255,.07);
+  box-shadow:0 0 0 3px rgba(124,92,255,.18);}
 .pw-wrap{position:relative;}
-.pw-wrap input{padding-right:46px;}
-.pw-toggle{position:absolute;right:2px;top:0;height:100%;display:flex;align-items:center;padding:0 12px;background:none;border:none;cursor:pointer;font-size:17px;line-height:1;color:var(--muted);}
-.pw-toggle:active{transform:scale(.9);}
+.pw-wrap input{padding-right:52px;}
+.pw-toggle{position:absolute;right:0;top:0;height:52px;min-width:48px;display:flex;
+  align-items:center;justify-content:center;background:none;border:none;cursor:pointer;
+  font-size:17px;line-height:1;color:var(--tx3);}
 
 .suggest-wrap{position:relative;}
-.suggest-list{position:absolute;left:0;right:0;top:calc(100% - 6px);background:#fff;border:1px solid #E4DCD2;border-top:none;border-radius:0 0 3px 3px;box-shadow:0 12px 24px rgba(58,2,16,.14);z-index:5;overflow:hidden;}
-.suggest-item{display:flex;align-items:center;gap:10px;padding:10px 15px;cursor:pointer;}
-.suggest-item+.suggest-item{border-top:1px solid #F0E9E1;}
-.suggest-item:hover,.suggest-item.active{background:var(--lace);}
-.suggest-item .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--rouge),#7d1b35);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:12px;font-weight:700;flex-shrink:0;}
+.suggest-list{position:absolute;left:0;right:0;top:calc(100% - 7px);background:#191922;
+  border:1px solid var(--insetLine);border-radius:0 0 var(--r) var(--r);
+  box-shadow:0 14px 30px rgba(0,0,0,.6);z-index:5;overflow:hidden;}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;
+  min-height:48px;}
+.suggest-item+.suggest-item{border-top:1px solid var(--insetLine);}
+.suggest-item:hover,.suggest-item.active{background:rgba(124,92,255,.14);}
+.suggest-item .av{width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(145deg,var(--p1),var(--accdeep));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
 .suggest-item .txt{overflow:hidden;}
-.suggest-item .nm{font-size:13px;font-weight:700;color:var(--terra);}
-.suggest-item .em{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.suggest-item .nm{font-size:13px;font-weight:700;color:var(--tx);}
+.suggest-item .em{font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-.btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;}
-.btn::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .6s ease;}
+.btn{width:100%;min-height:50px;padding:15px;border:none;border-radius:var(--r);
+  background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;
+  font-family:var(--ui);font-size:12.5px;font-weight:700;letter-spacing:1.4px;
+  text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 0 24px var(--glow);}
+.btn::after{content:'';position:absolute;top:0;left:-45%;width:38%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.42),transparent);
+  transform:skewX(-18deg);animation:gloss 1.5s cubic-bezier(.4,0,.2,1) 1.4s 1 both;}
+@keyframes gloss{to{left:125%;}}
 .btn:active{transform:translateY(1px);}
-.btn:hover::after,.btn:active::after{left:130%;}
 
-.link{display:block;text-align:center;margin-top:16px;font-size:12.5px;color:var(--rouge);font-weight:700;letter-spacing:1px;cursor:pointer;background:none;border:none;width:100%;font-family:'Lato',Arial,sans-serif;}
-.err{color:#B91C1C;font-size:13px;text-align:center;margin-bottom:10px;min-height:16px;}
+.link{display:flex;align-items:center;justify-content:center;min-height:44px;width:100%;
+  margin-top:8px;font-size:12.5px;color:var(--p2);font-weight:700;letter-spacing:.4px;
+  cursor:pointer;background:none;border:none;font-family:var(--ui);}
+.err{color:var(--bad);font-size:13px;text-align:center;margin-bottom:10px;min-height:16px;}
 .hidden{display:none;}
-.hint{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6;}
-.gold-sep{display:flex;align-items:center;gap:10px;color:var(--champagne);font-size:10px;margin:4px 0 14px;}
-.gold-sep::before,.gold-sep::after{content:'';flex:1;height:1px;background:#EADFCB;}
+.hint{font-size:12px;color:var(--tx3);text-align:center;margin-top:14px;line-height:1.6;}
+
+/* the readout — the detail that makes it read as a tool */
+.readout{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;
+  border-top:1px solid var(--insetLine);font-family:var(--num);
+  font-size:10px;letter-spacing:1.1px;color:var(--tx3);text-transform:uppercase;}
+.readout .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 8px var(--ok);flex:0 0 6px;animation:blip 2.4s ease-in-out infinite;}
+@keyframes blip{0%,72%,100%{opacity:1;}82%{opacity:.25;}}
+.readout .sp{margin-left:auto;color:var(--p3);}
+
+@media (prefers-reduced-motion:reduce){
+  .petal,.bg-grid i{display:none;}
+  .florist .d{stroke-dashoffset:0;} .florist .bloom{opacity:1;}
+  .logo .rule{width:58px;}
+}
 </style>
 </head>
 <body>
 
+<div class="bg-wash"></div>
+<div class="bg-grid"><i></i></div>
+
+<!-- the florist, drawn stroke by stroke, offering the bouquet -->
+<svg class="florist" width="190" height="136" viewBox="0 0 200 150"
+     role="img" aria-label="A florist handing you a bouquet">
+  <path class="d" style="--len:170;--dd:.46s" d="M38 150v-38a24 24 0 0 1 48 0v38"/>
+  <circle class="d" style="--len:132;--dd:.2s" cx="62" cy="54" r="21"/>
+  <path class="accent d" style="--len:86;--dd:.34s" d="M41 50Q62 22 83 50"/>
+  <circle class="eye" cx="55" cy="58" r="1.9"/>
+  <circle class="eye" cx="70" cy="58" r="1.9"/>
+  <path class="d" style="--len:22;--dd:.62s" d="M56 66q6.5 5 13 0"/>
+  <g class="arms">
+    <path class="d" style="--len:80;--dd:.74s" d="M84 116q22-4 40-16"/>
+    <circle class="d" style="--len:38;--dd:.86s" cx="126" cy="100" r="6"/>
+    <path class="stem d" style="--len:70;--dd:.95s" d="M126 100 Q122 82 118 59"/>
+    <path class="stem d" style="--len:70;--dd:.95s" d="M126 100 Q131 77 136 49"/>
+    <path class="stem d" style="--len:70;--dd:.95s" d="M126 100 Q139 83 153 61"/>
+    <path class="stem d" style="--len:70;--dd:.95s" d="M126 100 Q126 89 127 75"/>
+    <path class="stem d" style="--len:70;--dd:.95s" d="M126 100 Q136 92 147 77"/>
+    <g class="bloom" style="--bd:1.15s"><circle cx="118" cy="52" r="6" style="stroke:var(--p1)"/><circle cx="118" cy="52" r="2" style="stroke:#F6E7B8"/></g>
+    <g class="bloom" style="--bd:1.25s"><circle cx="136" cy="42" r="6" style="stroke:var(--p2)"/><circle cx="136" cy="42" r="2" style="stroke:#F6E7B8"/></g>
+    <g class="bloom" style="--bd:1.35s"><circle cx="153" cy="54" r="6" style="stroke:var(--p3)"/><circle cx="153" cy="54" r="2" style="stroke:#F6E7B8"/></g>
+    <g class="bloom" style="--bd:1.45s"><circle cx="127" cy="68" r="6" style="stroke:var(--p4)"/><circle cx="127" cy="68" r="2" style="stroke:#F6E7B8"/></g>
+    <g class="bloom" style="--bd:1.55s"><circle cx="147" cy="70" r="6" style="stroke:var(--p5)"/><circle cx="147" cy="70" r="2" style="stroke:#F6E7B8"/></g>
+  </g>
+</svg>
+
 <div class="logo">
-  <h1 style="font-family:'Lato',Arial,sans-serif;font-weight:300;font-size:28px;letter-spacing:9px;">FLOWERS.AE</h1>
+  <h1>FLOWERS.AE</h1>
   <div class="rule"></div>
   <p>The Art of Gifting</p>
 </div>
 
+<div class="cardwrap"><span class="beam"></span>
 <div class="card">
   <!-- LOGIN VIEW -->
   <div id="view-login">
@@ -156,6 +262,9 @@ input:focus{border-color:var(--champagne);background:#fff;box-shadow:0 0 0 3px r
     <button class="btn" onclick="doResetConfirm()">Set New Password</button>
     <button class="link" onclick="showLogin()">‹ Back to log in</button>
   </div>
+
+  <div class="readout"><span class="dot"></span>Secure<span class="sp" id="vtag">—</span></div>
+</div>
 </div>
 
 <script src="ios-install.js"></script>
@@ -163,20 +272,34 @@ input:focus{border-color:var(--champagne);background:#fff;box-shadow:0 0 0 3px r
 <script>
 if (FLApp.currentUser()) location.replace('home.html');
 
-/* floating petals */
+/* Falling petals — the same seven that were always here, drawn as shapes
+   instead of emoji so they look designed rather than typed, and at three
+   depths so it reads as distance. Skipped entirely on reduce-motion. */
 (() => {
-  const glyphs = ['🌸','✿','❀'];
-  for (let i = 0; i < 7; i++) {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const SHAPE = '<svg viewBox="0 0 24 24" fill="none">' +
+    '<path d="M12 1C7.8 5 5 9 5 13a7 7 0 0 0 14 0c0-4-2.8-8-7-12Z" fill="COL"/>' +
+    '<path d="M12 3.4c-2.6 2.9-4.4 6-4.4 9.3a4.4 4.4 0 0 0 4.4 4.4Z" fill="rgba(255,255,255,.22)"/></svg>';
+  const hues = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','#F2C8DE'];
+  const depth = ['near','mid','far'];
+  for (let i = 0; i < 12; i++) {
+    const d = depth[i % 3];
+    const size = d === 'near' ? 16 + (i % 3) * 4 : d === 'mid' ? 11 + (i % 3) * 3 : 8 + (i % 2) * 3;
     const p = document.createElement('span');
-    p.className = 'petal';
-    p.textContent = glyphs[i % glyphs.length];
-    p.style.left = (5 + (i * 13) % 90) + 'vw';
-    p.style.animationDuration = (9 + (i % 5) * 2.4) + 's';
-    p.style.animationDelay = (i * 1.7) + 's';
-    p.style.fontSize = (13 + (i % 3) * 5) + 'px';
+    p.className = 'petal ' + d;
+    p.style.left = (3 + (i * 8.1) % 92).toFixed(1) + 'vw';
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.animationDuration = (9 + (i % 6) * 2.3).toFixed(1) + 's';
+    p.style.animationDelay = '-' + (i * 1.7).toFixed(1) + 's';
+    if (d !== 'near') p.style.filter = 'blur(' + (d === 'mid' ? .5 : 1.2) + 'px)';
+    p.innerHTML = SHAPE.replace('COL', hues[i % hues.length]);
     document.body.appendChild(p);
   }
 })();
+
+/* the version in the readout, read from the app rather than typed here */
+try { document.getElementById('vtag').textContent = 'v' + FLApp.appVersion(); } catch (e) {}
 
 const VIEWS = ['view-login', 'view-register', 'view-pending', 'view-forgot', 'view-reset'];
 function showView(id) {

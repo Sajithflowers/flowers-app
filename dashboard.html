@@ -11,110 +11,219 @@
 <meta name="theme-color" content="#550318">
 <title>Flowers.ae — Dashboard</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{--plum:#4B0D24;--plum-deep:#36081a;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
-body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:50px;}
+/* ── Dashboard, redesigned 27 Oct 2026 ─────────────────────────────
+   CSS only. Every class name the render JS writes is kept, so not one
+   line of the figures, the charts or the sync was touched.
 
-.hero{background:linear-gradient(160deg,var(--plum-deep),var(--plum) 65%,#5d1230);color:#fff;padding:20px 16px 56px;position:relative;overflow:hidden;}
-.hero::after{content:'❀';position:absolute;right:-16px;bottom:-40px;font-size:150px;opacity:.06;color:var(--champagne);}
-.hero-top{display:flex;justify-content:space-between;align-items:center;max-width:640px;margin:0 auto;}
-.hero-links{display:flex;gap:8px;align-items:center;}
-.hero-links a,.hero-links button{background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:var(--champagne);padding:9px 14px;border-radius:3px;font-size:10.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;text-decoration:none;font-family:'Lato',Arial,sans-serif;min-height:36px;display:inline-flex;align-items:center;}
-.wordmark{font-weight:300;font-size:19px;letter-spacing:6px;color:#fff;}
-.wordmark small{display:block;font-size:7px;letter-spacing:4px;color:rgba(255,255,255,.7);margin-top:4px;text-transform:uppercase;font-weight:300;}
-.greet{margin-top:24px;text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:22px;color:var(--champagne);animation:rise .7s both;}
-.date-line{text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:2px;margin-top:5px;text-transform:uppercase;}
-@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+   "Depth": four elevation levels instead of one flat grid, so what
+   matters looks like it matters before you read it. Shadows only —
+   no blur, no animation — so the phone draws it once and then sleeps.
+
+   The approval banners below are DELIBERATELY unchanged. They stay
+   champagne, same words, same tap target. Sajith decides whether to
+   restyle them once he has seen them against the dark.               */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--ui);background:var(--pg);color:var(--tx);
+  min-height:100vh;padding-bottom:50px;}
+
+/* ── hero ── */
+.hero{background:linear-gradient(160deg,#120C22,#0A0A12 70%);color:var(--tx);
+  padding:20px 16px 50px;position:relative;overflow:hidden;border-bottom:1px solid var(--edge);}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(520px 260px at 18% -20%,rgba(124,92,255,.22),transparent 70%),
+             radial-gradient(420px 240px at 88% 0%,rgba(196,75,240,.14),transparent 70%);}
+.hero-top{display:flex;justify-content:space-between;align-items:center;
+  max-width:640px;margin:0 auto;position:relative;z-index:1;gap:10px;}
+.hero-links{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.hero-links a,.hero-links button{background:var(--inset);border:1px solid var(--insetLine);
+  color:var(--tx2);padding:11px 13px;border-radius:var(--rs);font-size:10.5px;font-weight:700;
+  letter-spacing:1.2px;cursor:pointer;text-decoration:none;font-family:var(--ui);
+  min-height:44px;display:inline-flex;align-items:center;}
+.hero-links a:hover,.hero-links button:hover{border-color:var(--acc);color:var(--tx);}
+.wordmark{font-weight:300;font-size:18px;letter-spacing:5px;color:var(--tx);}
+.wordmark small{display:block;font-size:8.5px;letter-spacing:3.2px;color:var(--tx3);
+  margin-top:5px;text-transform:uppercase;font-weight:400;}
+.greet{margin-top:24px;text-align:center;font-size:21px;font-weight:700;color:var(--tx);
+  position:relative;z-index:1;letter-spacing:-.3px;animation:rise .7s both;}
+.date-line{text-align:center;font-size:10.5px;color:var(--tx3);letter-spacing:2px;
+  margin-top:6px;text-transform:uppercase;position:relative;z-index:1;}
+@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
 
 .wrap{max-width:640px;margin:0 auto;padding:0 14px;}
 @media (min-width:900px){ .hero-top,.wrap{max-width:960px;} }
-
-.pending-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-34px 0 16px;position:relative;}
+/* ── approval banners ─────────────────────────────────────────────
+   Amber on dark, chosen 26 Oct after Sajith saw the champagne against
+   the new page. Violet was the other candidate and was rejected here on
+   purpose: the big sales tile directly below is already violet, and two
+   violets stacked means neither one wins the eye. Amber is the only hue
+   in the palette nothing else on this page uses, so the banner keeps
+   being the first thing you see — which is its entire job.
+   The words, the count, the tap target and the link are untouched. */
+.pending-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:-34px 0 16px;
+  position:relative;z-index:2;}
 .pending-row .pending{grid-column:1/-1;}
 .pending-row.split .pending{grid-column:auto;}
 @media (max-width:480px){ .pending-row.split .pending{grid-column:1/-1;} }
-.pending{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#F3E3C3,var(--champagne));border:none;border-radius:4px;padding:17px 16px;width:100%;cursor:pointer;box-shadow:0 8px 26px rgba(75,13,36,.25);animation:rise .7s .1s both;font-family:'Lato',Arial,sans-serif;}
-.pending .num{font-family:'EB Garamond',Georgia,serif;font-size:38px;font-weight:700;color:var(--plum);line-height:1;}
+.pending{display:flex;align-items:center;gap:14px;
+  background:linear-gradient(135deg,rgba(245,165,36,.16),rgba(245,165,36,.06));
+  border:1px solid rgba(245,165,36,.38);border-radius:var(--rs);
+  padding:17px 16px;width:100%;cursor:pointer;
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 34px rgba(245,165,36,.1);
+  animation:rise .7s .1s both;font-family:var(--ui);min-height:44px;
+  transition:border-color .2s, box-shadow .2s;}
+@media(hover:hover){.pending:hover{border-color:rgba(245,165,36,.7);
+  box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 44px rgba(245,165,36,.2);}}
+.pending .num{font-size:34px;font-weight:800;color:var(--p5);line-height:1;font-family:var(--num);}
 .pending .txt{text-align:left;}
-.pending .t1{font-size:13.5px;font-weight:700;color:var(--plum);letter-spacing:.4px;}
-.pending .t2{font-size:11px;color:#7a5c33;margin-top:2px;}
-.pending .go{margin-left:auto;font-family:'EB Garamond',Georgia,serif;font-size:26px;color:var(--plum);}
-.pending.allclear{background:#fff;border:1px solid var(--border);box-shadow:0 4px 18px rgba(75,13,36,.08);cursor:default;}
-.pending.allclear .t1{color:var(--good);}
-.pending.allclear .num{color:var(--good);}
+.pending .t1{font-size:13.5px;font-weight:700;color:var(--p5);letter-spacing:.3px;}
+/* #8A8AA0, not the amber at low alpha: this is the quiet second line and it
+   still has to clear 4.5:1 against the card behind it. */
+.pending .t2{font-size:11.5px;color:var(--tx3);margin-top:2px;}
+.pending .go{margin-left:auto;font-size:24px;color:var(--p5);}
+.pending.allclear{background:var(--card);border:1px solid var(--edge);box-shadow:none;cursor:default;}
+.pending.allclear:hover{border-color:var(--edge);box-shadow:none;}
+.pending.allclear .t1,.pending.allclear .num{color:var(--ok);}
+.pending.allclear .t2,.pending.allclear .go{color:var(--tx3);}
 
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.kpi{background:#fff;border:1px solid var(--border);border-top:3px solid var(--champagne);border-radius:4px;padding:17px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);animation:rise .6s both;}
-.kpi:nth-child(2){animation-delay:.07s;}.kpi:nth-child(3){animation-delay:.14s;}.kpi:nth-child(4){animation-delay:.21s;}
-.kpi .kl{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700;}
-.kpi .kv{font-family:'EB Garamond',Georgia,serif;font-size:25px;color:var(--plum);font-weight:700;margin-top:7px;line-height:1.05;}
-.kpi .kv.pos{color:var(--good);} .kpi .kv.neg{color:var(--bad);}
-.kpi .kd{font-size:10.5px;margin-top:5px;color:var(--muted);}
-.kpi .kd b.up{color:var(--good);} .kpi .kd b.down{color:var(--bad);}
-/* Sales tile carries two figures that answer different questions — work
-   happening this month, and what was actually sold this month. Equal weight
-   with a rule between, so neither reads as a footnote to the other. */
-.kpi .two-up{margin-top:6px;}
+/* ── KPIs — elevation 3, and the month's figure on elevation 4 ──── */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:14px;}
+.kpi{background:#1B1B28;border:1px solid rgba(124,92,255,.2);border-radius:var(--r);
+  padding:15px 14px;min-width:0;
+  box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03);
+  animation:rise .6s both;transition:transform .25s cubic-bezier(.2,.8,.3,1),box-shadow .25s ease;}
+.kpi:nth-child(2){animation-delay:.07s;}
+.kpi:nth-child(3){animation-delay:.14s;}
+.kpi:nth-child(4){animation-delay:.21s;}
+.kpi:first-child{background:linear-gradient(150deg,var(--heroTop),#141026);
+  border-color:rgba(124,92,255,.4);
+  box-shadow:0 26px 60px rgba(0,0,0,.62), 0 0 44px var(--heroGlow);}
+@media(hover:hover){.kpi:hover{transform:translateY(-3px);
+  box-shadow:0 20px 44px rgba(0,0,0,.6), 0 0 34px var(--heroGlow);}}
+.kpi .kl{font-size:9.5px;letter-spacing:1.6px;color:var(--tx3);text-transform:uppercase;font-weight:700;}
+.kpi .kv{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:21px;
+  color:var(--tx);font-weight:700;margin-top:8px;line-height:1.15;letter-spacing:-.5px;}
+.kpi:first-child .kv{font-size:24px;}
+.kpi .kv.pos{color:var(--ok);}
+.kpi .kv.neg{color:var(--bad);}
+.kpi .kd{font-size:11px;margin-top:5px;color:var(--tx3);}
+.kpi .kd b.up{color:var(--ok);}
+.kpi .kd b.down{color:var(--bad);}
+.kpi .two-up{margin-top:7px;}
 .kpi .tu{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
-.kpi .tu .n{font-family:'EB Garamond',Georgia,serif;font-size:21px;color:var(--plum);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;}
-.kpi .tu .n.placed{color:#A8566B;}
-.kpi .tu .t{font-size:10px;color:var(--muted);}
-.kpi .tu .d{font-size:10px;font-weight:700;white-space:nowrap;}
-.kpi .tu .d.up{color:var(--good);} .kpi .tu .d.down{color:var(--bad);}
-.kpi .tu-rule{height:1px;background:var(--border);margin:5px 0 4px;}
-.chart-key{display:flex;gap:16px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:8px;padding-left:4px;}
-.chart-key .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
-.chart-key .sw.solid{background:#4B0D24;} .chart-key .sw.pale{background:#A8566B;}
+.kpi .tu .n{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:18px;
+  color:var(--tx);font-weight:700;line-height:1.2;}
+.kpi .tu .n.placed{color:var(--p2ink);}
+.kpi .tu .t{font-size:10.5px;color:var(--tx3);}
+.kpi .tu .d{font-size:10.5px;font-weight:700;white-space:nowrap;}
+.kpi .tu .d.up{color:var(--ok);}
+.kpi .tu .d.down{color:var(--bad);}
+/* The sparkline's base rule lives in theme.css. On the first tile the bars
+   sit on the violet hero gradient, where violet-on-violet barely reads, so
+   they are lifted to the brighter cyan there only. */
+.kpi:first-child .spark i{background:var(--p3);}
+.kpi .spark{margin-top:11px;height:26px;gap:3px;}
+.kpi .tu-rule{height:1px;background:var(--insetLine);margin:6px 0 5px;}
 
-.card{background:#fff;border:1px solid var(--border);border-radius:4px;padding:17px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);margin-bottom:14px;animation:rise .6s .25s both;}
+.chart-key{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--tx3);
+  margin-top:9px;padding-left:4px;}
+.chart-key .sw{display:inline-block;width:10px;height:10px;border-radius:2px;
+  margin-right:5px;vertical-align:-1px;}
+.chart-key .sw.solid{background:var(--p1);}
+.chart-key .sw.pale{background:var(--p2);}
 
-/* Booked & pipeline — navy so it reads as a different kind of number from the
-   rouge history above it. Collapsed every time the page loads. */
-.booked-strip{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
-  background:#fff;border:1px solid var(--border);border-left:3px solid #1F3864;border-radius:4px;
-  padding:15px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);font-family:'Lato',Arial,sans-serif;
-  animation:rise .6s .3s both;}
-.booked-strip .bs-t1{display:block;font-size:13.5px;font-weight:700;color:#1F3864;letter-spacing:.3px;}
-.booked-strip .bs-t2{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
-.booked-strip .bs-ch{margin-left:auto;color:#1F3864;font-size:19px;font-family:'EB Garamond',Georgia,serif;
-  transition:transform .25s;}
-.booked-strip.on{border-radius:4px 4px 0 0;border-bottom-color:transparent;}
-.booked-strip.on .bs-ch{transform:rotate(90deg);}
-.booked-open{background:#fff;border:1px solid var(--border);border-left:3px solid #1F3864;border-top:none;
-  border-radius:0 0 4px 4px;padding:2px 16px 15px;box-shadow:0 4px 18px rgba(75,13,36,.08);margin-bottom:14px;}
-.bk-month{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--rouge);font-weight:700;
-  margin:14px 0 2px;padding-bottom:6px;border-bottom:1px solid #F1EBE4;}
-.bk-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;padding:8px 0;}
-.bk-row .bk-k{color:var(--muted);}
-.bk-row .bk-k b{color:var(--terra);font-weight:700;}
-.bk-row .bk-n{font-size:10.5px;color:var(--muted);}
-.bk-row .bk-v{font-weight:700;color:var(--terra);white-space:nowrap;}
-.bk-row.hi .bk-v{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:#1F3864;}
-.bk-quote{background:#FBF6EC;border-radius:3px;padding:12px 13px;margin-top:14px;}
-.bk-quote .bk-qr{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;}
-.bk-quote .bk-qk{color:#8a6d3b;}
-.bk-quote .bk-qv{font-family:'EB Garamond',Georgia,serif;font-size:16px;font-weight:700;color:#8a6d3b;}
-.bk-quote .bk-qs{font-size:10.5px;color:#a8906a;margin-top:5px;}
-.card h3{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--plum);margin-bottom:12px;letter-spacing:.5px;}
+/* ── cards — elevation 2 ── */
+.card{background:#15151F;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);
+  padding:16px 15px;box-shadow:0 4px 14px rgba(0,0,0,.42);margin-bottom:14px;
+  animation:rise .6s .25s both;}
+.card h3{font-size:14px;color:var(--tx);margin-bottom:13px;font-weight:700;letter-spacing:-.2px;}
 .card svg{width:100%;height:auto;display:block;}
-.year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
-.chip{padding:7px 15px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--plum);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;font-family:'Lato',Arial,sans-serif;}
-.chip.on{background:var(--plum);color:var(--champagne);box-shadow:0 4px 14px rgba(75,13,36,.3);}
-.legend{display:flex;gap:16px;margin-bottom:10px;font-size:11px;color:var(--terra);align-items:center;}
-.legend .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
 
-.client{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F1EBE4;}
+/* ── booked and pipeline — elevation 1 ── */
+.booked-strip{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:#0E0E16;border:1px solid var(--edge);border-left:3px solid var(--p3);
+  border-radius:var(--r);padding:15px;font-family:var(--ui);animation:rise .6s .3s both;min-height:44px;}
+.booked-strip .bs-t1{display:block;font-size:13.5px;font-weight:700;color:var(--p3);letter-spacing:.2px;}
+.booked-strip .bs-t2{display:block;font-size:11.5px;color:var(--tx3);margin-top:2px;}
+.booked-strip .bs-ch{margin-left:auto;color:var(--p3);font-size:19px;transition:transform .25s;}
+.booked-strip.on{border-radius:var(--r) var(--r) 0 0;border-bottom-color:transparent;}
+.booked-strip.on .bs-ch{transform:rotate(90deg);}
+.booked-open{background:#0E0E16;border:1px solid var(--edge);border-left:3px solid var(--p3);
+  border-top:none;border-radius:0 0 var(--r) var(--r);padding:2px 16px 15px;margin-bottom:14px;}
+.bk-month{font-size:13px;color:var(--p1);font-weight:700;margin:14px 0 2px;
+  padding-bottom:6px;border-bottom:1px solid var(--insetLine);letter-spacing:.3px;}
+.bk-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-size:13.5px;padding:9px 0;}
+.bk-row .bk-k{color:var(--tx3);}
+.bk-row .bk-k b{color:var(--tx);font-weight:700;}
+.bk-row .bk-n{font-size:11px;color:var(--tx3);}
+.bk-row .bk-v{font-weight:700;color:var(--tx);white-space:nowrap;font-family:var(--num);}
+.bk-row.hi .bk-v{font-size:16px;color:var(--p3);}
+.bk-quote{background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.2);
+  border-radius:var(--rs);padding:12px 13px;margin-top:14px;}
+.bk-quote .bk-qr{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;}
+.bk-quote .bk-qk{color:var(--p5);}
+.bk-quote .bk-qv{font-family:var(--num);font-size:15px;font-weight:700;color:var(--p5);}
+.bk-quote .bk-qs{font-size:11px;color:var(--tx3);margin-top:5px;}
+
+/* ── chips, legend, client rows ── */
+.year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:11px 15px;border:1px solid var(--insetLine);border-radius:var(--rs);
+  background:var(--inset);color:var(--tx2);font-size:12px;font-weight:700;letter-spacing:.8px;
+  cursor:pointer;transition:all .2s;font-family:var(--ui);min-height:44px;
+  display:inline-flex;align-items:center;}
+.chip.on{background:var(--accSolid);color:#fff;border-color:var(--accSolid);box-shadow:0 0 18px var(--glow);}
+.legend{display:flex;gap:16px;margin-bottom:10px;font-size:11.5px;color:var(--tx2);align-items:center;}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:2px;
+  margin-right:6px;vertical-align:-1px;}
+
+.client{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--insetLine);}
 .client:last-child{border-bottom:none;}
-.client .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--plum),#7d1b45);color:var(--champagne);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',Georgia,serif;font-size:16px;font-weight:700;flex-shrink:0;}
-.client .cn{font-weight:700;color:var(--terra);font-size:14px;}
-.client .cm{font-size:11px;color:var(--muted);margin-top:1px;}
+.client .av{width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(145deg,var(--p1),var(--accdeep));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;}
+.client .cn{font-weight:700;color:var(--tx);font-size:14px;}
+.client .cm{font-size:11.5px;color:var(--tx3);margin-top:1px;}
 .client .cv{margin-left:auto;text-align:right;}
-.client .amt{font-family:'EB Garamond',Georgia,serif;font-size:15.5px;font-weight:700;color:var(--plum);}
-.client .gp{font-size:10.5px;font-weight:700;}
-.client .gp.pos{color:var(--good);} .client .gp.neg{color:var(--bad);}
-.empty-line{color:var(--muted);font-size:12.5px;font-style:italic;}
-.foot{text-align:center;font-size:9.5px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;padding:20px 0 8px;}
+.client .amt{font-family:var(--num);font-size:15px;font-weight:700;color:var(--tx);}
+.client .gp{font-size:11px;font-weight:700;}
+.client .gp.pos{color:var(--ok);}
+.client .gp.neg{color:var(--bad);}
+
+.empty-line{color:var(--tx3);font-size:13px;font-style:italic;}
+.foot{text-align:center;font-size:10.5px;color:var(--tx3);letter-spacing:3px;
+  text-transform:uppercase;padding:20px 0 8px;}
+
+/* ── landscape ─────────────────────────────────────────────────────────
+   Until now this page was 960px wide and centred whatever the screen, so
+   on a 1920 monitor you got the phone layout with black down both sides
+   and four screens of scrolling. Above 1100px the page becomes a two
+   column grid instead: four figures across the top, the two charts side
+   by side, everything else full width.
+
+   The markup did not change for this. .wrap already had exactly six
+   children — banners, what's new, the KPI row, the two chart cards, and
+   booked — so the two cards fall into the two columns on their own and
+   the rest are told to span. Add a seventh child later and it lands in a
+   column; that is the thing to remember.
+
+   1100px, not 900: at 900 the KPI row would be four tiles of ~215px and
+   "AED 1,210,400" does not fit in that. Measured, not guessed.
+   The phone and the tablet are untouched by all of this. */
+@media (min-width:1100px){
+  .hero-top,.wrap{max-width:1340px;}
+  .wrap{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start;}
+  .wrap > .pending-row,
+  .wrap > #whatsNew,
+  .wrap > .kpis,
+  .wrap > #bookedWrap{grid-column:1/-1;}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr));}
+  /* the month tile keeps its extra weight, but at a quarter width it no
+     longer needs the larger figure to say so — the glow does that. */
+  .kpi:first-child .kv{font-size:21px;}
+  .hero{padding-bottom:56px;}
+}
 </style>
 </head>
 <body>
@@ -346,6 +455,27 @@ const deltaHtml = d => d == null ? '' :
 const deltaInline = d => d == null ? '' :
   '<span class="d ' + (d >= 0 ? 'up' : 'down') + '" title="vs the whole of ' + MONTHS[CM - 1] + ' ' + prevY + '">' +
   (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(0) + '%</span>';
+/* ── sparkline ────────────────────────────────────────────────────────
+   Seven bars: this month and the six before it, walking back across the
+   year boundary. No new data and no new maths — monthTotal is the same
+   function the chart further down already uses. Heights are relative to
+   the tallest of the seven, so this answers "is it going up", not "by how
+   much"; the figures above it answer that. Static: drawn once, no
+   animation, nothing for the phone to keep repainting.
+   aria-hidden because it repeats what the numbers already say. */
+const spark = (upToY, upToM) => {
+  const vals = [];
+  for (let i = 6; i >= 0; i--) {
+    let m = upToM - i, y = upToY;
+    while (m < 1) { m += 12; y -= 1; }
+    vals.push(monthTotal(y, m));
+  }
+  const peak = Math.max.apply(null, vals);
+  if (!peak) return '';
+  return '<div class="spark" aria-hidden="true">' +
+    vals.map(v => '<i style="height:' + Math.max(8, v / peak * 100).toFixed(1) + '%"></i>').join('') +
+    '</div>';
+};
 document.getElementById('kpis').innerHTML =
   /* Sold first, delivering second: the tile is called Sales, and the honest
      answer to "how are sales this month" is what was actually sold this month.
@@ -364,7 +494,7 @@ document.getElementById('kpis').innerHTML =
     '<div class="kd">' + (monthOrders
       ? monthOrders + ' event' + (monthOrders === 1 ? '' : 's') + ' · ' +
         (monthTracked.length ? monthTracked.length + ' not costed yet' : 'all costed')
-      : 'nothing sold yet this month') + '</div></div>' +
+      : 'nothing sold yet this month') + '</div>' + spark(CY, CM) + '</div>' +
   '<div class="kpi"><div class="kl">GP margin — ' + MONTHS[CM - 1] + '</div><div class="kv ' + (mGp == null ? '' : mGp >= GPT ? 'pos' : 'neg') + '">' + (mGp == null ? '—' : mGp.toFixed(1) + '%') + '</div><div class="kd">' + (mGp == null ? 'no event sheets yet this month' : 'target ' + GPT + '% → ' + (mGp - GPT >= 0 ? '+' : '') + (mGp - GPT).toFixed(1) + '%') + '</div></div>' +
   '<div class="kpi"><div class="kl">Events — ' + MONTHS[CM - 1] + '</div><div class="kv">' + monthOrders + '</div><div class="kd">' +
     (monthTracked.length
@@ -372,10 +502,38 @@ document.getElementById('kpis').innerHTML =
       : approvedCount + ' approved · ' + pending.filter(e => monthEvs.includes(e)).length + ' pending') + '</div></div>' +
   '<div class="kpi"><div class="kl">Sales — ' + CY + ' so far</div><div class="kv">' + AED(ytd) + '</div><div class="kd">' + deltaHtml(ytdDelta) + '</div></div>';
 
+/* ── chart palette ─────────────────────────────────────────────────────
+   These used to be seven loose hex values scattered through the two chart
+   functions, in the old burgundy and cream. They are collected here so the
+   charts and the CSS can never drift apart again — which they had: the key
+   under the sales chart was showing violet and fuchsia while the bars were
+   still burgundy and rouge.
+
+   GRID and AXIS matter more than they look. They were #F1EBE4 and #E8DDD8,
+   near-white, which on this page draws them brighter than the data in front
+   of them. Barely-there white is the point: the grid is there to be measured
+   against, not looked at.
+
+   The values match theme.css by hand because the charts build SVG strings
+   and cannot read a CSS variable. If a colour changes there, change it here. */
+const CHART = {
+  grid:     'rgba(255,255,255,.07)',
+  axis:     'rgba(255,255,255,.16)',
+  bar:      '#7C5CFF',   /* --p1, costed                       */
+  barHi:    '#22D3EE',   /* --p3, the month you are in         */
+  pale:     '#C44BF0',   /* --p2, sold but no GP sheet yet     */
+  label:    '#9A9AAE',   /* --tx2, the K figure above a bar    */
+  axisText: '#8A8AA0',   /* --tx3, JAN FEB MAR                 */
+  prevYear: '#8A8AA0',   /* last year stays grey so this year reads first */
+  /* was Lato,Arial — and Lato has never actually loaded in this app, so
+     every chart label has silently been Arial. */
+  font:     "'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace"
+};
+
 /* ── sales by month chart ── */
 let salesYear = YEARS.includes(CY) ? CY : YEARS[YEARS.length - 1];
-/* `pale` is the sold-but-not-yet-costed part of each month, drawn on top of the
-   solid bar in #A8566B. Champagne was measured and fails as a bar fill (1.51:1). */
+/* `pale` is the sold-but-not-yet-costed part of each month, capping the solid
+   bar. Colours come from CHART above. */
 function barChart(perMonth, highlightM, pale) {
   const W = 620, H = 240, padT = 28, padB = 26;
   const max = Math.max(...perMonth, 1);
@@ -385,21 +543,20 @@ function barChart(perMonth, highlightM, pale) {
   let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
   for (let g = 1; g <= 3; g++) {
     const gy = padT + (H - padT - padB) * g / 4;
-    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="#F1EBE4"/>';
+    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="' + CHART.grid + '"/>';
   }
-  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="' + CHART.axis + '" stroke-width="1.5"/>';
   perMonth.forEach((v, i) => {
     const x = i * bw + bw * 0.2, w = bw * 0.6;
     if (v) {
       const hh = Math.max(3, (H - padT - padB) * v / max);
       const y = H - padB - hh;
-      const col = (i + 1) === highlightM ? '#E6CCA1' : '#4B0D24';
+      const col = (i + 1) === highlightM ? CHART.barHi : CHART.bar;
       const u = Math.min(pale[i] || 0, v);          /* sold, sheet not made yet */
       const tip = MONTHS[i] + ': ' + AEDf(v) + (u ? ' — ' + AEDf(u) + ' sold, sheet still to make' : '');
       /* one rounded bar in up to two pieces: the costed part grows from the
-         baseline in the normal colour, the uncosted part caps it in pale rouge
-         (#A8566B — champagne was measured at 1.51:1 and fails as a bar fill).
-         A month with no sheets yet is simply all pale. */
+         baseline in violet, the part sold without a GP sheet yet caps it in
+         fuchsia. A month with no sheets yet is simply all fuchsia. */
       const slice = (top, bottom, fill, round) =>
         '<path d="M' + x + ' ' + bottom + ' L' + x + ' ' + (top + (round ? 4 : 0)) +
         (round ? ' Q' + x + ' ' + top + ' ' + (x + 4) + ' ' + top + ' L' + (x + w - 4) + ' ' + top +
@@ -408,16 +565,16 @@ function barChart(perMonth, highlightM, pale) {
         ' L' + (x + w) + ' ' + bottom + ' Z" fill="' + fill + '"><title>' + tip + '</title></path>';
       const uh = (H - padT - padB) * u / max;       /* height of the pale cap */
       if (u >= v) {
-        s += slice(y, H - padB, '#A8566B', true);
+        s += slice(y, H - padB, CHART.pale, true);
       } else if (u > 0) {
         s += slice(y + uh, H - padB, col, false);   /* costed, square top */
-        s += slice(y, y + uh, '#A8566B', true);     /* uncosted cap, rounded */
+        s += slice(y, y + uh, CHART.pale, true);    /* uncosted cap, rounded */
       } else {
         s += slice(y, H - padB, col, true);
       }
-      s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + (i === maxIdx ? 11 : 9) + '" font-weight="' + (i === maxIdx ? 700 : 600) + '" fill="#4B0D24" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + (i === maxIdx ? 11 : 9) + '" font-weight="' + (i === maxIdx ? 700 : 600) + '" fill="' + CHART.label + '" font-family="' + CHART.font + '">' + Math.round(v / 1000) + 'K</text>';
     }
-    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="' + CHART.axisText + '" font-family="' + CHART.font + '" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
   });
   return s + '</svg>';
 }
@@ -439,8 +596,8 @@ function renderYoy() {
   if (ys.length < 2) { document.getElementById('yoyChart').innerHTML = '<div class="empty-line">Needs two years of data.</div>'; return; }
   const [ya, yb] = ys;
   document.getElementById('yoyLegend').innerHTML =
-    '<span><span class="sw" style="background:#D9C09A;"></span>' + ya + '</span>' +
-    '<span><span class="sw" style="background:#4B0D24;"></span>' + yb + '</span>';
+    '<span><span class="sw" style="background:' + CHART.prevYear + ';"></span>' + ya + '</span>' +
+    '<span><span class="sw" style="background:' + CHART.bar + ';"></span>' + yb + '</span>';
   const A = Array.from({ length: 12 }, (_, i) => monthTotal(ya, i + 1));
   const B = Array.from({ length: 12 }, (_, i) => monthTotal(yb, i + 1));
   const W = 620, H = 240, padT = 20, padB = 26;
@@ -449,12 +606,12 @@ function renderYoy() {
   let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
   for (let g = 1; g <= 3; g++) {
     const gy = padT + (H - padT - padB) * g / 4;
-    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="#F1EBE4"/>';
+    s += '<line x1="4" y1="' + gy + '" x2="' + (W - 4) + '" y2="' + gy + '" stroke="' + CHART.grid + '"/>';
   }
-  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  s += '<line x1="4" y1="' + (H - padB) + '" x2="' + (W - 4) + '" y2="' + (H - padB) + '" stroke="' + CHART.axis + '" stroke-width="1.5"/>';
   for (let i = 0; i < 12; i++) {
     const base = i * gw;
-    [[A[i], '#D9C09A', ya], [B[i], '#4B0D24', yb]].forEach(([v, col, yr], k) => {
+    [[A[i], CHART.prevYear, ya], [B[i], CHART.bar, yb]].forEach(([v, col, yr], k) => {
       if (!v) return;
       const w = gw * 0.32, x = base + gw * 0.14 + k * (w + 2);
       const hh = Math.max(3, (H - padT - padB) * v / max), y = H - padB - hh;
@@ -462,7 +619,7 @@ function renderYoy() {
         ' L' + (x + w - 3) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 3) +
         ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="' + col + '"><title>' + MONTHS[i] + ' ' + yr + ': ' + AEDf(v) + '</title></path>';
     });
-    s += '<text x="' + (base + gw / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+    s += '<text x="' + (base + gw / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="' + CHART.axisText + '" font-family="' + CHART.font + '" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
   }
   document.getElementById('yoyChart').innerHTML = s + '</svg>';
 }

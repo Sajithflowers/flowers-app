@@ -1,0 +1,124 @@
+/* ══════════════════════════════════════════════════════════════════
+   Flowers.ae — shared theme
+   Added 27 Oct 2026 for the login and dashboard redesign.
+
+   Everything the new screens share lives here so a colour is changed in
+   one place rather than nineteen. Pages not yet redesigned do not load
+   this file and are unaffected by it.
+
+   Decisions behind these numbers, so nobody has to guess later:
+   - Violet accent, five-colour data palette, "Console" feel: chosen
+     after about fifteen previews.
+   - Figures are monospaced so columns of money line up. Words are not.
+   - Four elevation levels ("Depth"): importance is visible before you
+     read anything. Shadows only — no blur, no animation, so it costs
+     the phone nothing to draw.
+   - Below 560px every tappable thing grows to 44px, the iOS minimum.
+     The desktop view stays dense; the phone does not.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ground */
+  --pg:#08080D;            /* page */
+  --card:#13131C;          /* default surface */
+  --navbg:#0B0B12;
+  --edge:rgba(255,255,255,.08);
+  --inset:rgba(255,255,255,.06);
+  --insetLine:rgba(255,255,255,.09);
+
+  /* ink */
+  --tx:#F4F4F8;
+  --tx2:#9A9AAE;
+  /* #6E6E84 was the design value and it fails WCAG AA — 3.72:1 on a card
+     against the 4.5 minimum. Measured, not guessed. #8A8AA0 gives 5.47. */
+  --tx3:#8A8AA0;
+
+  /* accent */
+  --acc:#7C5CFF;
+  --accink:#fff;
+  /* --acc is the brand violet, and it is correct for borders, glows, icons and
+     bars — anywhere nothing has to be READ against it. White text on it
+     measures 4.24:1 and misses AA by a hair, so anything that carries white
+     text sits on --accSolid instead: the same violet pulled down to 5.3:1.
+     The difference is barely visible and it is the difference between passing
+     and not. Measured, both of them. */
+  --accSolid:#7044FF;
+  --accdeep:#4C1D95;
+  --glow:rgba(124,92,255,.55);
+  --glowHard:rgba(124,92,255,.8);
+  --heroTop:#241A55;
+  --heroGlow:rgba(124,92,255,.22);
+
+  /* the five data colours — bars, rings, icons, in this order */
+  --p1:#7C5CFF;
+  --p2:#C44BF0;
+  /* the same fuchsia is 4.11:1 as text on the violet hero tile, so figures
+     drawn in it use this lighter one. As a BAR fill --p2 is fine: bars are
+     not text and are not held to 4.5. */
+  --p2ink:#DB85F5;
+  --p3:#22D3EE;
+  --p4:#2DD4A0;
+  --p5:#F5A524;
+
+  /* meaning */
+  --ok:#4ADE80;   --okbg:rgba(74,222,128,.14);
+  --warn:#FBBF24; --warnbg:rgba(251,191,36,.14);
+  --bad:#F87171;  --badbg:rgba(248,113,113,.14);
+
+  /* type */
+  --ui:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --num:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* shape */
+  --r:10px;
+  --rs:6px;
+}
+
+/* ── four elevations ───────────────────────────────────────────────
+   Shadow only. The phone draws these once and then sleeps. */
+.e1{background:#0E0E16;border:1px solid var(--edge);border-radius:var(--r);}
+.e2{background:#15151F;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);
+    box-shadow:0 4px 14px rgba(0,0,0,.45);}
+.e3{background:#1B1B28;border:1px solid rgba(124,92,255,.22);border-radius:var(--r);
+    box-shadow:0 12px 30px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03);}
+.e4{background:linear-gradient(150deg,var(--heroTop),#141026);
+    border:1px solid rgba(124,92,255,.4);border-radius:12px;
+    box-shadow:0 26px 60px rgba(0,0,0,.65), 0 0 46px var(--heroGlow);}
+
+/* ── figures ───────────────────────────────────────────────────────
+   tabular-nums is what actually keeps a column straight. */
+.num,.fig{font-family:var(--num);font-variant-numeric:tabular-nums;}
+
+/* ── sparkline ─────────────────────────────────────────────────────
+   Seven static bars. Drawn once, answers "is this going up". */
+.spark{display:flex;align-items:flex-end;gap:2px;height:20px;margin-top:9px;}
+.spark i{flex:1;background:var(--acc);border-radius:1px;opacity:.8;display:block;min-height:2px;}
+.spark i:last-child{opacity:1;}
+
+/* ── status chip ───────────────────────────────────────────────────
+   A real <button> or <span> with a visible label, never a bare dot. */
+.chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  font:700 10px/1 var(--ui);letter-spacing:.6px;padding:7px 10px;border-radius:999px;}
+.chip .led{width:6px;height:6px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 7px currentColor;flex:0 0 6px;}
+.chip.ok{background:var(--okbg);color:var(--ok);}
+.chip.warn{background:var(--warnbg);color:var(--warn);}
+.chip.bad{background:var(--badbg);color:var(--bad);}
+
+/* ── focus, for keyboard and for anyone who needs it ──────────────── */
+:where(a,button,input,[tabindex]):focus-visible{
+  outline:2px solid var(--acc);outline-offset:2px;border-radius:4px;}
+
+/* ── touch: the phone gets bigger targets, the desktop stays dense ──
+   44px is the iOS minimum. Measured against it rather than guessed. */
+@media (max-width:560px){
+  .tap,.chip,button,.link{min-height:44px;}
+  .chip{padding:12px 14px;font-size:11px;}
+  .tiny-ok{min-height:0;}          /* opt out where it is genuinely not tappable */
+}
+
+/* ── motion: once, on open, and never if the phone says no ────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}

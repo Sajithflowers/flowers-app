@@ -1156,14 +1156,28 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['The contribution report is now net of VAT',
-       'Company trading income comes off the accounts without VAT, but event sales carry 5%. The two were being compared as they were, which overstated the share. Event revenue is now shown net of VAT so both sides match — the share reads 4.34% where it read 4.56%.'],
-      ['PDFs keep their shape and are sharper',
-       'A page shorter than A4 was being stretched taller to fill the sheet. Fixed, and every PDF is captured at twice the detail.']
+      ['The log-in, the dashboard and the main menu have been redesigned',
+       'Darker, with the figures in a typeface built for columns of numbers so they line up properly. The month total sits visibly above the other tiles because it matters more. The falling petals are still there, drawn properly this time, and someone hands you a bouquet on the way in.'],
+      ['On a computer it now uses the whole screen',
+       'It used to show you the phone layout with black down both sides whatever the size of the monitor. On a wide screen the four figures now sit across the top and the two charts sit side by side, so the dashboard is one screen instead of four. The main menu is two columns and does not scroll at all. On the phone nothing about this changes.'],
+      ['The charts match the rest of it',
+       'The bars, the grid lines and the month names were drawn in the old burgundy and cream and had been left behind. Violet is work that is costed, bright blue is the month you are in, pink is money sold with no GP sheet made yet, and last year is grey so this year reads first. Not one figure changed — only the colours.'],
+      ['The sales tile shows the last seven months',
+       'Seven small bars under the month figure, this month and the six before it. They only answer whether sales are climbing or sliding; the exact numbers are the ones above them. Nothing new is counted — it is the same monthly totals the chart below already uses.'],
+      ['Everything you tap is bigger on the phone',
+       'Buttons, chips and links were as small as 13 pixels, against the 44 Apple asks for. On a phone they are all at least 44 now, and every piece of text has been measured against the readability standard. The desktop view is unchanged.'],
+      ['Three screens so far',
+       'The log-in, the dashboard and the main menu. Quotations, proposals, expense sheets, timelines and the GP sheets all look exactly as they did. Live with these three for a few days and tell me what is wrong before the rest follow.']
     ],
-    ceo: [],
-    finance: []
-  };;
+    ceo: [
+      ['The log-in, the dashboard and the main menu look different',
+       'Only those three. Your approvals banner is still the first thing on the dashboard and still says the same thing — it is amber now instead of gold, because the page behind it is dark. The GP sheets and the approve and reject buttons have not been touched at all, and nothing about the figures has changed.']
+    ],
+    finance: [
+      ['The log-in, the dashboard and the main menu look different',
+       'Only those three. The charts have new colours but not one number in them changed. Every report, every figure and the contribution report are untouched.']
+    ]
+  };
   const SEEN_VERSION_KEY = 'fl_last_version';
   /* Only someone who actually UPGRADED should see a changelog. A brand-new
      device has nothing to be told about, so it records the version quietly
@@ -1201,21 +1215,32 @@ const FLApp = (() => {
       const st = document.createElement('style');
       st.id = 'fl-nu-style';
       st.textContent =
-        '.fl-nu{background:#fff;border:1px solid #E8DDD8;border-left:3px solid #E6CCA1;border-radius:3px;' +
-          'padding:15px 17px;margin-bottom:16px;box-shadow:0 3px 20px rgba(85,3,24,.07);font-family:Lato,Arial,sans-serif;}' +
+        /* The two pages that draw this both load theme.css, so the variables
+           resolve. The fallbacks after each one are not decoration: this
+           stylesheet is injected from JS and could outlive a page that
+           forgets the link, and a panel with no colours at all is worse
+           than one that is merely plain. */
+        '.fl-nu{background:var(--card,#13131C);border:1px solid var(--edge,rgba(255,255,255,.08));' +
+          'border-left:3px solid var(--acc,#7C5CFF);border-radius:var(--r,10px);' +
+          'padding:15px 17px;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,0,0,.45);' +
+          'font-family:var(--ui,Inter,system-ui,Arial,sans-serif);}' +
         '.fl-nu-hd{display:flex;align-items:baseline;gap:9px;}' +
-        '.fl-nu-hd h3{font-family:"EB Garamond",Georgia,serif;font-size:16px;color:#550318;margin:0;font-weight:700;}' +
-        '.fl-nu-hd span{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#9B8E8A;}' +
+        '.fl-nu-hd h3{font-size:15px;color:var(--tx,#F4F4F8);margin:0;font-weight:700;letter-spacing:-.2px;}' +
+        '.fl-nu-hd span{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;' +
+          'color:var(--tx3,#8A8AA0);font-family:var(--num,monospace);}' +
         '.fl-nu ul{margin:9px 0 0;padding:0;list-style:none;}' +
-        '.fl-nu li{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid #E8DDD8;font-size:13px;color:#2E2522;line-height:1.5;}' +
+        '.fl-nu li{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--insetLine,rgba(255,255,255,.09));' +
+          'font-size:13px;color:var(--tx2,#9A9AAE);line-height:1.55;}' +
         '.fl-nu li:last-child{border-bottom:none;}' +
-        '.fl-nu-dot{color:#E6CCA1;font-size:14px;line-height:1.4;}' +
-        '.fl-nu li b{color:#4B0D24;}' +
-        '.fl-nu-foot{display:flex;align-items:center;gap:11px;margin-top:12px;flex-wrap:wrap;}' +
-        '.fl-nu-foot button{background:linear-gradient(135deg,#3a0210,#550318);color:#E6CCA1;border:none;' +
-          'border-radius:3px;padding:9px 18px;font-size:10px;font-weight:700;letter-spacing:1.5px;' +
-          'text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:36px;}' +
-        '.fl-nu-foot span{font-size:10.5px;color:#9B8E8A;}';
+        '.fl-nu-dot{color:#A58EFF;font-size:14px;line-height:1.4;}' +
+        '.fl-nu li b{color:var(--tx,#F4F4F8);}' +
+        '.fl-nu-foot{display:flex;align-items:center;gap:11px;margin-top:13px;flex-wrap:wrap;}' +
+        /* 44px, not the 36 it was: this is a real button on a phone. */
+        '.fl-nu-foot button{background:var(--accSolid,#7044FF);color:#fff;border:none;' +
+          'border-radius:var(--rs,6px);padding:12px 20px;font-size:10px;font-weight:700;letter-spacing:1.5px;' +
+          'text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:44px;}' +
+        '.fl-nu-foot button:hover{box-shadow:0 0 18px var(--glow,rgba(124,92,255,.55));}' +
+        '.fl-nu-foot span{font-size:10.5px;color:var(--tx3,#8A8AA0);}';
       document.head.appendChild(st);
     }
     const ok = document.getElementById('fl-nu-ok');
@@ -1713,7 +1738,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.41';
+  const APP_VERSION = '5.7.42';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

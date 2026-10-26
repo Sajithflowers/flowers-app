@@ -8,46 +8,101 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#08080D">
 <title>Flowers.ae — Home</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
+/* ── Home, redesigned 26 Oct 2026 ──────────────────────────────────
+   CSS only. Every class and id the page and app.js rely on is kept, so
+   the role rules that show and hide these cards still work untouched.
+
+   The change Sajith asked for: this was a single column you scrolled.
+   Above 820px it becomes two, so the whole menu is on one screen.
+   Cards are targeted by id, not :nth-child, because which ones appear
+   depends on who is logged in — position is not stable, identity is. */
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;}
-body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;}
+body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh;}
 
-.header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:26px 20px 30px;position:relative;overflow:hidden;}
-.header::after{content:'❀';position:absolute;right:-14px;bottom:-32px;font-size:130px;opacity:.07;color:var(--champagne);}
-.header-top{display:flex;justify-content:space-between;align-items:center;}
-.header h1{font-family:'EB Garamond',Georgia,serif;font-size:24px;font-weight:700;letter-spacing:2px;animation:fadeSlide .7s cubic-bezier(.2,.7,.3,1) both;}
-.logout{background:transparent;border:1px solid rgba(230,204,161,.5);color:var(--champagne);font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 15px;border-radius:2px;cursor:pointer;transition:all .3s;}
-.logout:active{background:rgba(230,204,161,.15);}
-.gold-rule{width:44px;height:2px;background:var(--champagne);margin:12px 0 10px;}
-.greet{font-size:13px;color:var(--champagne);letter-spacing:.5px;animation:fadeSlide .7s .15s cubic-bezier(.2,.7,.3,1) both;}
+/* ── header ── */
+.header{background:linear-gradient(160deg,#120C22,#0A0A12 70%);color:var(--tx);
+  padding:24px 20px 28px;position:relative;overflow:hidden;border-bottom:1px solid var(--edge);}
+.header::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(460px 220px at 16% -25%,rgba(124,92,255,.24),transparent 70%),
+             radial-gradient(380px 200px at 88% 0%,rgba(196,75,240,.13),transparent 70%);}
+.header-top{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.header h1{font-size:18px;font-weight:300;letter-spacing:5px;color:var(--tx);
+  animation:fadeSlide .7s cubic-bezier(.2,.7,.3,1) both;}
+.logout{background:var(--inset);border:1px solid var(--insetLine);color:var(--tx2);
+  font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
+  padding:11px 15px;border-radius:var(--rs);cursor:pointer;transition:all .2s;
+  font-family:var(--ui);min-height:44px;display:inline-flex;align-items:center;}
+.logout:hover{border-color:var(--acc);color:var(--tx);}
+.logout:active{background:rgba(124,92,255,.15);}
+/* the gold hairline is gone: on dark it read as a scratch, not a flourish */
+.gold-rule{display:none;}
+.greet{font-size:11px;color:var(--tx3);letter-spacing:2.4px;text-transform:uppercase;
+  max-width:1060px;margin:14px auto 0;position:relative;z-index:1;
+  animation:fadeSlide .7s .15s cubic-bezier(.2,.7,.3,1) both;}
 
-.tools{padding:22px 16px;display:flex;flex-direction:column;gap:16px;max-width:520px;margin:0 auto;}
-@media (min-width:900px){ .tools{max-width:680px;} }
-.tool{display:flex;align-items:center;gap:17px;background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:20px 18px;box-shadow:0 3px 20px rgba(85,3,24,.07);text-decoration:none;color:inherit;transition:transform .25s ease,box-shadow .25s ease;animation:fadeSlide .6s cubic-bezier(.2,.7,.3,1) both;}
+/* ── the menu ─────────────────────────────────────────────────────
+   One column on a phone. Two from 820px, which is where a card still
+   has room for its description on one or two lines rather than four.
+   The attention panel and What's new always span the full width. */
+.tools{padding:22px 16px;display:grid;gap:14px;max-width:520px;margin:0 auto;}
+@media (min-width:820px){
+  .tools{max-width:1060px;grid-template-columns:1fr 1fr;padding:26px 20px;}
+  .tools > #whatsNew, .tools > .attn{grid-column:1/-1;}
+}
+.tool{display:flex;align-items:center;gap:15px;background:#15151F;
+  border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:18px;
+  box-shadow:0 4px 14px rgba(0,0,0,.42);text-decoration:none;color:inherit;
+  transition:transform .25s cubic-bezier(.2,.8,.3,1),box-shadow .25s ease,border-color .2s;
+  animation:fadeSlide .6s cubic-bezier(.2,.7,.3,1) both;min-height:44px;}
 .tool:nth-child(1){animation-delay:.2s;}
-.tool:nth-child(2){animation-delay:.32s;}
-.tool:nth-child(3){animation-delay:.44s;}
+.tool:nth-child(2){animation-delay:.3s;}
+.tool:nth-child(3){animation-delay:.4s;}
+.tool:nth-child(4){animation-delay:.5s;}
 .tool:active{transform:scale(.98);}
-@media(hover:hover){.tool:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(85,3,24,.14);}}
+@media(hover:hover){.tool:hover{transform:translateY(-3px);
+  box-shadow:0 14px 34px rgba(0,0,0,.55);border-color:rgba(124,92,255,.35);}}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-.tool .icon{width:56px;height:56px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;background:linear-gradient(135deg,var(--rouge-deep),#7d1b35);}
-.tool h2{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:700;color:var(--rouge);letter-spacing:.5px;}
-.tool p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
-.tool .arrow{margin-left:auto;color:var(--champagne);font-size:24px;font-family:'EB Garamond',Georgia,serif;}
-.foot{text-align:center;font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;padding:26px 0 20px;animation:fadeSlide .6s .55s both;}
 
-.attn{background:#fff;border:1px solid var(--border);border-left:3px solid var(--rouge);border-radius:3px;padding:14px 16px;box-shadow:0 3px 20px rgba(85,3,24,.07);animation:fadeSlide .6s .1s both;}
-.attn-hd{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
-.attn a{display:block;text-decoration:none;color:var(--terra);font-size:13.5px;padding:5px 0;border-bottom:1px solid var(--border);}
+.tool .icon{width:50px;height:50px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:23px;flex-shrink:0;
+  background:rgba(124,92,255,.14);border:1px solid rgba(124,92,255,.26);}
+/* one colour each, so the four are learned by colour as well as position */
+#tool-eventtools .icon{background:rgba(196,75,240,.14);border-color:rgba(196,75,240,.26);}
+#tool-events     .icon{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.26);}
+#tool-admin      .icon{background:rgba(45,212,160,.14);border-color:rgba(45,212,160,.26);}
+
+.tool h2{font-size:16px;font-weight:700;color:var(--tx);letter-spacing:-.2px;}
+.tool p{font-size:12px;color:var(--tx3);margin-top:4px;line-height:1.5;}
+.tool .arrow{margin-left:auto;color:var(--tx3);font-size:22px;transition:color .2s,transform .2s;}
+@media(hover:hover){.tool:hover .arrow{color:var(--acc);transform:translateX(3px);}}
+
+.foot{text-align:center;font-size:10px;color:var(--tx3);letter-spacing:3px;
+  text-transform:uppercase;padding:26px 0 22px;animation:fadeSlide .6s .55s both;}
+
+/* ── needs your attention ──
+   Amber, exactly like the approvals banner on the dashboard, because it
+   does the same job: this is the thing to look at before anything else. */
+.attn{background:linear-gradient(135deg,rgba(245,165,36,.13),rgba(245,165,36,.05));
+  border:1px solid rgba(245,165,36,.34);border-left:3px solid var(--p5);
+  border-radius:var(--r);padding:15px 17px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);animation:fadeSlide .6s .1s both;}
+.attn-hd{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--p5);margin-bottom:9px;}
+.attn a{display:block;text-decoration:none;color:var(--tx2);font-size:13.5px;
+  padding:9px 0;border-bottom:1px solid rgba(245,165,36,.16);min-height:44px;}
 .attn a:last-child{border-bottom:none;}
+.attn a:hover{color:var(--tx);}
 .attn a:active{opacity:.6;}
-.attn b{color:var(--rouge);font-family:'EB Garamond',Georgia,serif;font-size:17px;margin-right:5px;}
-.attn .due{display:block;font-size:11px;color:var(--muted);margin-top:1px;}
-.attn .late{color:#b02a2a;font-weight:700;}
+.attn b{color:var(--p5);font-family:var(--num);font-variant-numeric:tabular-nums;
+  font-size:16px;font-weight:700;margin-right:6px;}
+.attn .due{display:block;font-size:11px;color:var(--tx3);margin-top:1px;}
+.attn .late{color:var(--bad);font-weight:700;}
 </style>
 </head>
 <body>
@@ -76,7 +131,7 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
   <a class="tool" href="dashboard.html" id="tool-dash" style="display:none;">
     <div class="icon">📈</div>
     <div>
-      <h2>Dashboard <span id="dash-badge" style="display:none;background:#E6CCA1;color:#550318;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:3px;font-family:'Lato',Arial,sans-serif;letter-spacing:.5px;"></span></h2>
+      <h2>Dashboard <span id="dash-badge" style="display:none;background:rgba(245,165,36,.18);color:#F5A524;border:1px solid rgba(245,165,36,.4);font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;vertical-align:2px;font-family:var(--num);letter-spacing:.5px;"></span></h2>
       <p>Sales, GP, charts, pending approvals &amp; top clients</p>
     </div>
     <span class="arrow">›</span>
