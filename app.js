@@ -1156,10 +1156,10 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['PDFs are no longer stretched',
-       'A page shorter than A4 was being pulled taller to fill the sheet, which stretched every letter. It now keeps its true shape. Quotations were never affected — they are taller than A4 — but the board report was.'],
-      ['And they are sharper',
-       'Every PDF is captured at twice the detail it was, so printed copies hold up.']
+      ['The contribution report is now net of VAT',
+       'Company trading income comes off the accounts without VAT, but event sales carry 5%. The two were being compared as they were, which overstated the share. Event revenue is now shown net of VAT so both sides match — the share reads 4.34% where it read 4.56%.'],
+      ['PDFs keep their shape and are sharper',
+       'A page shorter than A4 was being stretched taller to fill the sheet. Fixed, and every PDF is captured at twice the detail.']
     ],
     ceo: [],
     finance: []
@@ -1713,7 +1713,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.40';
+  const APP_VERSION = '5.7.41';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

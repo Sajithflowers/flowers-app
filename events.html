@@ -950,12 +950,18 @@ function repToday() {
   const d = new Date();
   return d.getDate() + ' ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear();
 }
-/* events by month, from the same rows the comparison table uses */
+/* Event sales carry 5% VAT; company total trading income comes off the profit
+   and loss account and is already net of it. The two cannot be divided into
+   each other until they are on the same basis, so the VAT comes off the events
+   here — once, at the single point the figures are gathered, rather than in
+   several places where one could be missed.
+   All event sales are standard-rated, so this is exact. */
+const REP_VAT = 1.05;
 function repEvents() {
   const out = {};
   allSalesRows().forEach(r => {
     const ym = r.y + '-' + String(r.m).padStart(2, '0');
-    out[ym] = (out[ym] || 0) + r.amount;
+    out[ym] = (out[ym] || 0) + r.amount / REP_VAT;
   });
   return out;
 }
@@ -1097,14 +1103,14 @@ function renderContribution() {
   }
 
   /* ── the basis note ── */
-  const oneLine = 'All figures AED, inclusive of VAT on both sides' +
+  const oneLine = 'All figures AED, net of VAT on both sides' +
     (openName ? '. ' + openName + ' ' + repYear + ' incomplete and excluded from totals' : '') +
     (repCompare ? '. Comparison covers the same ' + use.length + ' months in both years' : '') +
     '. Prepared ' + repToday() + ' from management records; unaudited.';
   const full = '<b>Basis of preparation.</b> Event revenue is taken from the Events order tracker, ' +
     'stated after discount. Company total trading income is as reported by the finance system for ' +
-    'each closed month. <b>Both are stated inclusive of VAT</b> and are therefore directly ' +
-    'comparable; no VAT adjustment has been applied. Event revenue forms part of company total ' +
+    'each closed month, net of VAT. <b>Event revenue is stated net of VAT at 5%</b> so that the ' +
+    'two are on the same basis and directly comparable. Event revenue forms part of company total ' +
     'trading income, so the share expresses events as a proportion of the whole. All figures AED.<br>' +
     '<b>Comparability.</b> The share is calculated only for months in which both figures are final.' +
     (openName ? ' ' + openName + ' ' + repYear + ' is shown for information at AED ' +
@@ -1121,7 +1127,7 @@ function renderContribution() {
       '<div class="rb">' +
         '<div class="rk">' +
           '<div><div class="k">Events revenue</div><div class="v">' + repAED0(e) +
-            '</div><div class="s">AED incl. VAT · ' + firstM + '–' + lastM + '</div></div>' +
+            '</div><div class="s">AED net of VAT · ' + firstM + '–' + lastM + '</div></div>' +
           '<div><div class="k">Company total trading income</div><div class="v">' + repAED0(c) +
             '</div><div class="s">AED, same ' + use.length + ' months</div></div>' +
           '<div><div class="k">Event share</div><div class="v">' + repPct(sh) + '</div><div class="s">' +
@@ -1133,7 +1139,7 @@ function renderContribution() {
         (repCompare ? '<div class="rleg"><span><i style="background:#D7A7B0"></i>' + prev +
           '</span><span><i style="background:#550318"></i>' + repYear + '</span></div>' : '') +
         '<h4 style="margin-top:16px;">Monthly detail</h4>' +
-        '<p class="rsub">AED inclusive of VAT. Share shown only where both figures are final.</p>' +
+        '<p class="rsub">AED net of VAT, both columns. Share shown only where both figures are final.</p>' +
         '<table><thead>' + th + '</thead><tbody>' + body + '</tbody></table>' +
         '<div class="rfoot' + (repFoot === 0 ? ' no-print' : '') + '">' +
           (repFoot === 2 ? full : oneLine) + '</div>' +
@@ -1156,7 +1162,7 @@ async function repEditCompany() {
   const key = ym.trim();
   const cur = co[key] != null ? String(co[key]) : '';
   const val = await FLApp.flPrompt('Company total trading income for ' + key +
-    '\n(inclusive of VAT, as reported by finance). Leave blank to clear.', cur);
+    '\n(net of VAT, exactly as finance reports it). Leave blank to clear.', cur);
   if (val === null) return;
   FLApp.setCompanyIncome(key, val.trim() === '' ? null : val.trim());
   renderContribution();
