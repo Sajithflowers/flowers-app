@@ -1,123 +1,322 @@
 /* ══════════════════════════════════════════════════════════════════
    Flowers.ae — shared theme
-   Added 27 Oct 2026 for the login and dashboard redesign.
+   v5.7.43, 27 Oct 2026. Rewritten from the violet original.
 
-   Everything the new screens share lives here so a colour is changed in
-   one place rather than nineteen. Pages not yet redesigned do not load
-   this file and are unaffected by it.
+   The CEO's note on v5.7.42 was that it was "too purple". It was also
+   the default accent of every dashboard template going. This is the
+   replacement, and every number in it was measured rather than chosen.
 
-   Decisions behind these numbers, so nobody has to guess later:
-   - Violet accent, five-colour data palette, "Console" feel: chosen
-     after about fifteen previews.
-   - Figures are monospaced so columns of money line up. Words are not.
-   - Four elevation levels ("Depth"): importance is visible before you
-     read anything. Shadows only — no blur, no animation, so it costs
-     the phone nothing to draw.
-   - Below 560px every tappable thing grows to 44px, the iOS minimum.
-     The desktop view stays dense; the phone does not.
+   THE PALETTE — three cool colours in FIXED ROLES.
+   Emerald 156deg, teal 187deg and navy 219deg sit in sequence on the
+   wheel, so used in fixed roles they read as one system. A colour that
+   can mean two things means nothing, so:
+
+     NAVY      the ground. Hero, deep surfaces. NEVER text — #3D62C4 is
+               3.29:1 on a card and fails AA. Its readable face is
+               periwinkle --peri at 6.69:1.
+     EMERALD   the primary. Brand, the key figure, the main button,
+               and "costed" in a chart. 10% of the screen, no more.
+     TEAL      the secondary. Links, the month you are in, the second
+               button, small highlights.
+     AMBER     RESERVED. Nothing else on any page is warm, so amber can
+               only ever mean "this is waiting on you". That is why
+               brass was dropped: with no other warm colour competing,
+               Jo's approvals banner is the hottest thing on the screen
+               and cannot be missed. Do not add a second warm accent.
+
+   EVERY FILLED BUTTON TAKES NEAR-BLACK INK, not white. White on
+   emerald is 2.54:1, on teal 2.39:1, on periwinkle 2.76:1 — all
+   unreadable. --onP gives 7.92 / 8.39 / 7.28. This replaces the
+   --accSolid trick the violet needed; --accSolid is gone.
+
+   60-30-10, per the rule: 60% ground, 30% content layer, 10% emerald
+   on the things that matter. Measured on the real dashboard it lands
+   at 31/59/10 — a dashboard is mostly empty ground and cannot hit
+   60/30. The half of the rule that transfers is the 10% ceiling.
    ══════════════════════════════════════════════════════════════════ */
 
 :root{
-  /* ground */
-  --pg:#08080D;            /* page */
-  --card:#13131C;          /* default surface */
-  --navbg:#0B0B12;
-  --edge:rgba(255,255,255,.08);
-  --inset:rgba(255,255,255,.06);
-  --insetLine:rgba(255,255,255,.09);
+  /* ── the 60: ground ──────────────────────────────────────────────
+     Two soft lights sit on the gradient so the frosted panels have
+     something to refract. Without them, glass over flat black is just
+     slightly lighter grey, which is how most glassmorphism is done and
+     why most of it looks cheap.
 
-  /* ink */
-  --tx:#F4F4F8;
-  --tx2:#9A9AAE;
-  /* #6E6E84 was the design value and it fails WCAG AA — 3.72:1 on a card
-     against the 4.5 minimum. Measured, not guessed. #8A8AA0 gives 5.47. */
-  --tx3:#8A8AA0;
+     The lights are capped at .12 and .09. They were .20 and .13 and the
+     emerald month figure measured 4.27:1 over the bright spot — under
+     AA. Thickening the glass makes it WORSE, because frost whitens the
+     card (.055 gives 4.27, .17 gives 2.98). Dimming the light is the
+     one fix that costs nothing: at .12 the figure measures 4.99:1 and
+     the glass still visibly refracts. Do not turn these back up. */
+  --g0:#06100C;
+  --g1:#0A1A14;
+  --lightA:rgba(29,185,122,.12);
+  --lightB:rgba(25,184,204,.09);
+  --ground:
+    radial-gradient(760px 420px at 12% -6%, var(--lightA), transparent 62%),
+    radial-gradient(620px 380px at 92% 6%, var(--lightB), transparent 60%),
+    linear-gradient(168deg, var(--g1), var(--g0) 62%);
 
-  /* accent */
-  --acc:#7C5CFF;
-  --accink:#fff;
-  /* --acc is the brand violet, and it is correct for borders, glows, icons and
-     bars — anywhere nothing has to be READ against it. White text on it
-     measures 4.24:1 and misses AA by a hair, so anything that carries white
-     text sits on --accSolid instead: the same violet pulled down to 5.3:1.
-     The difference is barely visible and it is the difference between passing
-     and not. Measured, both of them. */
-  --accSolid:#7044FF;
-  --accdeep:#4C1D95;
-  --glow:rgba(124,92,255,.55);
-  --glowHard:rgba(124,92,255,.8);
-  --heroTop:#241A55;
-  --heroGlow:rgba(124,92,255,.22);
+  /* ── the 30: content layer — soft glass ─────────────────────────
+     Below 560px the blur is switched off and these become solid. See
+     the media query at the bottom. */
+  --cardBg:rgba(255,255,255,.055);
+  --cardBorder:rgba(255,255,255,.12);
+  --blur:blur(18px) saturate(135%);
+  --sheen:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0) 42%);
+  --cardShadow:0 12px 36px rgba(0,0,0,.42);
+  --cardSolid:#111C17;        /* what glass falls back to */
 
-  /* the five data colours — bars, rings, icons, in this order */
-  --p1:#7C5CFF;
-  --p2:#C44BF0;
-  /* the same fuchsia is 4.11:1 as text on the violet hero tile, so figures
-     drawn in it use this lighter one. As a BAR fill --p2 is fine: bars are
-     not text and are not held to 4.5. */
-  --p2ink:#DB85F5;
-  --p3:#22D3EE;
-  --p4:#2DD4A0;
-  --p5:#F5A524;
+  /* ── the 10: emerald, and the rest of the family ────────────────── */
+  --p:#1DB97A;        /* primary   7.27:1 as text on a card          */
+  --s:#19B8CC;        /* secondary 7.71:1                            */
+  --now:#5FE3F5;      /* the month you are in, in a chart            */
+  --peri:#6E9BF0;     /* navy's readable face, 6.69:1                */
+  --navy:#3D62C4;     /* FILL ONLY — 3.29:1, never text              */
+  --navyDeep:#101A33;
+  --amber:#F5A524;    /* RESERVED: waiting on you                    */
+  --amberRGB:245,165,36;
+  --onP:#07070C;      /* ink on any filled button                    */
 
-  /* meaning */
+  /* "sold but not costed" is NOT a fourth colour. It is the primary at
+     32%, the same money unfinished — 4.09:1 against the solid, so the
+     two segments read apart, and it says something a separate hue
+     cannot. Compute the chart key and the bar fill from ONE value in
+     code: in the violet version they were defined separately and the
+     key ended up lying about its own chart. */
+  --pGhost:rgba(29,185,122,.32);
+
+  /* ── ink ── */
+  --ink:#F2F7F4;
+  --ink2:#A4B3AB;
+  /* #7E8F87 was the design value and it FAILS: 3.72:1 against a glass
+     card sitting over the bright part of the ground. It passed on the
+     solid card (5.13) which is how it slipped through. #93A39B measures
+     4.8 on glass and 6.61 on solid — it passes on both, which is the
+     only bar that counts when the same token is used on both surfaces. */
+  --ink3:#93A39B;     /* uppercase labels only, never body text      */
+  /* --ink2 is only 4.1:1 on the hero grounds, so the hero subtitle
+     uses this instead. The violet version had this bug too. */
+  --heroSub:#B4B4C8;
+
+  /* ── meaning ── */
   --ok:#4ADE80;   --okbg:rgba(74,222,128,.14);
   --warn:#FBBF24; --warnbg:rgba(251,191,36,.14);
   --bad:#F87171;  --badbg:rgba(248,113,113,.14);
 
-  /* type */
+  /* ── type ── */
   --ui:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
   --num:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 
-  /* shape */
-  --r:10px;
-  --rs:6px;
+  /* ── shape ── */
+  --r:14px;
+  --rs:8px;
 }
 
-/* ── four elevations ───────────────────────────────────────────────
-   Shadow only. The phone draws these once and then sleeps. */
-.e1{background:#0E0E16;border:1px solid var(--edge);border-radius:var(--r);}
-.e2{background:#15151F;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);
+/* ══ COMPATIBILITY — the violet token names, remapped ══════════════
+   index.html, dashboard.html and home.html were written against the
+   v5.7.42 names. Renaming the tokens under them would have blanked
+   three live screens, so every old name is kept here and pointed at
+   its emerald equivalent. They recolour themselves without being
+   touched, and each one can then be converted properly, one at a time,
+   with the app working the whole way through.
+
+   DELETE THIS BLOCK once no page greps for the old names. Until then
+   it is load-bearing. */
+:root{
+  --pg:var(--g0);
+  --card:var(--cardSolid);
+  --navbg:#070F0C;
+  --edge:var(--cardBorder);
+  --inset:rgba(255,255,255,.06);
+  --insetLine:rgba(255,255,255,.09);
+
+  --tx:var(--ink);
+  --tx2:var(--ink2);
+  --tx3:var(--ink3);
+  /* some pages use --muted and --terra instead, and a few reference them
+     without ever defining them, which rendered as an inherited colour */
+  --muted:var(--ink2);
+  --terra:var(--ink);
+  --border:var(--cardBorder);
+  /* the old semantic pair. --good was #1E5631, a deep forest green that
+     is 2.1:1 on this ground — it was chosen for dark text on a cream
+     page. On the dark page it has to be the light green. */
+  --good:var(--ok);
+  --pending:var(--amber);
+
+  /* --acc and --accSolid were two violets because white text failed on
+     the lighter one. Emerald never carries white text — it carries
+     --onP — so both names now point at the same single emerald. */
+  --acc:var(--p);
+  --accSolid:var(--p);
+  --accink:var(--onP);
+  --accdeep:#0E7A4E;
+  --glow:rgba(29,185,122,.55);
+  --glowHard:rgba(29,185,122,.8);
+  --heroTop:#0E2C2A;
+  --heroGlow:var(--lightA);
+
+  /* the five data colours, in the order the charts use them.
+     --p2ink existed because fuchsia failed as text on the violet hero;
+     teal passes everywhere, so it is simply teal. */
+  --p1:var(--p);
+  --p2:var(--s);
+  --p2ink:var(--s);
+  --p3:var(--now);
+  --p4:#2DD4A0;
+  --p5:var(--amber);
+}
+
+/* the four elevations, restated on the emerald ground */
+.e1{background:#0C1511;border:1px solid var(--cardBorder);border-radius:var(--r);}
+.e2{background:#101B16;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);
     box-shadow:0 4px 14px rgba(0,0,0,.45);}
-.e3{background:#1B1B28;border:1px solid rgba(124,92,255,.22);border-radius:var(--r);
+.e3{background:var(--cardSolid);border:1px solid rgba(29,185,122,.22);border-radius:var(--r);
     box-shadow:0 12px 30px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03);}
-.e4{background:linear-gradient(150deg,var(--heroTop),#141026);
-    border:1px solid rgba(124,92,255,.4);border-radius:12px;
+.e4{background:linear-gradient(150deg,var(--heroTop),#0A1510);
+    border:1px solid rgba(29,185,122,.4);border-radius:12px;
     box-shadow:0 26px 60px rgba(0,0,0,.65), 0 0 46px var(--heroGlow);}
+
+/* the old bar sparkline. The new pages draw a stroke instead — a line
+   can be DRAWN left to right, the direction time runs; bars can only
+   pop — but dashboard.html still writes this markup. */
+.spark{display:flex;align-items:flex-end;gap:2px;height:20px;margin-top:9px;}
+.spark i{flex:1;background:var(--p);border-radius:1px;opacity:.8;display:block;min-height:2px;}
+.spark i:last-child{opacity:1;}
+
+/* ── the page ─────────────────────────────────────────────────────── */
+.fl-shell{background:var(--ground);background-attachment:fixed;min-height:100vh;}
+.fl-inner{max-width:1120px;margin:0 auto;padding:20px 16px 70px;}
+
+/* ── the one surface everything is made of ────────────────────────── */
+.pane{position:relative;background:var(--cardBg);border:1px solid var(--cardBorder);
+  border-radius:var(--r);box-shadow:var(--cardShadow);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.pane::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;background:var(--sheen);}
+.pane>*{position:relative;}
 
 /* ── figures ───────────────────────────────────────────────────────
    tabular-nums is what actually keeps a column straight. */
-.num,.fig{font-family:var(--num);font-variant-numeric:tabular-nums;}
+.num,.fig,.kv{font-family:var(--num);font-variant-numeric:tabular-nums;}
 
-/* ── sparkline ─────────────────────────────────────────────────────
-   Seven static bars. Drawn once, answers "is this going up". */
-.spark{display:flex;align-items:flex-end;gap:2px;height:20px;margin-top:9px;}
-.spark i{flex:1;background:var(--acc);border-radius:1px;opacity:.8;display:block;min-height:2px;}
-.spark i:last-child{opacity:1;}
+/* ── odometer ──────────────────────────────────────────────────────
+   Each digit is a 0-9 strip in a one-line window moved by transform.
+   Nothing reflows while it runs and the glyph widths never change, so
+   the figure cannot jitter. The resting value must be written into the
+   markup FIRST so the correct number is on screen even if the roll is
+   skipped or throws. */
+.odo{display:inline-flex;align-items:flex-start;line-height:1;}
+.odo .dgt{display:inline-block;height:1em;overflow:hidden;}
+.odo .reel{display:block;will-change:transform;}
+.odo .reel b{display:block;height:1em;line-height:1;font-weight:inherit;}
+.odo .lit{display:inline-block;height:1em;}
 
-/* ── status chip ───────────────────────────────────────────────────
-   A real <button> or <span> with a visible label, never a bare dot. */
-.chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
-  font:700 10px/1 var(--ui);letter-spacing:.6px;padding:7px 10px;border-radius:999px;}
-.chip .led{width:6px;height:6px;border-radius:50%;background:currentColor;
-  box-shadow:0 0 7px currentColor;flex:0 0 6px;}
-.chip.ok{background:var(--okbg);color:var(--ok);}
-.chip.warn{background:var(--warnbg);color:var(--warn);}
-.chip.bad{background:var(--badbg);color:var(--bad);}
+/* ── status pill ───────────────────────────────────────────────────
+   A visible label, never a bare coloured dot. */
+.pill{display:inline-block;font:700 9px/1.5 var(--ui);letter-spacing:.8px;
+  text-transform:uppercase;padding:4px 9px;border-radius:999px;white-space:nowrap;}
+.pill.ok{background:var(--okbg);color:#7FE9AC;border:1px solid rgba(74,222,128,.34);}
+.pill.wait{background:var(--warnbg);color:#F6BE63;border:1px solid rgba(245,165,36,.36);}
+.pill.bad{background:var(--badbg);color:#FCA5A5;border:1px solid rgba(248,113,113,.34);}
+.pill.inf{background:rgba(25,184,204,.14);color:#6FDCEA;border:1px solid rgba(25,184,204,.33);}
+
+/* ── buttons ───────────────────────────────────────────────────────
+   One filled button per screen. The accent is the 10%; put it on
+   everything and it stops meaning anything. */
+.btn{background:var(--p);color:var(--onP);border:0;border-radius:var(--rs);
+  padding:11px 18px;font:700 12.5px var(--ui);cursor:pointer;min-height:44px;
+  transition:filter .14s ease,transform .09s ease;}
+.btn:hover{filter:brightness(1.08);}
+.btn:active{transform:scale(.988);}
+.btn.two{background:var(--s);}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--cardBorder);}
+.btn.sm{padding:8px 13px;font-size:11.5px;min-height:38px;}
+
+/* ── form fields ──────────────────────────────────────────────────── */
+.field{margin-bottom:11px;}
+.field label{display:block;font:700 9.5px var(--ui);letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:rgba(0,0,0,.28);
+  border:1px solid var(--cardBorder);border-radius:var(--rs);color:var(--ink);
+  font:13px var(--ui);padding:11px 12px;min-height:44px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── chips ────────────────────────────────────────────────────────── */
+/* 38px here, 44 on the phone via the media query at the bottom — the
+   old theme did the same, and dashboard.html already lays out a row of
+   year chips against that height. Forcing 44 everywhere makes that row
+   noticeably chunky on a monitor for no benefit. */
+.chip{appearance:none;background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);
+  color:var(--ink2);font:600 11.5px var(--ui);padding:8px 13px;border-radius:999px;
+  cursor:pointer;min-height:38px;}
+.chip[aria-pressed="true"],.chip.on{background:var(--p);color:var(--onP);border-color:var(--p);}
+
+/* ── tables ───────────────────────────────────────────────────────── */
+.tblwrap{overflow-x:auto;}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+table.tbl th{text-align:left;font:700 9.5px var(--ui);letter-spacing:1.3px;
+  text-transform:uppercase;color:var(--ink3);padding:9px 10px;
+  border-bottom:1px solid var(--cardBorder);}
+table.tbl td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.055);}
+table.tbl td.n{font-family:var(--num);font-variant-numeric:tabular-nums;text-align:right;}
+
+/* ── the top bar, shared by every inner page ──────────────────────
+   The back link was a bare 16px anchor on every page — well under the
+   44px minimum, and it is the control people hit most. Giving it a
+   height costs about ten pixels of bar and fixes it everywhere at once. */
+.topbar{background:rgba(7,15,12,.85);border-bottom:1px solid var(--cardBorder);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);}
+.topbar a{color:var(--p);text-decoration:none;font:700 13px var(--ui);letter-spacing:1px;
+  display:inline-flex;align-items:center;min-height:44px;}
+.topbar span{color:var(--ink3);}
+/* some pages use a bare back link outside .topbar */
+.backlink{color:var(--p);text-decoration:none;font:700 13px var(--ui);letter-spacing:1px;
+  display:inline-flex;align-items:center;min-height:44px;}
+/* the small secondary button. It was 28-38px across Admin — the row of
+   controls someone actually presses on a tablet. */
+.mini{background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);color:var(--ink);
+  border-radius:var(--rs);font:700 11px var(--ui);padding:9px 13px;cursor:pointer;min-height:44px;}
+.mini.danger{color:var(--bad);border-color:rgba(248,113,113,.34);}
+.logout{background:rgba(29,185,122,.12);border:1px solid rgba(29,185,122,.45);
+  color:var(--p);padding:10px 16px;border-radius:var(--rs);font:700 11px var(--ui);
+  letter-spacing:1.5px;cursor:pointer;min-height:44px;}
 
 /* ── focus, for keyboard and for anyone who needs it ──────────────── */
-:where(a,button,input,[tabindex]):focus-visible{
-  outline:2px solid var(--acc);outline-offset:2px;border-radius:4px;}
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{
+  outline:2px solid var(--p);outline-offset:2px;border-radius:4px;}
+
+/* ── EDITORIAL MOTION ──────────────────────────────────────────────
+   Only what carries information moves. Cards, headings and buttons are
+   simply there, at full opacity, in the first frame. The violet version
+   faded six blocks up from 16px on a staggered timer — nothing needed
+   to move, and the month figure was unreadable for half a second on
+   every single load. That cascade is gone; do not bring it back.
+
+   Easing is cubic-bezier(.16,1,.3,1) throughout: it decelerates hard at
+   the end the way a real object does. The browser default is
+   symmetrical and reads as floaty. */
+@keyframes fl-word{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
+@keyframes fl-rise{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+@keyframes fl-wipe{from{clip-path:inset(100% 0 0 0);}to{clip-path:inset(0 0 0 0);}}
+@keyframes fl-ping{0%{box-shadow:0 0 0 0 rgba(29,185,122,.5);}
+                   100%{box-shadow:0 0 0 14px rgba(29,185,122,0);}}
+.gw{display:inline-block;}
 
 /* ── touch: the phone gets bigger targets, the desktop stays dense ──
-   44px is the iOS minimum. Measured against it rather than guessed. */
+   44px is the iOS minimum. Measured against it, not guessed. */
 @media (max-width:560px){
-  .tap,.chip,button,.link{min-height:44px;}
-  .chip{padding:12px 14px;font-size:11px;}
-  .tiny-ok{min-height:0;}          /* opt out where it is genuinely not tappable */
+  .chip,button,.btn,.tap{min-height:44px;}
+  .btn.sm{min-height:44px;padding:11px 16px;font-size:12.5px;}
+  .frow{grid-template-columns:1fr;}
+  /* backdrop-filter repaints on EVERY scroll frame and is the most
+     expensive thing a phone can be asked to draw. Below 560 the glass
+     becomes a flat tinted panel: still deliberate, costs nothing. */
+  .pane{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
 
-/* ── motion: once, on open, and never if the phone says no ────────── */
+/* ── motion: once, on open, and never if the device says no ───────── */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms !important;
     animation-iteration-count:1 !important;transition-duration:.001ms !important;}

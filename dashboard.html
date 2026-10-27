@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Flowers.ae — Dashboard</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="theme.css">
@@ -29,10 +29,10 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
   min-height:100vh;padding-bottom:50px;}
 
 /* ── hero ── */
-.hero{background:linear-gradient(160deg,#120C22,#0A0A12 70%);color:var(--tx);
+.hero{background:linear-gradient(160deg,#0E2C2A,#070C0B 70%);color:var(--tx);
   padding:20px 16px 50px;position:relative;overflow:hidden;border-bottom:1px solid var(--edge);}
 .hero::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(520px 260px at 18% -20%,rgba(124,92,255,.22),transparent 70%),
+  background:radial-gradient(520px 260px at 18% -20%,rgba(29,185,122,.22),transparent 70%),
              radial-gradient(420px 240px at 88% 0%,rgba(196,75,240,.14),transparent 70%);}
 .hero-top{display:flex;justify-content:space-between;align-items:center;
   max-width:640px;margin:0 auto;position:relative;z-index:1;gap:10px;}
@@ -89,7 +89,7 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
 
 /* ── KPIs — elevation 3, and the month's figure on elevation 4 ──── */
 .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:14px;}
-.kpi{background:#1B1B28;border:1px solid rgba(124,92,255,.2);border-radius:var(--r);
+.kpi{background:#111C17;border:1px solid rgba(29,185,122,.2);border-radius:var(--r);
   padding:15px 14px;min-width:0;
   box-shadow:0 12px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03);
   animation:rise .6s both;transition:transform .25s cubic-bezier(.2,.8,.3,1),box-shadow .25s ease;}
@@ -97,7 +97,7 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
 .kpi:nth-child(3){animation-delay:.14s;}
 .kpi:nth-child(4){animation-delay:.21s;}
 .kpi:first-child{background:linear-gradient(150deg,var(--heroTop),#141026);
-  border-color:rgba(124,92,255,.4);
+  border-color:rgba(29,185,122,.4);
   box-shadow:0 26px 60px rgba(0,0,0,.62), 0 0 44px var(--heroGlow);}
 @media(hover:hover){.kpi:hover{transform:translateY(-3px);
   box-shadow:0 20px 44px rgba(0,0,0,.6), 0 0 34px var(--heroGlow);}}
@@ -173,7 +173,10 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
   background:var(--inset);color:var(--tx2);font-size:12px;font-weight:700;letter-spacing:.8px;
   cursor:pointer;transition:all .2s;font-family:var(--ui);min-height:44px;
   display:inline-flex;align-items:center;}
-.chip.on{background:var(--accSolid);color:#fff;border-color:var(--accSolid);box-shadow:0 0 18px var(--glow);}
+/* near-black, not white: white on emerald measures 2.54:1 and fails AA.
+   The violet was dark enough to carry white and emerald is not — this is
+   the rule for every filled control in the app now. */
+.chip.on{background:var(--p);color:var(--onP);border-color:var(--p);box-shadow:0 0 18px var(--glow);}
 .legend{display:flex;gap:16px;margin-bottom:10px;font-size:11.5px;color:var(--tx2);align-items:center;}
 .legend .sw{display:inline-block;width:11px;height:11px;border-radius:2px;
   margin-right:6px;vertical-align:-1px;}
@@ -516,15 +519,27 @@ document.getElementById('kpis').innerHTML =
 
    The values match theme.css by hand because the charts build SVG strings
    and cannot read a CSS variable. If a colour changes there, change it here. */
+/* v5.7.43: read from the stylesheet instead of being typed twice.
+   The chart KEY is CSS and the BARS are drawn in JS, and in v5.7.42
+   they were two separate lists of hex — after the recolour the key was
+   describing colours the chart no longer used. Pulling the values off
+   :root at run time means they cannot drift apart again. The literals
+   are only the fallback for a browser that hands back an empty string. */
+const CSSVAR = (name, fallback) => {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+};
 const CHART = {
   grid:     'rgba(255,255,255,.07)',
   axis:     'rgba(255,255,255,.16)',
-  bar:      '#7C5CFF',   /* --p1, costed                       */
-  barHi:    '#22D3EE',   /* --p3, the month you are in         */
-  pale:     '#C44BF0',   /* --p2, sold but no GP sheet yet     */
-  label:    '#9A9AAE',   /* --tx2, the K figure above a bar    */
-  axisText: '#8A8AA0',   /* --tx3, JAN FEB MAR                 */
-  prevYear: '#8A8AA0',   /* last year stays grey so this year reads first */
+  bar:      CSSVAR('--p',    '#1DB97A'),  /* emerald, costed              */
+  barHi:    CSSVAR('--now',  '#5FE3F5'),  /* the month you are in         */
+  /* sold-but-not-costed is the SAME emerald at 32%, not a fourth
+     colour — the same money, unfinished. 4.09:1 against the solid. */
+  pale:     'rgba(29,185,122,.32)',
+  label:    CSSVAR('--ink2', '#A4B3AB'),  /* the K figure above a bar     */
+  axisText: CSSVAR('--ink3', '#7E8F87'),  /* JAN FEB MAR                  */
+  prevYear: CSSVAR('--ink3', '#7E8F87'),  /* last year stays grey so this year reads first */
   /* was Lato,Arial — and Lato has never actually loaded in this app, so
      every chart label has silently been Arial. */
   font:     "'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace"

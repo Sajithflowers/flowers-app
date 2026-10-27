@@ -8,162 +8,224 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Flowers.ae — Event GP Calculator</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F0F4F8;min-height:100vh;padding-bottom:200px;}
-.header{background:linear-gradient(150deg,#3a0210,#550318 70%);color:#fff;padding:16px 16px 12px;text-align:center;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:rgba(255,255,255,.05);min-height:100vh;padding-bottom:200px;}
+.header{background:linear-gradient(150deg,#0A1A14,#1DB97A 70%);color:#fff;padding:16px 16px 12px;text-align:center;}
 .header h1{font-family:'EB Garamond',Georgia,serif;font-size:20px;font-weight:700;letter-spacing:1px;}
 .header p{font-size:11px;opacity:.7;margin-top:2px;}
 
 /* Tabs */
-.tabs{display:flex;background:#fff;border-bottom:2px solid #E5E7EB;position:sticky;top:0;z-index:50;}
-.tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;}
-.tab.active{color:#550318;border-bottom-color:#E6CCA1;}
+.tabs{display:flex;background:var(--cardBg);border-bottom:2px solid rgba(255,255,255,.12);position:sticky;top:0;z-index:50;}
+.tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:600;color:#A4B3AB;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;}
+.tab.active{color:#1DB97A;border-bottom-color:#1DB97A;}
 
 .section{display:none;padding:14px;}
 @media (min-width:900px){ .section{max-width:1000px;margin:0 auto;} }
 .section.active{display:block;}
 
 /* Cards */
-.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
-.card-title{font-size:12px;font-weight:700;color:#1F3864;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+.card{background:var(--cardBg);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.card-title{font-size:12px;font-weight:700;color:#19B8CC;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
 
 /* Search box */
 .search-wrap{position:relative;margin-bottom:10px;}
-.search-wrap input{width:100%;padding:11px 14px 11px 38px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;}
-.search-wrap input:focus{border-color:#005B6A;background:#fff;}
+.search-wrap input{width:100%;padding:11px 14px 11px 38px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:14px;background:rgba(255,255,255,.04);outline:none;}
+.search-wrap input:focus{border-color:#19B8CC;background:var(--cardBg);}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
-.search-results{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #E6CCA1;border-radius:0 0 10px 10px;box-shadow:0 10px 30px rgba(85,3,24,.18);max-height:260px;overflow-y:auto;z-index:60;display:none;}
+.search-results{position:absolute;top:100%;left:0;right:0;background:var(--cardBg);border:1.5px solid #1DB97A;border-radius:0 0 10px 10px;box-shadow:0 10px 30px rgba(85,3,24,.18);max-height:260px;overflow-y:auto;z-index:60;display:none;}
 .search-results.open{display:block;animation:srIn .18s ease;}
 @keyframes srIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
-.sr-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;font-size:13.5px;color:#374151;}
+.sr-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;font-size:13.5px;color:#F2F7F4;}
 .sr-item:last-child{border-bottom:none;}
-.sr-item:active{background:#FBF6EC;}
-.sr-item .sr-price{color:#550318;font-weight:700;font-size:12.5px;white-space:nowrap;}
-.sr-none{padding:12px 14px;font-size:13px;color:#9CA3AF;font-style:italic;}
+.sr-item:active{background:rgba(245,165,36,.12);}
+.sr-item .sr-price{color:#1DB97A;font-weight:700;font-size:12.5px;white-space:nowrap;}
+.sr-none{padding:12px 14px;font-size:13px;color:#93A39B;font-style:italic;}
 
 /* Dropdown */
-.flower-select{width:100%;padding:11px 14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;margin-bottom:10px;}
-.flower-select:focus{border-color:#005B6A;background:#fff;}
+.flower-select{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:14px;background:rgba(255,255,255,.04);outline:none;margin-bottom:10px;}
+.flower-select:focus{border-color:#19B8CC;background:var(--cardBg);}
 
 .add-row{display:grid;grid-template-columns:1fr 80px auto;gap:8px;align-items:center;margin-bottom:10px;}
-.add-row input{padding:11px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;width:100%;}
-.add-row input:focus{border-color:#005B6A;background:#fff;}
-.btn-add{padding:11px 14px;background:#005B6A;color:#fff;border:none;border-radius:10px;font-size:20px;cursor:pointer;font-weight:700;}
+.add-row input{padding:11px 12px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:14px;background:rgba(255,255,255,.04);outline:none;width:100%;}
+.add-row input:focus{border-color:#19B8CC;background:var(--cardBg);}
+.btn-add{padding:11px 14px;background:#19B8CC;color:#fff;border:none;border-radius:10px;font-size:20px;cursor:pointer;font-weight:700;}
 .btn-add:active{opacity:.8;}
 
 /* Item list */
 .items-list{margin-top:4px;}
-.item-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F3F4F6;}
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .item-row:last-child{border-bottom:none;}
-.item-name{font-size:13px;color:#374151;flex:1;}
-.item-price{font-size:12px;color:#6B7280;margin:0 8px;}
+.item-name{font-size:13px;color:#F2F7F4;flex:1;}
+.item-price{font-size:12px;color:#A4B3AB;margin:0 8px;}
 .item-qty-wrap{display:flex;align-items:center;gap:6px;}
-.qty-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid #D1D5DB;background:#F9FAFB;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:#374151;}
-.qty-btn:active{background:#E5E7EB;}
-.qty-val{font-size:14px;font-weight:700;color:#1F3864;min-width:24px;text-align:center;}
-.item-total{font-size:13px;font-weight:700;color:#1E5631;min-width:60px;text-align:right;}
-.btn-del{background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;padding:0 0 0 8px;}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:#F2F7F4;}
+.qty-btn:active{background:rgba(255,255,255,.12);}
+.qty-val{font-size:14px;font-weight:700;color:#19B8CC;min-width:24px;text-align:center;}
+.item-total{font-size:13px;font-weight:700;color:#4ADE80;min-width:60px;text-align:right;}
+.btn-del{background:none;border:none;color:#F87171;font-size:18px;cursor:pointer;padding:0 0 0 8px;}
 
 /* Cost inputs */
-.cost-input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F3F4F6;}
+.cost-input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .cost-input-row:last-child{border-bottom:none;}
-.cost-label{font-size:14px;color:#374151;font-weight:500;}
+.cost-label{font-size:14px;color:#F2F7F4;font-weight:500;}
 .cost-input-wrap{position:relative;}
-.cost-input-wrap span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#6B7280;font-weight:600;}
-.cost-input-wrap input{padding:9px 10px 9px 38px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;width:130px;text-align:right;background:#F9FAFB;outline:none;}
-.cost-input-wrap input:focus{border-color:#005B6A;background:#fff;}
+.cost-input-wrap span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#A4B3AB;font-weight:600;}
+.cost-input-wrap input{padding:9px 10px 9px 38px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:14px;width:130px;text-align:right;background:rgba(255,255,255,.04);outline:none;}
+.cost-input-wrap input:focus{border-color:#19B8CC;background:var(--cardBg);}
 
 /* Sundry add */
 .sundry-add{display:grid;grid-template-columns:1fr 100px auto;gap:8px;margin-bottom:10px;}
-.sundry-add input{padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
-.sundry-add input:focus{border-color:#005B6A;background:#fff;}
+.sundry-add input{padding:10px 12px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:13px;background:rgba(255,255,255,.04);outline:none;}
+.sundry-add input:focus{border-color:#19B8CC;background:var(--cardBg);}
 
 /* Summary tab */
-.summary-block{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
-.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F4F6;}
+.summary-block{background:var(--cardBg);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .summary-row:last-child{border-bottom:none;}
-.summary-row .lbl{font-size:13px;color:#374151;}
-.summary-row .val{font-size:14px;font-weight:700;color:#1F3864;}
-.summary-row.total-row .lbl{font-size:14px;font-weight:700;color:#111827;}
-.summary-row.total-row .val{font-size:16px;font-weight:800;color:#1F3864;}
+.summary-row .lbl{font-size:13px;color:#F2F7F4;}
+.summary-row .val{font-size:14px;font-weight:700;color:#19B8CC;}
+.summary-row.total-row .lbl{font-size:14px;font-weight:700;color:#F2F7F4;}
+.summary-row.total-row .val{font-size:16px;font-weight:800;color:#19B8CC;}
 
 /* Hero charge */
-.hero-charge{background:linear-gradient(135deg,#1E5631,#005B6A);border-radius:14px;padding:20px;text-align:center;margin-bottom:12px;}
+.hero-charge{background:linear-gradient(135deg,#4ADE80,#19B8CC);border-radius:14px;padding:20px;text-align:center;margin-bottom:12px;}
 .hero-charge .label{font-size:12px;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
 .hero-charge .amount{font-size:42px;font-weight:800;color:#fff;line-height:1;}
 .hero-charge .sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:6px;}
 
 /* Revenue override */
-.rev-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.rev-section{background:var(--cardBg);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
 .rev-section .card-title{margin-bottom:12px;}
 .rev-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.rev-row label{font-size:13px;font-weight:600;color:#374151;white-space:nowrap;}
+.rev-row label{font-size:13px;font-weight:600;color:#F2F7F4;white-space:nowrap;}
 .rev-input-wrap{position:relative;flex:1;}
-.rev-input-wrap span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#6B7280;font-weight:600;}
-.rev-input-wrap input{width:100%;padding:11px 12px 11px 44px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:16px;font-weight:700;color:#1F3864;background:#F9FAFB;outline:none;}
-.rev-input-wrap input:focus{border-color:#005B6A;background:#fff;}
+.rev-input-wrap span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#A4B3AB;font-weight:600;}
+.rev-input-wrap input{width:100%;padding:11px 12px 11px 44px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:16px;font-weight:700;color:#19B8CC;background:rgba(255,255,255,.04);outline:none;}
+.rev-input-wrap input:focus{border-color:#19B8CC;background:var(--cardBg);}
 
 /* GP display */
 .gp-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.gp-box{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);}
-.gp-box .val{font-size:28px;font-weight:800;color:#1F3864;}
-.gp-box .lbl{font-size:11px;color:#6B7280;margin-top:3px;}
+.gp-box{background:var(--cardBg);border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.gp-box .val{font-size:28px;font-weight:800;color:#19B8CC;}
+.gp-box .lbl{font-size:11px;color:#A4B3AB;margin-top:3px;}
 
-.gp-bar-wrap{background:#F3F4F6;border-radius:8px;height:10px;margin:10px 0 4px;overflow:hidden;}
+.gp-bar-wrap{background:rgba(255,255,255,.05);border-radius:8px;height:10px;margin:10px 0 4px;overflow:hidden;}
 .gp-bar{height:100%;border-radius:8px;transition:width .4s,background .4s;}
 .gp-warning{font-size:12px;font-weight:600;text-align:center;padding:8px 14px;border-radius:8px;margin-bottom:12px;}
-.warn-green{background:#D1FAE5;color:#065F46;}
-.warn-amber{background:#FEF3C7;color:#92400E;}
-.warn-red{background:#FEE2E2;color:#991B1B;}
+.warn-green{background:rgba(29,185,122,.18);color:#1DB97A;}
+.warn-amber{background:rgba(245,165,36,.16);color:#F5A524;}
+.warn-red{background:rgba(248,113,113,.16);color:#F87171;}
 
 /* Discount */
-.discount-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.discount-section{background:var(--cardBg);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
 .disc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.disc-row label{font-size:13px;font-weight:600;color:#374151;}
-.disc-input{padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:15px;font-weight:700;width:80px;text-align:center;background:#F9FAFB;outline:none;}
-.disc-input:focus{border-color:#EF4444;background:#fff;}
-.disc-result{background:#FFF8F0;border-radius:10px;padding:12px 14px;}
+.disc-row label{font-size:13px;font-weight:600;color:#F2F7F4;}
+.disc-input{padding:10px 12px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:15px;font-weight:700;width:80px;text-align:center;background:rgba(255,255,255,.04);outline:none;}
+.disc-input:focus{border-color:#F87171;background:var(--cardBg);}
+.disc-result{background:rgba(245,165,36,.10);border-radius:10px;padding:12px 14px;}
 .disc-result-row{display:flex;justify-content:space-between;padding:5px 0;}
-.disc-result-row span{font-size:13px;color:#374151;}
-.disc-result-row strong{font-size:13px;font-weight:700;color:#C2410C;}
+.disc-result-row span{font-size:13px;color:#F2F7F4;}
+.disc-result-row strong{font-size:13px;font-weight:700;color:#F5A524;}
 
 /* Empty state */
-.empty{text-align:center;padding:20px 0;color:#9CA3AF;font-size:13px;}
+.empty{text-align:center;padding:20px 0;color:#93A39B;font-size:13px;}
 
 /* Custom flower */
-.custom-section{border-top:1px dashed #D1D5DB;margin-top:12px;padding-top:12px;}
-.custom-section .custom-title{font-size:12px;color:#6B7280;font-weight:600;margin-bottom:8px;}
+.custom-section{border-top:1px dashed rgba(255,255,255,.16);margin-top:12px;padding-top:12px;}
+.custom-section .custom-title{font-size:12px;color:#A4B3AB;font-weight:600;margin-bottom:8px;}
 .custom-add{display:grid;grid-template-columns:1fr 80px 70px auto;gap:6px;}
-.custom-add input{padding:10px 10px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
-.custom-add input:focus{border-color:#F59E0B;background:#fff;}
-.btn-add-custom{padding:10px 12px;background:#F59E0B;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
+.custom-add input{padding:10px 10px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:13px;background:rgba(255,255,255,.04);outline:none;}
+.custom-add input:focus{border-color:#F5A524;background:var(--cardBg);}
+.btn-add-custom{padding:10px 12px;background:#F5A524;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
 
-.price-date{font-size:10px;color:#9CA3AF;text-align:right;margin-top:-8px;margin-bottom:8px;}
+.price-date{font-size:10px;color:#93A39B;text-align:right;margin-top:-8px;margin-bottom:8px;}
 
 /* Prices tab */
-.price-list-item{display:grid;grid-template-columns:1fr 80px 36px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #F3F4F6;}
+.price-list-item{display:grid;grid-template-columns:1fr 80px 36px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 .price-list-item:last-child{border-bottom:none;}
-.price-list-item .pname{font-size:13px;color:#374151;font-weight:500;}
-.price-list-item .ptype{font-size:10px;color:#9CA3AF;}
-.price-input{padding:7px 10px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:14px;font-weight:700;color:#1F3864;width:100%;text-align:right;background:#F9FAFB;outline:none;}
-.price-input:focus{border-color:#005B6A;background:#fff;}
-.btn-del-price{background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;padding:0;}
-.price-search{width:100%;padding:10px 14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:14px;background:#F9FAFB;outline:none;margin-bottom:12px;}
-.price-search:focus{border-color:#005B6A;background:#fff;}
-.btn-save-prices{width:100%;padding:13px;background:linear-gradient(135deg,#1E5631,#005B6A);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.price-list-item .pname{font-size:13px;color:#F2F7F4;font-weight:500;}
+.price-list-item .ptype{font-size:10px;color:#93A39B;}
+.price-input{padding:7px 10px;border:1.5px solid rgba(255,255,255,.16);border-radius:8px;font-size:14px;font-weight:700;color:#19B8CC;width:100%;text-align:right;background:rgba(255,255,255,.04);outline:none;}
+.price-input:focus{border-color:#19B8CC;background:var(--cardBg);}
+.btn-del-price{background:none;border:none;color:#F87171;font-size:18px;cursor:pointer;padding:0;}
+.price-search{width:100%;padding:10px 14px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:14px;background:rgba(255,255,255,.04);outline:none;margin-bottom:12px;}
+.price-search:focus{border-color:#19B8CC;background:var(--cardBg);}
+.btn-save-prices{width:100%;padding:13px;background:linear-gradient(135deg,#4ADE80,#19B8CC);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
 .btn-save-prices:active{opacity:.85;}
-.save-toast{text-align:center;font-size:13px;color:#1E5631;font-weight:600;margin-bottom:12px;display:none;}
+.save-toast{text-align:center;font-size:13px;color:#4ADE80;font-weight:600;margin-bottom:12px;display:none;}
 .add-new-price{display:grid;grid-template-columns:1fr 70px 70px auto;gap:6px;margin-bottom:12px;}
-.add-new-price input{padding:10px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:13px;background:#F9FAFB;outline:none;}
-.add-new-price input:focus{border-color:#F59E0B;background:#fff;}
-.btn-add-new-price{padding:10px 12px;background:#F59E0B;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
-.price-count{font-size:12px;color:#6B7280;margin-bottom:8px;}
-.price-last-updated{font-size:11px;color:#9CA3AF;text-align:center;margin-bottom:8px;}
+.add-new-price input{padding:10px;border:1.5px solid rgba(255,255,255,.16);border-radius:10px;font-size:13px;background:rgba(255,255,255,.04);outline:none;}
+.add-new-price input:focus{border-color:#F5A524;background:var(--cardBg);}
+.btn-add-new-price{padding:10px 12px;background:#F5A524;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;font-weight:700;}
+.price-count{font-size:12px;color:#A4B3AB;margin-bottom:8px;}
+.price-last-updated{font-size:11px;color:#93A39B;text-align:center;margin-bottom:8px;}
 
+
+/* ── v5.7.43 emerald bridge ──────────────────────────────────────────
+   The calculator had no tokens either, and on top of the burgundy it
+   carried a whole second grey scale. Each was remapped by role: the
+   two dark greys were TEXT on a light page, so they become light ink;
+   the four pale greys were surfaces, so they become translucent white
+   over the dark ground. */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-family:var(--ui);}
+.header{background:transparent;padding:24px 16px 8px;}
+.header h1{font-family:var(--ui);font-size:25px;letter-spacing:-.3px;color:var(--ink);}
+.header p{color:var(--heroSub);}
+.card,.section{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:var(--r);
+  color:var(--ink);box-shadow:var(--cardShadow);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.card-title{font-family:var(--ui);color:var(--ink3);font-size:11px;letter-spacing:1.4px;
+  text-transform:uppercase;font-weight:700;}
+.tabs{border-bottom:1px solid var(--cardBorder);}
+.tab{color:var(--ink2);min-height:44px;}
+.tab.active{color:var(--ink);border-bottom:2px solid var(--p);}
+input,select,textarea,.flower-select,.add-row input,.search-wrap input{
+  background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var(--ink);
+  border-radius:var(--rs);min-height:44px;}
+input:focus,select:focus,.search-wrap input:focus,.add-row input:focus{
+  outline:2px solid var(--p);outline-offset:1px;border-color:transparent;}
+.search-icon{color:var(--ink3);}
+.search-results{background:var(--cardSolid);border:1px solid var(--cardBorder);
+  border-radius:var(--rs);box-shadow:0 18px 40px rgba(0,0,0,.6);}
+.sr-item{border-bottom:1px solid rgba(255,255,255,.06);color:var(--ink);min-height:44px;}
+.sr-item:active{background:rgba(29,185,122,.14);}
+.sr-price{color:var(--p);font-family:var(--num);font-variant-numeric:tabular-nums;}
+.sr-none{color:var(--ink3);}
+.btn-add{background:var(--p);color:var(--onP);border-radius:var(--rs);min-height:44px;}
+/* These two were a dark orange with white text, which passed. Mapping
+   the orange to amber broke it (white on amber is 2.04:1) AND broke the
+   rule that amber means "waiting on you" and nothing else. They are
+   secondary add actions, so they take teal with near-black ink: 8.39:1,
+   and the reserved colour stays reserved. */
+.btn-add-custom,.btn-add-new-price{background:var(--s);color:var(--onP);
+  border-radius:var(--rs);min-height:44px;min-width:44px;flex:none;}
+/* giving that button its 44px pushed the row 44px past the viewport at
+   390 — the inputs beside it had no min-width:0 so they would not give
+   any ground. The row yields instead of the tap target shrinking. */
+.add-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.add-row input,.add-row select{flex:1 1 120px;min-width:0;}
+/* The real culprit: .custom-add is a grid of `1fr 80px 70px auto`, and a
+   grid item defaults to min-width:auto — so the input refuses to go
+   below its intrinsic width and pushes the whole track set past the
+   viewport. minmax(0,1fr) is the fix. At 430 and under it becomes two
+   rows rather than squeezing four controls across a phone. */
+.custom-add{grid-template-columns:minmax(0,1fr) 80px 70px auto;}
+.custom-add input{min-width:0;}
+@media (max-width:430px){
+  .custom-add{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;}
+  .custom-add > :first-child{grid-column:1/-1;}
+}
+/* money lines up or it is not a calculator */
+.items-list,.i-price,.i-total,.tot,.total{font-family:var(--num);font-variant-numeric:tabular-nums;}
+*{animation-name:none !important;}
+@media (max-width:560px){
+  .card,.section{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>
@@ -171,11 +233,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
 <script src="app.js"></script>
 <script>FLApp.guard();</script>
 
-<div style="background:#3a0210;display:flex;align-items:center;justify-content:space-between;padding:9px 15px;">
-  <a href="tools.html" style="color:#E6CCA1;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;">‹ TOOLS</a>
+<div style="background:#0A1A14;display:flex;align-items:center;justify-content:space-between;padding:9px 15px;">
+  <a href="tools.html" class="backlink">‹ TOOLS</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="fl-user-chip" style="color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;"></span>
-    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
   </span>
 </div>
 <script>document.getElementById('fl-user-chip').textContent = FLApp.currentUser() ? FLApp.currentUser().name : '';</script>
@@ -207,7 +269,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
       <option value="">— Select a flower —</option>
     </select>
     <div class="add-row">
-      <div style="font-size:13px;color:#6B7280;" id="selectedPrice">Select a flower above</div>
+      <div style="font-size:13px;color:#A4B3AB;" id="selectedPrice">Select a flower above</div>
       <input type="number" id="flowerQty" placeholder="Qty" min="1" value="1" inputmode="numeric">
       <button class="btn-add" onclick="addFlower()">+</button>
     </div>
@@ -225,14 +287,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
   </div>
 
   <div class="card">
-    <div class="card-title">Flowers Added <span id="flowerCount" style="color:#005B6A;"></span></div>
+    <div class="card-title">Flowers Added <span id="flowerCount" style="color:#19B8CC;"></span></div>
     <div class="items-list" id="flowerList">
       <div class="empty">No flowers added yet</div>
     </div>
-    <div id="flowerSubtotalRow" style="display:none;border-top:2px solid #E5E7EB;padding-top:10px;margin-top:6px;display:none;">
+    <div id="flowerSubtotalRow" style="display:none;border-top:2px solid rgba(255,255,255,.12);padding-top:10px;margin-top:6px;display:none;">
       <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:13px;font-weight:700;color:#374151;">Flowers Subtotal</span>
-        <span style="font-size:15px;font-weight:800;color:#1E5631;" id="flowerSubtotal">AED 0</span>
+        <span style="font-size:13px;font-weight:700;color:#F2F7F4;">Flowers Subtotal</span>
+        <span style="font-size:15px;font-weight:800;color:#4ADE80;" id="flowerSubtotal">AED 0</span>
       </div>
     </div>
   </div>
@@ -252,10 +314,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
     <div class="items-list" id="sundryList">
       <div class="empty">No sundries added</div>
     </div>
-    <div id="sundrySubtotalRow" style="display:none;border-top:2px solid #E5E7EB;padding-top:10px;margin-top:6px;">
+    <div id="sundrySubtotalRow" style="display:none;border-top:2px solid rgba(255,255,255,.12);padding-top:10px;margin-top:6px;">
       <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:13px;font-weight:700;color:#374151;">Sundries Subtotal</span>
-        <span style="font-size:15px;font-weight:800;color:#1E5631;" id="sundrySubtotal">AED 0</span>
+        <span style="font-size:13px;font-weight:700;color:#F2F7F4;">Sundries Subtotal</span>
+        <span style="font-size:15px;font-weight:800;color:#4ADE80;" id="sundrySubtotal">AED 0</span>
       </div>
     </div>
   </div>
@@ -311,7 +373,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
                oninput="recalcGP()" onchange="recalcGP()">
       </div>
     </div>
-    <div class="gp-bar-wrap"><div class="gp-bar" id="gpBar" style="width:0%;background:#1E5631;"></div></div>
+    <div class="gp-bar-wrap"><div class="gp-bar" id="gpBar" style="width:0%;background:#4ADE80;"></div></div>
   </div>
 
   <!-- GP boxes -->
@@ -335,13 +397,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
       <div class="disc-result-row"><span>New GP (AED)</span><strong id="d-gp">—</strong></div>
       <div class="disc-result-row"><span>New GP %</span><strong id="d-pct">—</strong></div>
       <div class="disc-result-row" id="d-warn-row" style="display:none;">
-        <span></span><strong id="d-warn" style="color:#EF4444;"></strong>
+        <span></span><strong id="d-warn" style="color:#F87171;"></strong>
       </div>
     </div>
   </div>
 
   <!-- Reset -->
-  <button onclick="resetAll()" style="width:100%;padding:13px;background:#F3F4F6;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#374151;cursor:pointer;margin-bottom:12px;">
+  <button onclick="resetAll()" style="width:100%;padding:13px;background:rgba(255,255,255,.05);border:none;border-radius:10px;font-size:14px;font-weight:600;color:#F2F7F4;cursor:pointer;margin-bottom:12px;">
     🔄 Clear & Start New Job
   </button>
 </div>
@@ -864,15 +926,15 @@ function recalcGP() {
   const warn = document.getElementById('gpWarning');
   warn.style.display = 'block';
   if (gpPct >= GPT) {
-    bar.style.background = '#1E5631';
+    bar.style.background = '#4ADE80';
     warn.className = 'gp-warning warn-green';
     warn.textContent = `✅ ${gpPct.toFixed(1)}% GP — on target (${GPT}%+ ✓)`;
   } else if (gpPct >= GPT - 10) {
-    bar.style.background = '#F59E0B';
+    bar.style.background = '#F5A524';
     warn.className = 'gp-warning warn-amber';
     warn.textContent = `⚠️ ${gpPct.toFixed(1)}% GP — below target. Raise quote by AED ${Math.ceil(totalCost / (1 - GPT / 100) - revenue).toLocaleString()} to reach ${GPT}%.`;
   } else {
-    bar.style.background = '#EF4444';
+    bar.style.background = '#F87171';
     warn.className = 'gp-warning warn-red';
     warn.textContent = `🔴 ${gpPct.toFixed(1)}% GP — too low! Raise quote by AED ${Math.ceil(totalCost / (1 - GPT / 100) - revenue).toLocaleString()} to reach ${GPT}%.`;
   }
@@ -1067,7 +1129,7 @@ async function resetAll() {
 
   <button class="btn-save-prices" onclick="savePrices()">💾  Save All Price Changes</button>
   <div class="save-toast" id="saveToast">✅ Prices saved!</div>
-  <button onclick="resetPrices()" style="width:100%;padding:11px;background:#FEE2E2;border:none;border-radius:10px;font-size:13px;font-weight:600;color:#991B1B;cursor:pointer;margin-bottom:12px;">
+  <button onclick="resetPrices()" style="width:100%;padding:11px;background:rgba(248,113,113,.16);border:none;border-radius:10px;font-size:13px;font-weight:600;color:#F87171;cursor:pointer;margin-bottom:12px;">
     ↩️ Reset to original prices
   </button>
 </div>

@@ -8,12 +8,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Event GP Sheet</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
+:root{--rouge:#1DB97A;--rouge-deep:#0A1A14;--champagne:#1DB97A;--lace:#06100C;--terra:#F2F7F4;--muted:#A4B3AB;--border:rgba(255,255,255,.12);}
 body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
 .topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;position:sticky;top:0;z-index:100;}
 .topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
@@ -78,6 +79,88 @@ input:focus,textarea:focus{border-color:var(--champagne);background:#fff;}
 #viewer .close{position:fixed;top:14px;right:16px;background:var(--champagne);color:var(--rouge);border:none;width:40px;height:40px;border-radius:50%;font-size:17px;font-weight:700;cursor:pointer;z-index:501;box-shadow:0 4px 16px rgba(0,0,0,.5);}
 #upl-busy{display:none;font-size:11px;color:var(--rouge);font-weight:700;letter-spacing:1px;}
 #upl-busy.on{display:inline;}
+
+/* ── v5.7.43 emerald bridge ──────────────────────────────────────────
+   Jo approves on this page. Everything below the closing style tag is
+   byte-identical to v5.7.42 — not one line of logic, markup or class
+   name was touched. Only this block is new.
+
+   (And that sentence is written out in words on purpose: the literal
+   closing tag inside a comment ends the style element right there, as
+   far as the HTML parser is concerned. It did exactly that on the
+   first attempt and silently turned the rest of this block into page
+   text.)
+
+   FOUR RULES this block obeys, each one a way a restyle could have
+   broken the approval flow without changing any logic:
+
+   1. NOTHING here sets display:none on #approvalCard, #rejectWrap,
+      #resendBox, #delEventBtn, #occasionRow or #share-btn. The JS shows
+      each of them with style.display = '' — which falls back to the
+      CSS. Hide one here and Jo opens a sheet with no approve buttons.
+   2. The class names the JS writes are left alone: .appr.approve /
+      .appr.reject and the .on it toggles from a.status, plus
+      .add-line, .attach button, .danger and .line .del which are
+      bulk-hidden for non-admins.
+   3. The APPROVED / NOT APPROVED stamp is painted into a CANVAS in the
+      JS with its own #8fd8a8 and #f2a0a0. Those are deliberately NOT
+      changed here: that canvas is exported and sent out, so altering
+      it would make new stamps differ from every sheet already
+      approved. It is flagged, not fixed.
+   4. Role gating is in JS (isCeo, isAdmin), so this needs testing as
+      all three roles, not just admin.                                */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-family:var(--ui);}
+.topbar .status{color:var(--ink3);}
+.wrap{color:var(--ink);}
+.card,.summary,.srow{background:var(--cardBg);border:1px solid var(--cardBorder);
+  border-radius:var(--r);color:var(--ink);box-shadow:var(--cardShadow);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+h1,h2,h3{font-family:var(--ui);color:var(--ink);}
+.sub,.k,.appr-stamp{color:var(--ink2);}
+.line,.line-head{border-bottom:1px solid rgba(255,255,255,.07);}
+.line-head{color:var(--ink3);}
+.v,.tot,.ncell,.sec-total,.big{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--ink);}
+.pos{color:var(--ok);} .neg{color:var(--bad);}
+input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);
+  color:var(--ink);border-radius:var(--rs);min-height:44px;}
+input::placeholder,textarea::placeholder{color:var(--ink3);}
+/* .attach button is in the list the JS bulk-hides for non-admins, so it
+   keeps that exact selector. It was cream-on-cream here (2.36:1) and
+   35px tall. */
+.add-line,.btn-open,.share-btn,.attach button{background:rgba(255,255,255,.05);
+  border:1px solid var(--cardBorder);color:var(--ink);border-radius:var(--rs);min-height:44px;}
+.danger{min-height:44px;}
+/* the "target 70% → ..." line sat at 4.41 on the summary row */
+.srow .sub{color:var(--ink2);}
+.danger,.del{color:var(--bad);}
+.inv-chip,.read-tag{background:rgba(255,255,255,.06);border:1px solid var(--cardBorder);
+  color:var(--ink2);border-radius:999px;}
+.unread{color:var(--amber);}
+.shopify-row,.grid2{color:var(--ink);}
+#viewer{background:rgba(3,8,6,.94);}
+#viewer .close{background:rgba(255,255,255,.08);border:1px solid var(--cardBorder);
+  color:var(--ink);border-radius:999px;min-height:44px;min-width:44px;}
+
+/* ── the approval controls ──────────────────────────────────────────
+   The resting state keeps a clear coloured outline so it still reads as
+   "these are the two choices". The ON state is a solid fill with
+   NEAR-BLACK ink — white on #4ADE80 is 1.9:1 and on #F87171 is 2.4:1,
+   both unreadable, and this is the one control in the app that must
+   never be ambiguous about which state it is in. */
+.appr{border-radius:var(--rs);min-height:48px;font-family:var(--ui);}
+.appr.approve{border:1.5px solid rgba(74,222,128,.45);background:rgba(74,222,128,.10);color:var(--ok);}
+.appr.approve.on{background:var(--ok);color:#06140C;border-color:var(--ok);
+  box-shadow:0 6px 18px rgba(74,222,128,.28);}
+.appr.reject{border:1.5px solid rgba(248,113,113,.45);background:rgba(248,113,113,.10);color:var(--bad);}
+.appr.reject.on{background:var(--bad);color:#160606;border-color:var(--bad);
+  box-shadow:0 6px 18px rgba(248,113,113,.28);}
+.pill.rejected{background:rgba(248,113,113,.14);color:var(--bad);border:1px solid rgba(248,113,113,.34);}
+.pill.pending{background:rgba(245,165,36,.14);color:var(--amber);border:1px solid rgba(245,165,36,.36);}
+
+*{animation-name:none !important;}
+@media (max-width:560px){
+  .card,.summary,.srow{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>

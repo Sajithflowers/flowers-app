@@ -8,15 +8,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Event Calendar</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;
-  --terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;
-  --chance:#2E5C87;--good-bg:#BFE0C9;--chance-bg:#C1D9EC;--chance-dim:#93A3B0;--chance-bg-dim:#E7E9EA;
+  --rouge:#1DB97A;--rouge-deep:#0A1A14;--champagne:#1DB97A;--lace:#06100C;
+  --terra:#F2F7F4;--muted:#93A39B;--border:rgba(255,255,255,.12);--good:#4ADE80;--bad:#F87171;
+  --chance:#19B8CC;--good-bg:rgba(74,222,128,.20);--chance-bg:rgba(25,184,204,.20);--chance-dim:#93A39B;--chance-bg-dim:rgba(255,255,255,.08);
 }
 body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
 .topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
@@ -112,6 +113,44 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .btn-save{background:var(--rouge);color:var(--champagne);border:none;padding:10px 18px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;margin-top:10px;font-family:inherit;}
 .empty-hint{font-size:12px;color:var(--muted);text-align:center;padding:16px;}
+
+/* ── v5.7.43 emerald bridge ──────────────────────────────────────────
+   This page had no token block at all — every colour was typed in by
+   hand — so the swap above was done hex by hex, by ROLE: the page
+   ground, the borders, the two status greens and blues, the red. */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-family:var(--ui);}
+.header{background:transparent;padding:24px 16px 8px;}
+.header h1{font-family:var(--ui);font-size:25px;letter-spacing:-.3px;color:var(--ink);}
+.header p{color:var(--heroSub);}
+.cal-card{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:var(--r);
+  box-shadow:var(--cardShadow);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.cal-title{color:var(--ink);font-family:var(--ui);}
+.cal-nav button{background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);
+  color:var(--ink);border-radius:var(--rs);min-height:44px;min-width:44px;}
+.cal-nav button:hover{border-color:var(--p);}
+.cal-today{color:var(--p);}
+.wd{color:var(--ink3);}
+/* a day is a small square of data — it needs a floor it can be read on */
+.day{background:rgba(0,0,0,.22);border:1px solid var(--cardBorder);border-radius:7px;color:var(--ink2);}
+.day.blank{background:transparent;border-color:transparent;}
+.legend-chip{color:var(--ink2);}
+/* the original dimmed this to opacity .85, which drags ink3 down to
+   4.15:1 — the audit composites the alpha, so it shows up as a fail
+   even though the colour on its own passes */
+.legend-chip small{color:var(--ink2);opacity:1;}
+/* --muted does not exist on this page (it never had a token block) so
+   the close button was rendering at whatever it inherited */
+.modal-close{color:var(--ink2);min-height:44px;min-width:44px;}
+/* the modal itself was still a white card — the close ✕ was grey on
+   white, which is why it kept failing after the colour was fixed */
+.modal{background:var(--cardSolid);border:1px solid var(--cardBorder);
+  border-radius:var(--r);box-shadow:0 24px 60px rgba(0,0,0,.65);color:var(--ink);}
+.modal-head{background:var(--cardSolid);border-bottom:1px solid var(--cardBorder);}
+.modal-head h3{font-family:var(--ui);color:var(--ink);}
+*{animation-name:none !important;}
+@media (max-width:560px){
+  .cal-card{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>
@@ -121,7 +160,7 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 
 <div class="topbar">
   <a href="tools.html">‹ EVENT TOOLS</a>
-  <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
 </div>
 
 <div class="header">

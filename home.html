@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#08080D">
+<meta name="theme-color" content="#06100C">
 <title>Flowers.ae — Home</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="theme.css">
@@ -25,10 +25,10 @@
 body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh;}
 
 /* ── header ── */
-.header{background:linear-gradient(160deg,#120C22,#0A0A12 70%);color:var(--tx);
+.header{background:linear-gradient(160deg,#0E2C2A,#070C0B 70%);color:var(--tx);
   padding:24px 20px 28px;position:relative;overflow:hidden;border-bottom:1px solid var(--edge);}
 .header::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(460px 220px at 16% -25%,rgba(124,92,255,.24),transparent 70%),
+  background:radial-gradient(460px 220px at 16% -25%,rgba(29,185,122,.24),transparent 70%),
              radial-gradient(380px 200px at 88% 0%,rgba(196,75,240,.13),transparent 70%);}
 .header-top{display:flex;justify-content:space-between;align-items:center;gap:12px;
   max-width:1060px;margin:0 auto;position:relative;z-index:1;}
@@ -39,7 +39,7 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
   padding:11px 15px;border-radius:var(--rs);cursor:pointer;transition:all .2s;
   font-family:var(--ui);min-height:44px;display:inline-flex;align-items:center;}
 .logout:hover{border-color:var(--acc);color:var(--tx);}
-.logout:active{background:rgba(124,92,255,.15);}
+.logout:active{background:rgba(29,185,122,.15);}
 /* the gold hairline is gone: on dark it read as a scratch, not a flourish */
 .gold-rule{display:none;}
 .greet{font-size:11px;color:var(--tx3);letter-spacing:2.4px;text-transform:uppercase;
@@ -66,12 +66,12 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
 .tool:nth-child(4){animation-delay:.5s;}
 .tool:active{transform:scale(.98);}
 @media(hover:hover){.tool:hover{transform:translateY(-3px);
-  box-shadow:0 14px 34px rgba(0,0,0,.55);border-color:rgba(124,92,255,.35);}}
+  box-shadow:0 14px 34px rgba(0,0,0,.55);border-color:rgba(29,185,122,.35);}}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
 .tool .icon{width:50px;height:50px;border-radius:9px;display:flex;align-items:center;
   justify-content:center;font-size:23px;flex-shrink:0;
-  background:rgba(124,92,255,.14);border:1px solid rgba(124,92,255,.26);}
+  background:rgba(29,185,122,.14);border:1px solid rgba(29,185,122,.26);}
 /* one colour each, so the four are learned by colour as well as position */
 #tool-eventtools .icon{background:rgba(196,75,240,.14);border-color:rgba(196,75,240,.26);}
 #tool-events     .icon{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.26);}

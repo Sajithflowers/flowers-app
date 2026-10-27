@@ -8,13 +8,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Event Enquiries</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;--tint:#FBF7F1;}
-body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:60px;}
+:root{--rouge:#1DB97A;--rouge-deep:#0A1A14;--champagne:#1DB97A;--champagne-soft:rgba(29,185,122,.14);--lace:#06100C;--terra:#F2F7F4;--muted:#A4B3AB;--border:rgba(255,255,255,.12);--good:#4ADE80;--pending:#F5A524;}
+body{font-family:'Lato',Arial,sans-serif;background:transparent;min-height:100vh;padding-bottom:60px;}
 .topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
 .topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
 .header{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 70%);color:#fff;padding:16px 16px 20px;text-align:center;}
@@ -23,11 +24,11 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .wrap{max-width:720px;margin:0 auto;padding:14px;}
 @media (min-width:900px){ .wrap{max-width:960px;} }
 
-.card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:16px;margin-bottom:16px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.card{background:var(--cardBg);border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:16px;margin-bottom:16px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
 .card h2{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);font-weight:700;margin-bottom:10px;}
 label{display:block;font-size:9.5px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:8px 0 4px;}
-input,select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;color:var(--terra);}
-input:focus,select:focus{border-color:var(--champagne);background:#fff;}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:transparent;outline:none;font-family:'Lato',Arial,sans-serif;color:var(--terra);}
+input:focus,select:focus{border-color:var(--champagne);background:var(--cardBg);}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;}
 @media (max-width:520px){.grid3{grid-template-columns:1fr 1fr;}}
@@ -36,20 +37,20 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .check-row input[type=checkbox]{width:auto;accent-color:var(--rouge);}
 .check-row label{margin:0;}
 
-.toolbar{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px 14px 14px;margin-bottom:16px;}
+.toolbar{background:var(--cardBg);border:1px solid var(--border);border-radius:4px;padding:12px 14px 14px;margin-bottom:16px;}
 .toolbar-row{display:flex;flex-wrap:wrap;gap:16px 20px;align-items:center;padding-bottom:11px;margin-bottom:11px;border-bottom:1px solid var(--border);}
 .tfield{display:flex;align-items:center;gap:7px;}
 .tfield label{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--rouge);text-transform:uppercase;white-space:nowrap;margin:0;}
 .tfield select{width:auto;padding:7px 9px;font-size:12px;}
-.viewby{display:inline-flex;background:var(--lace);border-radius:6px;padding:2px;}
+.viewby{display:inline-flex;background:transparent;border-radius:6px;padding:2px;}
 .viewby button{border:none;background:transparent;font-size:11px;font-weight:700;padding:6px 11px;border-radius:5px;color:var(--muted);cursor:pointer;font-family:inherit;letter-spacing:.3px;}
-.viewby button.on{background:#fff;color:var(--rouge);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+.viewby button.on{background:var(--cardBg);color:var(--rouge);box-shadow:0 1px 2px rgba(0,0,0,.08);}
 .filters{display:flex;gap:7px;flex-wrap:wrap;}
-.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:#fff;color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.8px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:var(--cardBg);color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.8px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
 .fchip.on{border-color:var(--rouge);background:var(--rouge);color:var(--champagne);}
 .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:50px 25px;line-height:1.8;}
 
-.enq{background:#fff;border:1px solid var(--border);border-radius:8px;padding:17px 18px 15px;margin-bottom:15px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.enq{background:var(--cardBg);border:1px solid var(--border);border-radius:8px;padding:17px 18px 15px;margin-bottom:15px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
 .enq-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:5px;}
 .enq-name{flex:1;min-width:140px;font-family:'EB Garamond',Georgia,serif;font-size:18px;font-weight:700;color:var(--rouge);border:none;background:none;padding:2px 0;}
 .enq-name:focus{outline:none;border-bottom:1px solid var(--champagne);}
@@ -75,7 +76,7 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 
 .deal-panel{background:var(--tint);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:6px;display:flex;gap:16px;flex-wrap:wrap;}
 .deal-item{flex:1;min-width:110px;}
-.deal-item input,.deal-item select{background:#fff;}
+.deal-item input,.deal-item select{background:var(--cardBg);}
 .chance-wrap{display:flex;align-items:center;gap:8px;}
 .chance-bar{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden;}
 .chance-fill{height:100%;border-radius:3px;transition:width .2s;}
@@ -89,10 +90,10 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .enq-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .enq-actions a,.enq-actions button{flex:1;text-align:center;padding:8px 10px;border-radius:2px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-decoration:none;white-space:nowrap;font-family:inherit;cursor:pointer;min-width:90px;}
 .act-wa{background:#25D366;color:#fff;border:none;}
-.act-call{background:var(--lace);color:var(--rouge);border:1px solid var(--border);}
-.act-del{background:none;color:var(--bad);border:1px solid #E5C9C9;flex:0 0 auto !important;padding:8px 12px !important;}
+.act-call{background:transparent;color:var(--rouge);border:1px solid var(--border);}
+.act-del{background:none;color:var(--bad);border:1px solid rgba(248,113,113,.22);flex:0 0 auto !important;padding:8px 12px !important;}
 .msg-list{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
-.msg-row{display:flex;align-items:flex-start;gap:6px;background:var(--lace);border:1px solid var(--border);border-radius:2px;padding:7px 9px;font-size:12px;}
+.msg-row{display:flex;align-items:flex-start;gap:6px;background:transparent;border:1px solid var(--border);border-radius:2px;padding:7px 9px;font-size:12px;}
 .msg-name{font-weight:700;flex-shrink:0;white-space:nowrap;}
 .msg-text{flex:1;color:var(--terra);word-break:break-word;}
 .msg-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0;flex-shrink:0;text-decoration:underline;}
@@ -105,15 +106,15 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
    Cards are CLOSED by default. All 35 open at once ran to about 30 screens,
    so finding anything meant scrolling past everything. */
 .kpis{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;}
-.kpi{flex:1;min-width:118px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px 13px;}
+.kpi{flex:1;min-width:118px;background:var(--cardBg);border:1px solid var(--border);border-radius:6px;padding:10px 13px;}
 .kpi .k{font-size:8.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
 .kpi .v{font-family:'EB Garamond',Georgia,serif;font-size:21px;font-weight:700;color:var(--rouge);font-variant-numeric:tabular-nums;}
-.kpi.act{border-color:#E8C96A;background:#FFF9EA;}
+.kpi.act{border-color:#F5A524;background:rgba(245,165,36,.14);}
 .grp{display:flex;align-items:center;gap:9px;font-size:9.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--rouge);margin:18px 0 8px;}
 .grp i{flex:1;height:1px;background:var(--border);font-style:normal;}
 .grp em{font-style:normal;color:var(--muted);font-weight:700;}
 .grp .hint{text-transform:none;letter-spacing:.2px;font-weight:600;color:var(--muted);}
-.erow{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;background:#fff;border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:7px;font-family:inherit;font-size:13.5px;color:var(--terra);cursor:pointer;}
+.erow{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;background:var(--cardBg);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:7px;font-family:inherit;font-size:13.5px;color:var(--terra);cursor:pointer;}
 .erow .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .erow .top{display:flex;align-items:center;gap:8px;min-width:0;}
 .erow:hover{border-color:var(--champagne);}
@@ -123,29 +124,29 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .erow .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .erow .pl{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;}
 .erow.on{border-color:var(--champagne);background:var(--tint);border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0;}
-.erow.hit{background:#FFF9EA;border-color:#E8C96A;}
-.ebody{border:1px solid var(--champagne);border-top:none;border-radius:0 0 7px 7px;background:#fff;padding:15px 16px 14px;margin-bottom:9px;}
+.erow.hit{background:rgba(245,165,36,.14);border-color:#F5A524;}
+.ebody{border:1px solid var(--champagne);border-top:none;border-radius:0 0 7px 7px;background:var(--cardBg);padding:15px 16px 14px;margin-bottom:9px;}
 .settle{display:flex;gap:7px;flex:0 0 auto;}
 .settle button{font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:5px;cursor:pointer;font-family:inherit;}
-.settle .won{background:#E3EFE7;color:var(--good);border:1px solid #BFD8C6;}
-.settle .lost{background:#F8E9E9;color:var(--bad);border:1px solid #E5C9C9;}
+.settle .won{background:rgba(29,185,122,.14);color:var(--good);border:1px solid #BFD8C6;}
+.settle .lost{background:rgba(248,113,113,.14);color:var(--bad);border:1px solid rgba(248,113,113,.22);}
 .fold{display:block;width:100%;text-align:center;border:1px dashed var(--border);background:none;border-radius:7px;padding:11px;font-size:12.5px;color:var(--muted);cursor:pointer;font-family:inherit;margin-top:6px;}
 .fold b{color:var(--rouge);}
-.focusbar{display:flex;align-items:center;gap:10px;background:#FFF9EA;border:1px solid #E8C96A;border-radius:7px;padding:11px 14px;font-size:13px;margin-bottom:14px;}
+.focusbar{display:flex;align-items:center;gap:10px;background:rgba(245,165,36,.14);border:1px solid #F5A524;border-radius:7px;padding:11px 14px;font-size:13px;margin-bottom:14px;}
 .focusbar b{color:var(--rouge);}
 .focusbar a{margin-left:auto;color:var(--rouge);font-size:12px;white-space:nowrap;}
 .tailbar{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap;}
-.tailbar select{width:auto;padding:7px 9px;font-size:12px;background:#fff;}
+.tailbar select{width:auto;padding:7px 9px;font-size:12px;background:var(--cardBg);}
 
 /* ── Won, lost & pending — the CEO's chart, inside this page ───────── */
 .nq-strip{width:100%;display:flex;align-items:center;gap:10px;background:#4B0D24;color:#fff;
   border:none;border-radius:3px;padding:12px 14px;cursor:pointer;font-family:inherit;text-align:left;}
 .nq-strip .s1{font-weight:700;font-size:13.5px;}
-.nq-strip .s2{font-size:11.5px;color:#d7a7b0;}
+.nq-strip .s2{font-size:11.5px;color:#5FE3F5;}
 .nq-strip .s3{margin-left:auto;font-size:17px;color:var(--champagne);}
-.nq-panel{background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 3px 3px;padding:14px;}
+.nq-panel{background:var(--cardBg);border:1px solid var(--border);border-top:none;border-radius:0 0 3px 3px;padding:14px;}
 .nq-months{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px;}
-.nq-months button{border:1px solid var(--border);background:var(--lace);border-radius:16px;
+.nq-months button{border:1px solid var(--border);background:transparent;border-radius:16px;
   padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);font-weight:700;}
 .nq-months button.on{background:var(--rouge);color:#fff;border-color:var(--rouge);}
 .nq-bar{display:flex;height:25px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:6px;}
@@ -170,9 +171,43 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 .nq-foot{font-size:10.5px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
 .nq-foot b{color:var(--terra);}
 /* an undecided enquiry whose month has gone, lifted to the top to be answered */
-.ask-row{display:flex;gap:9px;align-items:center;background:#F3E3C4;border:1px solid var(--champagne);
+.ask-row{display:flex;gap:9px;align-items:center;background:rgba(245,165,36,.14);border:1px solid var(--champagne);
   border-radius:6px;padding:9px 12px;margin:14px 0 8px;font-size:12.5px;flex-wrap:wrap;}
 .ask-row .nm{flex:1;font-weight:700;min-width:130px;}
+
+/* ── v5.7.43 emerald bridge ────────────────────────────────────────── */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-family:var(--ui);}
+.header{background:transparent;padding:24px 16px 8px;}
+.header::after{display:none;}
+.header h1{font-family:var(--ui);font-size:25px;letter-spacing:-.3px;color:var(--ink);}
+.header p{color:var(--heroSub);}
+.gold-rule{display:none;}
+.enq,.card,.deal-panel,.deal-item,.ebody{background:var(--cardBg);
+  border:1px solid var(--cardBorder);border-radius:var(--r);color:var(--ink);
+  box-shadow:var(--cardShadow);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.enq-name{font-family:var(--ui);font-size:14px;font-weight:700;color:var(--ink);}
+.enq-sub,.f-lbl,.empty,.erow{color:var(--ink2);}
+.f-val{color:var(--ink);}
+.chance-wrap,.chance-bar{background:rgba(255,255,255,.08);border-radius:999px;}
+.chance-fill{background:var(--p);}
+.chance-num,.chance-pct{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--p);}
+.ask-row{color:var(--ink);border:1px solid rgba(245,165,36,.36);border-radius:var(--rs);}
+.act-wa{color:#4ADE80;border:1px solid rgba(74,222,128,.34);}
+.act-call{color:var(--s);border:1px solid rgba(25,184,204,.34);}
+.act-del{color:var(--bad);border:1px solid rgba(248,113,113,.34);}
+.act-wa,.act-call,.act-del{background:rgba(255,255,255,.04);border-radius:var(--rs);min-height:44px;}
+.add-btn{background:var(--p);color:var(--onP);min-height:44px;border-radius:var(--rs);}
+input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);
+  color:var(--ink);border-radius:var(--rs);min-height:44px;}
+.check-row{color:var(--ink2);}
+/* were burgundy-background + champagne-text, i.e. emerald on emerald */
+.fchip.on{background:var(--p);color:var(--onP);border-color:var(--p);}
+.msg-compose button{background:var(--p);color:var(--onP);border-radius:var(--rs);min-height:44px;}
+*{animation-name:none !important;}
+@media (max-width:560px){
+  .enq,.card,.deal-panel,.deal-item,.ebody{
+    -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>
@@ -182,7 +217,7 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
 
 <div class="topbar">
   <a href="home.html">‹ HOME</a>
-  <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+  <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
 </div>
 
 <div class="header">
@@ -236,9 +271,9 @@ input:focus,select:focus{border-color:var(--champagne);background:#fff;}
    follows the GROUP, not the label — a custom "Too expensive" marked as lost
    then looks lost without anyone having to pick a colour for it. */
 const GROUP_COLOURS = {
-  open: { bg: '#FBF6EC', fg: '#8a6d3b', bd: 'var(--champagne)' },
-  won:  { bg: '#E3EFE7', fg: 'var(--good)', bd: '#BFD8C6' },
-  lost: { bg: '#F4E4E4', fg: 'var(--bad)', bd: '#E5C9C9' }
+  open: { bg: 'rgba(245,165,36,.14)', fg: '#F5A524', bd: 'var(--champagne)' },
+  won:  { bg: 'rgba(29,185,122,.14)', fg: 'var(--good)', bd: '#BFD8C6' },
+  lost: { bg: 'rgba(248,113,113,.14)', fg: 'var(--bad)', bd: 'rgba(248,113,113,.22)' }
 };
 function STATUSES() { return FLApp.allStatuses(); }
 const isAdmin = FLApp.isAdmin();
@@ -306,7 +341,7 @@ function findDuplicate(name, mobile, eventDate, skipId) {
 
 function chanceColor(pct) {
   if (pct >= 70) return 'var(--good)';
-  if (pct >= 40) return '#8a6d3b';
+  if (pct >= 40) return '#F5A524';
   return 'var(--bad)';
 }
 
@@ -487,15 +522,15 @@ function askGroup(label) {
     const mask = document.createElement('div');
     mask.style.cssText = 'position:fixed;inset:0;background:rgba(58,2,16,.45);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
     mask.innerHTML =
-      '<div style="background:#fff;border-radius:6px;max-width:360px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);">' +
+      '<div style="background:var(--cardBg);border-radius:6px;max-width:360px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);">' +
         '<div style="background:var(--rouge);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;">What does it mean?</div>' +
         '<div style="padding:16px;">' +
           '<p style="font-size:13.5px;color:var(--terra);margin-bottom:6px;">“<b>' + esc(label) + '</b>”</p>' +
           '<p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">This decides whether the money still counts as live in the pipeline.</p>' +
           '<div style="display:flex;gap:8px;">' +
-            '<button data-g="open" style="flex:1;padding:11px 6px;border:1px solid var(--champagne);background:#FBF6EC;color:#8a6d3b;border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Still open</button>' +
-            '<button data-g="won" style="flex:1;padding:11px 6px;border:1px solid #BFD8C6;background:#E3EFE7;color:var(--good);border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Won</button>' +
-            '<button data-g="lost" style="flex:1;padding:11px 6px;border:1px solid #E5C9C9;background:#F8E9E9;color:var(--bad);border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Lost</button>' +
+            '<button data-g="open" style="flex:1;padding:11px 6px;border:1px solid var(--champagne);background:rgba(245,165,36,.14);color:#F5A524;border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Still open</button>' +
+            '<button data-g="won" style="flex:1;padding:11px 6px;border:1px solid #BFD8C6;background:rgba(29,185,122,.14);color:var(--good);border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Won</button>' +
+            '<button data-g="lost" style="flex:1;padding:11px 6px;border:1px solid rgba(248,113,113,.22);background:rgba(248,113,113,.14);color:var(--bad);border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Lost</button>' +
           '</div>' +
           '<div style="text-align:right;margin-top:12px;"><button data-g="" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;">Cancel</button></div>' +
         '</div>' +
@@ -529,7 +564,7 @@ function quoteLink(e) {
    in August and won 6" is the sentence that makes sense for selling).
    Collapsed by default with the headline on the strip, so the page still
    opens as a work list. */
-const REASON_COLOURS = ['#550318', '#8a2d43', '#b36475', '#d7a7b0'];
+const REASON_COLOURS = ['#1DB97A', '#2DD4A0', '#19B8CC', '#5FE3F5'];
 let chartMonth = 'all';
 let chartOpen = false;
 function toggleChart() { chartOpen = !chartOpen; render(); }
@@ -627,7 +662,7 @@ function renderChart() {
         word + ' ' + n + '">' + label + '</span>';
     };
     html += '<div class="nq-bar">' + seg('WON', d.won, 'var(--good)') +
-      seg('LOST', d.lost, 'var(--rouge)') + seg('PENDING', d.pending, '#8a6d3b') + '</div>';
+      seg('LOST', d.lost, 'var(--rouge)') + seg('PENDING', d.pending, '#F5A524') + '</div>';
 
     /* One visual language for the reasons, whatever the size of the month.
        A boxed amber warning for "only 1 lost" read as an error on a card
@@ -698,7 +733,7 @@ function askReason(who, guess) {
     mask.style.cssText = 'position:fixed;inset:0;background:rgba(58,2,16,.45);display:flex;' +
       'align-items:center;justify-content:center;z-index:10000;padding:18px;';
     mask.innerHTML =
-      '<div style="background:#fff;border-radius:6px;max-width:360px;width:100%;overflow:hidden;' +
+      '<div style="background:var(--cardBg);border-radius:6px;max-width:360px;width:100%;overflow:hidden;' +
         'box-shadow:0 12px 40px rgba(0,0,0,.3);font-family:Lato,Arial,sans-serif;">' +
         '<div style="background:var(--rouge);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;">Why was it lost?</div>' +
         '<div style="padding:15px;">' +
@@ -709,9 +744,9 @@ function askReason(who, guess) {
             FLApp.LOST_REASONS.map(r =>
               '<button data-r="' + esc(r) + '" style="text-align:left;padding:10px 12px;border-radius:5px;' +
               'border:1px solid ' + (r === guess ? 'var(--champagne)' : 'var(--border)') + ';' +
-              'background:' + (r === guess ? '#FBF2E2' : '#fff') + ';font-size:13px;cursor:pointer;' +
+              'background:' + (r === guess ? 'rgba(245,165,36,.12)' : '#fff') + ';font-size:13px;cursor:pointer;' +
               'font-family:inherit;color:var(--terra);font-weight:' + (r === guess ? '700' : '400') + ';">' +
-              esc(r) + (r === guess ? ' &nbsp;·&nbsp; <span style="color:#8a6d3b;font-size:11px;">from your notes</span>' : '') +
+              esc(r) + (r === guess ? ' &nbsp;·&nbsp; <span style="color:#F5A524;font-size:11px;">from your notes</span>' : '') +
               '</button>').join('') +
           '</div>' +
           '<div style="text-align:right;margin-top:12px;"><button data-r="" style="background:none;border:none;' +
@@ -748,7 +783,7 @@ function collapsedRow(e, highlight) {
   /* Paid wins over the status word on the row too — the card already shows
      "Paid", and the two disagreeing is what hid the problem for weeks. */
   const tail = e.paid
-    ? '<span class="pl" style="background:#E3EFE7;color:var(--good);border-color:#BFD8C6;">🥳 Paid</span>'
+    ? '<span class="pl" style="background:rgba(29,185,122,.14);color:var(--good);border-color:#BFD8C6;">🥳 Paid</span>'
     : '<span class="pl" style="background:' + sm.bg + ';color:' + sm.fg + ';border-color:' + sm.bd + ';">' + esc(shortStatus(e.status)) + '</span>';
   /* Two lines, not one. A name, a value and a status word like "Lost /
      Declined" plus two dates will not fit across a phone — the first attempt
@@ -850,7 +885,7 @@ function cardBody(e) {
     const nameField = isAdmin
       ? '<input class="enq-name" value="' + esc(e.name) + '" oninput="patch(\'' + e.id + '\',\'name\',this.value)">'
       : '<span class="enq-name" style="display:inline-block;">' + esc(e.name || 'Untitled') + '</span>';
-    const paidStatusPill = '<span class="status-pill" style="background:#E3EFE7;color:var(--good);">🥳 Paid</span>' +
+    const paidStatusPill = '<span class="status-pill" style="background:rgba(29,185,122,.14);color:var(--good);">🥳 Paid</span>' +
       (isAdmin ? '<button onclick="patch(\'' + e.id + '\',\'paid\',false);render()" style="background:none;border:none;color:var(--muted);font-size:9.5px;text-decoration:underline;cursor:pointer;padding:0;margin-left:6px;">undo</button>' : '');
     const statusField = e.paid
       ? paidStatusPill
@@ -872,14 +907,14 @@ function cardBody(e) {
       ? '<input type="date" value="' + (e.eventDate || '') + '" onchange="patch(\'' + e.id + '\',\'eventDate\',this.value);render()">'
       : fmtDate(e.eventDate);
     const chanceBar = '<div class="chance-wrap"><div class="chance-bar"><div class="chance-fill" id="cf-' + e.id + '" style="width:' + chance + '%;background:' + chanceColor(chance) + ';"></div></div>' +
-      '<input class="chance-num" type="number" min="0" max="100" value="' + chance + '" oninput="const v=Math.max(0,Math.min(100,parseInt(this.value)||0));patch(\'' + e.id + '\',\'chance\',v);document.getElementById(\'cf-' + e.id + '\').style.width=v+\'%\';document.getElementById(\'cf-' + e.id + '\').style.background=v>=70?\'var(--good)\':v>=40?\'#8a6d3b\':\'var(--bad)\';document.getElementById(\'cp-' + e.id + '\').textContent=v+\'%\';document.getElementById(\'cp-' + e.id + '\').style.color=v>=70?\'var(--good)\':v>=40?\'#8a6d3b\':\'var(--bad)\';">' +
+      '<input class="chance-num" type="number" min="0" max="100" value="' + chance + '" oninput="const v=Math.max(0,Math.min(100,parseInt(this.value)||0));patch(\'' + e.id + '\',\'chance\',v);document.getElementById(\'cf-' + e.id + '\').style.width=v+\'%\';document.getElementById(\'cf-' + e.id + '\').style.background=v>=70?\'var(--good)\':v>=40?\'#F5A524\':\'var(--bad)\';document.getElementById(\'cp-' + e.id + '\').textContent=v+\'%\';document.getElementById(\'cp-' + e.id + '\').style.color=v>=70?\'var(--good)\':v>=40?\'#F5A524\':\'var(--bad)\';">' +
       '<span class="chance-pct" id="cp-' + e.id + '" style="color:' + chanceColor(chance) + ';">' + chance + '%</span></div>';
     const chanceBarReadonly = '<div class="chance-wrap"><div class="chance-bar"><div class="chance-fill" style="width:' + chance + '%;background:' + chanceColor(chance) + ';"></div></div><span class="chance-pct" style="color:' + chanceColor(chance) + ';">' + chance + '%</span></div>';
     const chanceField = isAdmin ? chanceBar : chanceBarReadonly;
     const paidToggleRow = '<label class="paid-row"><input type="checkbox" onchange="patch(\'' + e.id + '\',\'paid\',this.checked);render()"> Mark as paid</label>';
     const quoteField = isAdmin
       ? '<input type="date" value="' + (e.quoteSentDate || '') + '" onchange="patch(\'' + e.id + '\',\'quoteSentDate\',this.value);render()">'
-      : (e.quoteSentDate ? fmtDate(e.quoteSentDate) : '<span class="quote-badge" style="background:var(--lace);color:var(--muted);">Not sent</span>');
+      : (e.quoteSentDate ? fmtDate(e.quoteSentDate) : '<span class="quote-badge" style="background:transparent;color:var(--muted);">Not sent</span>');
     const quoteValueField = isAdmin
       ? '<input type="number" min="0" step="1" value="' + (e.quoteValue || '') + '" placeholder="—" oninput="patch(\'' + e.id + '\',\'quoteValue\',parseFloat(this.value)||0)">'
       : (e.quoteValue ? 'AED ' + Number(e.quoteValue).toLocaleString() : '—');

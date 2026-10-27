@@ -8,12 +8,18 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Event Tools</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;}
+/* v5.7.43 — the six burgundy tokens remapped to emerald, by ROLE not by
+   hue. rouge was the brand accent, champagne was the accent on a dark
+   bar, lace was the page, terra was body text, muted was secondary.
+   Remapping these six recolours most of the page without renaming a
+   single selector, which is what keeps the render JS working. */
+:root{--rouge:#1DB97A;--rouge-deep:#0A1A14;--champagne:#1DB97A;--lace:#06100C;--terra:#F2F7F4;--muted:#A4B3AB;--border:rgba(255,255,255,.12);}
 body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;}
 .topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
 .topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
@@ -38,6 +44,47 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .tool h2{font-family:'EB Garamond',Georgia,serif;font-size:19px;font-weight:700;color:var(--rouge);letter-spacing:.5px;}
 .tool p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
 .tool .arrow{margin-left:auto;color:var(--champagne);font-size:24px;font-family:'EB Garamond',Georgia,serif;}
+
+/* ── v5.7.43 emerald bridge ──────────────────────────────────────────
+   The six tokens above carry most of this page. These are the places the
+   original hard-coded a value instead of using them. */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);
+  font-family:var(--ui);}
+.topbar{background:rgba(7,15,12,.85);border-bottom:1px solid var(--cardBorder);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);}
+.topbar span{color:var(--ink3);}
+.logout{background:rgba(29,185,122,.12);border:1px solid rgba(29,185,122,.45);
+  color:var(--p);padding:10px 16px;border-radius:var(--rs);font:700 11px var(--ui);
+  letter-spacing:1.5px;cursor:pointer;min-height:44px;}
+.header{background:transparent;padding:26px 16px 10px;}
+.header::after{display:none;}      /* the ❀ watermark reads as a smudge on dark */
+.header h1{font-family:var(--ui);font-size:25px;letter-spacing:-.3px;color:var(--ink);}
+.header p{color:var(--heroSub);}
+.gold-rule{display:none;}          /* the gold hairline read as a scratch */
+
+/* the one surface */
+.tool{background:var(--cardBg);border:1px solid var(--cardBorder);border-left:1px solid var(--cardBorder);
+  border-radius:var(--r);box-shadow:var(--cardShadow);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.tool .icon{background:rgba(29,185,122,.14);border:1px solid rgba(29,185,122,.26);
+  border-radius:11px;width:46px;height:46px;font-size:21px;}
+.tool h2{font-family:var(--ui);font-size:14px;font-weight:700;color:var(--ink);letter-spacing:0;}
+.tool p{color:var(--ink2);}
+.tool .arrow{color:var(--p);font-family:var(--ui);font-size:20px;}
+@media(hover:hover){.tool:hover{transform:translateY(-2px);border-color:rgba(29,185,122,.4);
+  box-shadow:0 16px 40px rgba(0,0,0,.5);}}
+
+/* EDITORIAL MOTION: the staggered fade-up cascade is gone. Nothing on
+   this page carries data, so nothing needs to move at all. */
+.tool,.header h1,.header p{animation:none !important;}
+
+/* two columns on a wide screen so the menu does not scroll */
+@media (min-width:860px){
+  .tools{max-width:1000px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+}
+@media (max-width:560px){
+  .pane,.tool{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>
@@ -49,14 +96,14 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
   <a href="home.html">‹ HOME</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="user-chip"></span>
-    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
   </span>
 </div>
 
 <div class="header">
   <h1>Event Tools</h1>
   <div class="gold-rule"></div>
-  <p>Pricing, timelines &amp; client documents</p>
+  <p>Pricing, quotations &amp; client documents</p>
 </div>
 
 <div class="tools">
@@ -69,29 +116,11 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
     <span class="arrow">›</span>
   </a>
 
-  <a class="tool tool-standard" href="timelines.html">
-    <div class="icon">📋</div>
-    <div>
-      <h2>Event Timelines</h2>
-      <p>Create and edit on-the-day timelines from the VIP template</p>
-    </div>
-    <span class="arrow">›</span>
-  </a>
-
   <a class="tool tool-standard" href="quotations.html">
     <div class="icon">🧾</div>
     <div>
       <h2>Quotation</h2>
       <p>Build a priced quotation with discount and VAT handled for you</p>
-    </div>
-    <span class="arrow">›</span>
-  </a>
-
-  <a class="tool tool-standard" href="proposals.html">
-    <div class="icon">📜</div>
-    <div>
-      <h2>Proposal</h2>
-      <p>Put together a tailored client proposal from your brief</p>
     </div>
     <span class="arrow">›</span>
   </a>

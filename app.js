@@ -1156,26 +1156,32 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['The log-in, the dashboard and the main menu have been redesigned',
-       'Darker, with the figures in a typeface built for columns of numbers so they line up properly. The month total sits visibly above the other tiles because it matters more. The falling petals are still there, drawn properly this time, and someone hands you a bouquet on the way in.'],
-      ['On a computer it now uses the whole screen',
-       'It used to show you the phone layout with black down both sides whatever the size of the monitor. On a wide screen the four figures now sit across the top and the two charts sit side by side, so the dashboard is one screen instead of four. The main menu is two columns and does not scroll at all. On the phone nothing about this changes.'],
-      ['The charts match the rest of it',
-       'The bars, the grid lines and the month names were drawn in the old burgundy and cream and had been left behind. Violet is work that is costed, bright blue is the month you are in, pink is money sold with no GP sheet made yet, and last year is grey so this year reads first. Not one figure changed — only the colours.'],
-      ['The sales tile shows the last seven months',
-       'Seven small bars under the month figure, this month and the six before it. They only answer whether sales are climbing or sliding; the exact numbers are the ones above them. Nothing new is counted — it is the same monthly totals the chart below already uses.'],
-      ['Everything you tap is bigger on the phone',
-       'Buttons, chips and links were as small as 13 pixels, against the 44 Apple asks for. On a phone they are all at least 44 now, and every piece of text has been measured against the readability standard. The desktop view is unchanged.'],
-      ['Three screens so far',
-       'The log-in, the dashboard and the main menu. Quotations, proposals, expense sheets, timelines and the GP sheets all look exactly as they did. Live with these three for a few days and tell me what is wrong before the rest follow.']
+      ['The whole app is green now, not purple',
+       'Every screen, not just three. Emerald with teal for the second colour, on a dark background. Amber now means one thing and one thing only — something is waiting for you — so the approvals banner is the only warm thing anywhere and cannot be missed.'],
+      ['Proposals and Timelines have been removed',
+       'Both screens and both editors are gone. Nothing was deleted from the database, so any proposal you had made is still stored and could be brought back; only the screens went. Worth knowing: timelines never synced between devices, so they only ever existed on whichever device typed them.'],
+      ['You can correct an order number in the Tracker',
+       'Admin only. Tap the number and change it. If any GP sheets are on the old number it asks whether to move them across, and if you say no it changes nothing at all — not even the Tracker row. It refuses an empty number and refuses one another row already has, because two rows sharing a number is how a sale loses its costing.'],
+      ['Everything was measured, not eyeballed',
+       'Every page was checked at phone width and desktop width for readable contrast and for buttons big enough to hit. Six things were failing and have been fixed, including one that was already wrong in the last version. Nothing is below the standard on any screen now.'],
+      ['Less movement, not more',
+       'The old version faded six blocks up the screen every time you opened it, which meant the month figure was unreadable for the first half second. That is gone. Now only the figures and the charts move: the numbers roll up to their value and the bars grow out of the baseline. Everything else is simply there.'],
+      ['The quotation and the expense sheet were not touched',
+       'Not one character. Both are byte for byte what they were, because they print for clients and Jo approves on one of them.']
     ],
     ceo: [
-      ['The log-in, the dashboard and the main menu look different',
-       'Only those three. Your approvals banner is still the first thing on the dashboard and still says the same thing — it is amber now instead of gold, because the page behind it is dark. The GP sheets and the approve and reject buttons have not been touched at all, and nothing about the figures has changed.']
+      ['The app is green instead of purple, on every screen',
+       'Your approvals banner is still the first thing on the dashboard and still says the same thing. Amber is now reserved for it alone — nothing else in the app is a warm colour — so it stands out more than it did, not less.'],
+      ['Your approve and reject buttons look different, and only look different',
+       'They are green and red as before, just brighter so they read on the dark background. What they DO has not changed by one line. The code underneath the GP sheet is byte for byte identical to last version — the only thing that changed on that page is colour. Please press them once on a real sheet before trusting that, and tell me immediately if anything is off.'],
+      ['The expense sheet is exactly as it was',
+       'Untouched, deliberately. So are the quotations.']
     ],
     finance: [
-      ['The log-in, the dashboard and the main menu look different',
-       'Only those three. The charts have new colours but not one number in them changed. Every report, every figure and the contribution report are untouched.']
+      ['The app is green instead of purple',
+       'Every screen, but only the colours. Not one number, report, total or calculation changed anywhere. The charts are new colours drawing the same figures.'],
+      ['Proposals and Timelines are gone from the menu',
+       'Neither held any financial figure. Nothing was removed from the database.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1220,27 +1226,31 @@ const FLApp = (() => {
            stylesheet is injected from JS and could outlive a page that
            forgets the link, and a panel with no colours at all is worse
            than one that is merely plain. */
-        '.fl-nu{background:var(--card,#13131C);border:1px solid var(--edge,rgba(255,255,255,.08));' +
-          'border-left:3px solid var(--acc,#7C5CFF);border-radius:var(--r,10px);' +
+        '.fl-nu{background:var(--card,#111C17);border:1px solid var(--edge,rgba(255,255,255,.08));' +
+          'border-left:3px solid var(--acc,#1DB97A);border-radius:var(--r,10px);' +
           'padding:15px 17px;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,0,0,.45);' +
           'font-family:var(--ui,Inter,system-ui,Arial,sans-serif);}' +
         '.fl-nu-hd{display:flex;align-items:baseline;gap:9px;}' +
         '.fl-nu-hd h3{font-size:15px;color:var(--tx,#F4F4F8);margin:0;font-weight:700;letter-spacing:-.2px;}' +
         '.fl-nu-hd span{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;' +
-          'color:var(--tx3,#8A8AA0);font-family:var(--num,monospace);}' +
+          'color:var(--ink3,#7E8F87);font-family:var(--num,monospace);}' +
         '.fl-nu ul{margin:9px 0 0;padding:0;list-style:none;}' +
         '.fl-nu li{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--insetLine,rgba(255,255,255,.09));' +
-          'font-size:13px;color:var(--tx2,#9A9AAE);line-height:1.55;}' +
+          'font-size:13px;color:var(--ink2,#A4B3AB);line-height:1.55;}' +
         '.fl-nu li:last-child{border-bottom:none;}' +
         '.fl-nu-dot{color:#A58EFF;font-size:14px;line-height:1.4;}' +
         '.fl-nu li b{color:var(--tx,#F4F4F8);}' +
         '.fl-nu-foot{display:flex;align-items:center;gap:11px;margin-top:13px;flex-wrap:wrap;}' +
         /* 44px, not the 36 it was: this is a real button on a phone. */
-        '.fl-nu-foot button{background:var(--accSolid,#7044FF);color:#fff;border:none;' +
+        /* near-black ink: white on emerald is 2.54:1 and fails AA. This panel
+           is styled from inside app.js rather than any stylesheet, which is
+           why it gets missed — and it is the first thing anyone sees after
+           an update. */
+        '.fl-nu-foot button{background:var(--p,#1DB97A);color:var(--onP,#07070C);border:none;' +
           'border-radius:var(--rs,6px);padding:12px 20px;font-size:10px;font-weight:700;letter-spacing:1.5px;' +
           'text-transform:uppercase;cursor:pointer;font-family:inherit;min-height:44px;}' +
-        '.fl-nu-foot button:hover{box-shadow:0 0 18px var(--glow,rgba(124,92,255,.55));}' +
-        '.fl-nu-foot span{font-size:10.5px;color:var(--tx3,#8A8AA0);}';
+        '.fl-nu-foot button:hover{box-shadow:0 0 18px var(--glow,rgba(29,185,122,.55));}' +
+        '.fl-nu-foot span{font-size:10.5px;color:var(--ink3,#7E8F87);}';
       document.head.appendChild(st);
     }
     const ok = document.getElementById('fl-nu-ok');
@@ -1738,7 +1748,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.42';
+  const APP_VERSION = '5.7.43';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -1976,10 +1986,10 @@ const FLApp = (() => {
       '.fl-modal-box{background:#fff;border-radius:4px;padding:20px;width:100%;max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.3);}' +
       '.fl-modal-box p{font-size:13.5px;color:#2E2522;margin-bottom:16px;line-height:1.5;white-space:pre-wrap;}' +
       '.fl-modal-box input{width:100%;padding:10px 12px;border:1px solid #E8DDD8;border-radius:2px;font-size:14px;font-family:"Lato",Arial,sans-serif;margin:-6px 0 16px;outline:none;box-sizing:border-box;}' +
-      '.fl-modal-box input:focus{border-color:#550318;}' +
+      '.fl-modal-box input:focus{border-color:#06100C;}' +
       '.fl-modal-actions{display:flex;justify-content:flex-end;gap:8px;}' +
       '.fl-modal-actions button{padding:9px 16px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit;border:1px solid #E8DDD8;background:#F6F4F0;color:#2E2522;}' +
-      '.fl-modal-actions button.primary{background:#550318;color:#E6CCA1;border-color:#550318;}';
+      '.fl-modal-actions button.primary{background:#06100C;color:#E6CCA1;border-color:#06100C;}';
     document.head.appendChild(s);
   }
   function flAlert(message) {

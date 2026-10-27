@@ -8,13 +8,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Flowers.ae">
-<meta name="theme-color" content="#550318">
+<meta name="theme-color" content="#06100C">
 <title>Event GP Sheets</title>
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--rouge:#550318;--rouge-deep:#3a0210;--champagne:#E6CCA1;--lace:#F6F4F0;--terra:#2E2522;--muted:#9B8E8A;--border:#E8DDD8;--good:#1E5631;--bad:#8f1d1d;}
-body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh;padding-bottom:100px;}
+:root{--rouge:#1DB97A;--rouge-deep:#0A1A14;--champagne:#1DB97A;--champagne-soft:rgba(29,185,122,.14);--lace:#06100C;--terra:#F2F7F4;--muted:#A4B3AB;--border:rgba(255,255,255,.12);--good:#4ADE80;--pending:#F5A524;}
+body{font-family:'Lato',Arial,sans-serif;background:transparent;min-height:100vh;padding-bottom:100px;}
 .topbar{background:var(--rouge-deep);display:flex;align-items:center;justify-content:space-between;padding:9px 15px;}
 .topbar a{color:var(--champagne);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;}
 .topbar span{color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;}
@@ -30,8 +31,8 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .section.active{display:block;animation:fadeSlide .4s both;}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-.search{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:2px;font-size:14px;background:#fff;outline:none;margin-bottom:12px;font-family:'Lato',Arial,sans-serif;}
-.ev{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px 15px;margin-bottom:11px;box-shadow:0 3px 14px rgba(85,3,24,.06);cursor:pointer;transition:transform .2s;}
+.search{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:2px;font-size:14px;background:var(--cardBg);outline:none;margin-bottom:12px;font-family:'Lato',Arial,sans-serif;}
+.ev{background:var(--cardBg);border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px 15px;margin-bottom:11px;box-shadow:0 3px 14px rgba(85,3,24,.06);cursor:pointer;transition:transform .2s;}
 .ev:active{transform:scale(.985);}
 .ev-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .ev h2{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);font-weight:700;}
@@ -40,12 +41,12 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .ev .meta{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .ev .meta b{color:var(--terra);}
 .pill{font-size:8.5px;font-weight:700;letter-spacing:1.2px;padding:3px 8px;border-radius:2px;text-transform:uppercase;}
-.pill.approved{background:#E4EFE7;color:var(--good);}
-.pill.rejected{background:#F9E9E9;color:var(--bad);}
-.pill.pending{background:#FBF6EC;color:#8a6d3b;border:1px solid var(--champagne);}
+.pill.approved{background:rgba(29,185,122,.14);color:var(--good);}
+.pill.rejected{background:rgba(248,113,113,.14);color:var(--bad);}
+.pill.pending{background:rgba(245,165,36,.14);color:#F5A524;border:1px solid var(--champagne);}
 .ev .reject-reason{width:100%;font-size:11px;color:var(--bad);font-style:italic;margin-top:2px;}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
-.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:#fff;color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.fchip{padding:7px 13px;border:1px solid var(--border);border-radius:2px;background:var(--cardBg);color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
 .fchip.on{border-color:var(--rouge);background:var(--rouge);color:var(--champagne);}
 .year-head{font-family:'EB Garamond',Georgia,serif;font-size:20px;color:var(--rouge);margin:20px 2px 4px;letter-spacing:2px;border-bottom:2px solid var(--champagne);padding-bottom:6px;}
 .month-head{font-family:'EB Garamond',Georgia,serif;font-size:14px;color:var(--muted);margin:14px 2px 8px;letter-spacing:1.5px;}
@@ -53,24 +54,24 @@ body{font-family:'Lato',Arial,sans-serif;background:var(--lace);min-height:100vh
 .fab{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:1px solid rgba(230,204,161,.4);border-radius:2px;padding:15px 32px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;box-shadow:0 10px 30px rgba(58,2,16,.45);cursor:pointer;font-family:'Lato',Arial,sans-serif;}
 .fab:active{transform:translateX(-50%) scale(.96);}
 
-.tblwrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:3px;box-shadow:0 3px 14px rgba(85,3,24,.06);margin-bottom:8px;}
+.tblwrap{overflow-x:auto;background:var(--cardBg);border:1px solid var(--border);border-radius:3px;box-shadow:0 3px 14px rgba(85,3,24,.06);margin-bottom:8px;}
 table{border-collapse:collapse;width:100%;min-width:640px;font-size:12px;}
 th{background:var(--rouge);color:var(--champagne);padding:9px 10px;text-align:left;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
-td{padding:9px 10px;border-bottom:1px solid #F1EBE4;color:var(--terra);white-space:nowrap;}
-tr.total td{font-weight:700;background:#FBF6EC;color:var(--rouge);border-top:2px solid var(--champagne);}
+td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.07);color:var(--terra);white-space:nowrap;}
+tr.total td{font-weight:700;background:rgba(245,165,36,.14);color:var(--rouge);border-top:2px solid var(--champagne);}
 td.pos{color:var(--good);font-weight:700;} td.neg{color:var(--bad);font-weight:700;}
-td input{width:100%;min-width:88px;padding:6px 7px;border:1px solid var(--border);border-radius:3px;font-size:12px;background:var(--lace);color:var(--terra);font-family:'Lato',Arial,sans-serif;}
-td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
-.mini{padding:6px 9px;border:1px solid var(--border);background:var(--lace);border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;color:var(--terra);}
-.mini.danger{color:var(--bad);border-color:#E5C9C9;}
+td input{width:100%;min-width:88px;padding:6px 7px;border:1px solid var(--border);border-radius:3px;font-size:12px;background:transparent;color:var(--terra);font-family:'Lato',Arial,sans-serif;}
+td input:focus{border-color:var(--rouge);background:var(--cardBg);outline:none;}
+.mini{padding:6px 9px;border:1px solid var(--border);background:transparent;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;color:var(--terra);}
+.mini.danger{color:var(--bad);border-color:rgba(248,113,113,.22);}
 .note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
 
-.trk-form{background:#fff;border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px;margin-bottom:14px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
+.trk-form{background:var(--cardBg);border:1px solid var(--border);border-left:3px solid var(--champagne);border-radius:3px;padding:14px;margin-bottom:14px;box-shadow:0 3px 14px rgba(85,3,24,.06);}
 .trk-form h3{font-family:'EB Garamond',Georgia,serif;font-size:15px;color:var(--rouge);margin-bottom:10px;}
 .trk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;}
 .trk-grid label{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:3px;}
-.trk-grid input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:var(--lace);outline:none;font-family:'Lato',Arial,sans-serif;}
-.trk-grid input:focus{border-color:var(--champagne);background:#fff;}
+.trk-grid input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;background:transparent;outline:none;font-family:'Lato',Arial,sans-serif;}
+.trk-grid input:focus{border-color:var(--champagne);background:var(--cardBg);}
 .trk-add{grid-column:1/-1;padding:12px;background:linear-gradient(135deg,var(--rouge-deep),var(--rouge));color:var(--champagne);border:none;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;}
 
 /* ── Events contribution report ── */
@@ -79,7 +80,7 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 .rep-pdf{margin-left:auto;background:linear-gradient(155deg,var(--rouge-deep),var(--rouge));color:var(--champagne);
   border:none;border-radius:2px;padding:10px 16px;font:700 10px/1 'Lato',Arial;letter-spacing:1.5px;
   text-transform:uppercase;cursor:pointer;}
-.rep{background:#fff;border:1px solid var(--border);border-radius:3px;overflow:hidden;color:#2E2522;}
+.rep{background:var(--cardBg);border:1px solid var(--border);border-radius:3px;overflow:hidden;color:#2E2522;}
 .rep .rh{background:linear-gradient(150deg,var(--rouge-deep),var(--rouge) 72%);color:#fff;
   padding:19px 24px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
 .rep .rwm{font-family:'EB Garamond',Georgia,serif;font-size:19px;letter-spacing:2.4px;}
@@ -88,12 +89,12 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 .rep .rdt{text-align:right;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:#D9B9C2;}
 .rep .rdt b{display:block;font-family:'EB Garamond',Georgia,serif;font-size:14px;letter-spacing:.4px;
   color:#fff;text-transform:none;margin-bottom:2px;}
-.rep .rb{padding:19px 24px 21px;background:#fff;}
+.rep .rb{padding:19px 24px 21px;background:var(--cardBg);}
 .rep h4{font-family:'EB Garamond',Georgia,serif;font-size:16px;color:var(--rouge);margin:0 0 2px;}
 .rep .rsub{font-size:11px;color:var(--muted);margin:0 0 10px;}
 .rep .rk{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;
   overflow:hidden;margin-bottom:17px;}
-.rep .rk > div{flex:1;background:#fff;padding:12px 14px;}
+.rep .rk > div{flex:1;background:var(--cardBg);padding:12px 14px;}
 .rep .rk .k{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700;}
 .rep .rk .v{font-family:'EB Garamond',Georgia,serif;font-size:24px;color:var(--rouge-deep);line-height:1.1;margin-top:4px;}
 .rep .rk .s{font-size:10.5px;color:var(--muted);margin-top:2px;}
@@ -103,20 +104,20 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 .rep thead th{background:var(--rouge);color:#fff;text-align:left;font-size:9px;letter-spacing:1.1px;
   text-transform:uppercase;padding:7px 8px;font-weight:700;}
 .rep th.n,.rep td.n{text-align:right;}
-.rep tbody td{padding:7px 9px;border-bottom:1px solid #EFE8E4;font-variant-numeric:tabular-nums;}
-.rep tbody tr:nth-child(even){background:#FBF8F5;}
+.rep tbody td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.07);font-variant-numeric:tabular-nums;}
+.rep tbody tr:nth-child(even){background:rgba(255,255,255,.055);}
 .rep tbody tr.ro td{color:#A99992;}
-.rep tbody tr.rs td{border-top:1.5px solid var(--champagne);background:#FBF4E6;font-weight:700;color:var(--rouge);}
-.rep td.ra{background:#FCF9F6;}
-.rep tbody tr:nth-child(even) td.ra{background:#F8F2ED;}
+.rep tbody tr.rs td{border-top:1.5px solid var(--champagne);background:rgba(245,165,36,.13);font-weight:700;color:var(--rouge);}
+.rep td.ra{background:rgba(255,255,255,.055);}
+.rep tbody tr:nth-child(even) td.ra{background:rgba(255,255,255,.055);}
 .rep .rsh{font-weight:700;color:var(--rouge);}
 .rep .rsf{font-size:9px;color:var(--amber);letter-spacing:.5px;}
-.rep .rfoot{margin-top:13px;padding-top:10px;border-top:1px solid #EFE8E4;font-size:10px;
+.rep .rfoot{margin-top:13px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;
   color:var(--muted);line-height:1.7;}
 .rep .rsig{margin-top:11px;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#C3B5AE;text-align:center;}
 .rep .rempty{padding:26px 24px;text-align:center;color:var(--muted);font-size:12.5px;}
 .year-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:#fff;color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
+.chip{padding:8px 16px;border:1px solid var(--champagne);border-radius:2px;background:var(--cardBg);color:var(--rouge);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .25s;}
 .chip.on{background:var(--rouge);color:var(--champagne);box-shadow:0 4px 14px rgba(85,3,24,.3);}
 #trkTable.group-event .col-placed{display:none;}
 #trkTable.group-placed .col-event{display:none;}
@@ -124,10 +125,10 @@ td input:focus{border-color:var(--rouge);background:#fff;outline:none;}
 /* client name & mobile: admin only (the cells are not even written for anyone
    else — see renderTracker), and never in the Placed date view */
 #trkTable.group-placed .col-client{display:none;}
-#trkTable tr.trk-flash td{background:#FBF2E2;box-shadow:inset 3px 0 0 var(--champagne);}
+#trkTable tr.trk-flash td{background:rgba(245,165,36,.12);box-shadow:inset 3px 0 0 var(--champagne);}
 
 /* year → month → events drill-down */
-.drill{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:3px;padding:17px 16px;margin-bottom:10px;cursor:pointer;box-shadow:0 3px 14px rgba(85,3,24,.06);transition:transform .2s,box-shadow .25s;animation:fadeSlide .4s both;}
+.drill{display:flex;align-items:center;gap:12px;background:var(--cardBg);border:1px solid var(--border);border-radius:3px;padding:17px 16px;margin-bottom:10px;cursor:pointer;box-shadow:0 3px 14px rgba(85,3,24,.06);transition:transform .2s,box-shadow .25s;animation:fadeSlide .4s both;}
 /* after the first paint, re-renders must be instant — no shaking */
 body.settled .drill,body.settled .ev,body.settled .section.active{animation:none;}
 .drill:active{transform:scale(.99);}
@@ -143,7 +144,7 @@ body.settled .drill,body.settled .ev,body.settled .section.active{animation:none
 
 /* dashboard */
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.kpi{background:#fff;border:1px solid var(--border);border-top:3px solid var(--champagne);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);animation:fadeSlide .5s both;}
+.kpi{background:var(--cardBg);border:1px solid var(--border);border-top:3px solid var(--champagne);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);animation:fadeSlide .5s both;}
 .kpi:nth-child(2){animation-delay:.07s;}.kpi:nth-child(3){animation-delay:.14s;}.kpi:nth-child(4){animation-delay:.21s;}.kpi:nth-child(5){animation-delay:.28s;}
 .kpi .kl{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:700;}
 .kpi .kv{font-family:'EB Garamond',Georgia,serif;font-size:28px;color:var(--rouge);font-weight:700;margin-top:7px;line-height:1.05;}
@@ -152,9 +153,69 @@ body.settled .drill,body.settled .ev,body.settled .section.active{animation:none
 .kpi .kd{font-size:10.5px;margin-top:5px;color:var(--muted);letter-spacing:.3px;}
 .kpi .kd .hl{color:var(--rouge);font-weight:700;background:var(--champagne);padding:1px 5px;border-radius:2px;}
 .kpi.wide{grid-column:1/-1;}
-.chart-card{background:#fff;border:1px solid var(--border);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);margin-bottom:16px;animation:fadeSlide .5s .3s both;}
+.chart-card{background:var(--cardBg);border:1px solid var(--border);border-radius:3px;padding:17px 16px;box-shadow:0 4px 18px rgba(85,3,24,.08);margin-bottom:16px;animation:fadeSlide .5s .3s both;}
 .chart-card h3{font-family:'EB Garamond',Georgia,serif;font-size:17px;color:var(--rouge);margin-bottom:12px;letter-spacing:.5px;}
 .chart-card svg{width:100%;height:auto;display:block;}
+
+/* ── v5.7.43 emerald bridge ────────────────────────────────────────── */
+body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-family:var(--ui);}
+.header{background:transparent;padding:24px 16px 8px;}
+.header::after{display:none;}
+.header h1{font-family:var(--ui);font-size:25px;letter-spacing:-.3px;color:var(--ink);}
+.header p{color:var(--heroSub);}
+.gold-rule{display:none;}
+.ev,.kpi,.chart-card,.drill,.section,.rep{background:var(--cardBg);
+  border:1px solid var(--cardBorder);border-radius:var(--r);color:var(--ink);
+  box-shadow:var(--cardShadow);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+.ev h2,.chart-card h2,.section h2{font-family:var(--ui);color:var(--ink);}
+.dr-meta,.note,.mini,.empty,.month-head{color:var(--ink2);}
+.gp{color:var(--p);font-family:var(--num);font-variant-numeric:tabular-nums;}
+.kpi .kv,.kpi b{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--ink);}
+.chip,.fchip,.tab{background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);
+  color:var(--ink2);border-radius:999px;min-height:44px;}
+.chip.on,.fchip.on,.tab.on,.tab[aria-selected="true"]{background:var(--p);color:var(--onP);border-color:var(--p);}
+.search,input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);
+  color:var(--ink);border-radius:var(--rs);min-height:44px;}
+.pill{border-radius:999px;font:700 9px var(--ui);letter-spacing:.8px;text-transform:uppercase;}
+.fab,.trk-add{background:var(--p);color:var(--onP);box-shadow:0 10px 30px rgba(0,0,0,.5);}
+.trk-add{min-height:44px;border-radius:var(--rs);font:700 12.5px var(--ui);}
+.rep-pdf,.rep-ctl{background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);color:var(--ink);
+  border-radius:var(--rs);min-height:44px;}
+.dr-arrow{color:var(--p);}
+.tblwrap{overflow-x:auto;background:transparent;border:1px solid var(--cardBorder);border-radius:var(--r);}
+/* the old header was a SOLID burgundy bar with champagne text. Both of
+   those tokens now point at emerald, so it would have been emerald on
+   emerald — invisible. A tinted header with emerald text is both legible
+   and quieter than a solid bar across the table. */
+table th,table.perm th{background:rgba(29,185,122,.06);color:var(--p);
+  border-bottom:1px solid var(--cardBorder);}
+table td{border-bottom:1px solid rgba(255,255,255,.055);color:var(--ink);}
+tr.total td{background:rgba(245,165,36,.14);color:var(--amber);border-top:2px solid rgba(245,165,36,.4);}
+.rep thead th{background:rgba(29,185,122,.06);color:var(--p);}
+.rep tbody tr.ro td{color:var(--ink3);}
+.rep tbody tr.rs td{background:rgba(245,165,36,.13);color:var(--amber);
+  border-top:1.5px solid rgba(245,165,36,.4);}
+td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var(--ink);}
+.mini{background:rgba(255,255,255,.05);border:1px solid var(--cardBorder);color:var(--ink);min-height:44px;padding:9px 13px;border-radius:var(--rs);}
+.trk-form{background:var(--cardBg);border:1px solid var(--cardBorder);border-left:1px solid var(--cardBorder);}
+.trk-form h3{font-family:var(--ui);color:var(--ink);}
+.trk-grid label{color:var(--ink3);}
+.trk-grid input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var(--ink);}
+/* the order number stays visually a heading, not a form field, until
+   you touch it — it is read a hundred times for every time it is
+   corrected */
+.order-edit{background:transparent;border:1px solid transparent;color:var(--ink);
+  font:700 12px var(--num);font-variant-numeric:tabular-nums;min-width:88px;
+  padding:7px 8px;border-radius:var(--rs);}
+.order-edit:hover{border-color:var(--cardBorder);background:rgba(0,0,0,.2);}
+.order-edit:focus{border-color:transparent;background:rgba(0,0,0,.3);
+  outline:2px solid var(--p);outline-offset:1px;}
+/* editorial motion: only the bars move, and they wipe up out of the axis */
+*{animation-name:none !important;}
+@media (max-width:560px){
+  .ev,.kpi,.chart-card,.drill,.section,.rep{
+    -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
+}
 </style>
 </head>
 <body>
@@ -172,7 +233,7 @@ body.settled .drill,body.settled .ev,body.settled .section.active{animation:none
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="sync-chip" style="font-size:10px;letter-spacing:1px;color:rgba(230,204,161,.7);"></span>
     <span id="user-chip"></span>
-    <button onclick="FLApp.logout()" style="background:rgba(230,204,161,.12);border:1px solid rgba(230,204,161,.5);color:#E6CCA1;padding:10px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:inherit;min-height:38px;">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
   </span>
 </div>
 
@@ -565,6 +626,62 @@ function trkPatch(id, field, value) {
   row[field] = value;
   FLApp.trackerSave(row);
 }
+/* ── renumbering a Tracker row ──────────────────────────────────────
+   v5.7.43, admin only. This is NOT a field edit and must not use
+   trkPatch, because the order number is the JOIN KEY between the
+   Tracker and the GP sheets. Change it on one side only and the sale
+   silently detaches from its costing: the dashboard then counts the
+   money as "sold, no GP sheet" and the GP sheet becomes an orphan
+   nobody can find.
+
+   So this does three things in order, and refuses rather than guesses:
+     1. rejects an empty number
+     2. rejects a number another Tracker row already has
+     3. finds every GP sheet on the OLD number and asks before moving
+        them across — and if the answer is no, nothing changes at all.
+   The input is reset to the stored value on any refusal, so what is on
+   screen always matches what is saved.                               */
+async function trkRenumber(id, raw, el) {
+  const all = FLApp.trackerAll();
+  const row = all.find(x => x.id === id);
+  if (!row) return;
+  const was = (row.orderNo || '').trim();
+  const now = (raw || '').trim();
+  const reset = () => { if (el) el.value = was; };
+
+  if (now === was) return;
+  if (!now) { await FLApp.flAlert('An order number cannot be empty.'); return reset(); }
+
+  const clash = all.find(x => x.id !== id && (x.orderNo || '').trim() === now);
+  if (clash) {
+    await FLApp.flAlert('Order ' + now + ' is already in the Tracker' +
+      (clash.client ? ' for ' + clash.client : '') + '. Two rows cannot share a number.');
+    return reset();
+  }
+
+  /* every GP sheet currently hanging off the old number */
+  const sheets = FLApp.eventsAll().filter(e => (e.orderNo || '').trim() === was);
+  if (sheets.length) {
+    const ok = await FLApp.flConfirm(
+      sheets.length + (sheets.length === 1 ? ' GP sheet is' : ' GP sheets are') +
+      ' linked to order ' + was + '.\n\nMove ' +
+      (sheets.length === 1 ? 'it' : 'them') + ' to ' + now + ' as well?\n\n' +
+      'If you say no, nothing is changed — the number stays ' + was + '.');
+    if (!ok) return reset();
+    sheets.forEach(e => { e.orderNo = now; FLApp.eventSave(e); });
+  }
+
+  row.orderNo = now;
+  FLApp.trackerSave(row);
+  FLApp.notify('Order ' + was + ' renumbered to ' + now +
+    (sheets.length ? ' (' + sheets.length + ' GP sheet' + (sheets.length === 1 ? '' : 's') + ' moved)' : ''),
+    FLApp.currentUser().name);
+  /* renderTracker, not render — this page has no bare render(). Calling
+     the wrong one threw AFTER the save had already happened, so the data
+     was correct but the table still showed the old number. */
+  renderTracker();
+}
+
 function trkRecalcRow(id) {
   const rev = parseFloat(document.getElementById('rev-' + id).value) || 0;
   const disc = parseFloat(document.getElementById('disc-' + id).value) || 0;
@@ -664,7 +781,7 @@ function renderTracker() {
       const [y, m] = groupKey ? groupKey.split('-').map(Number) : [null, null];
       const label = (y && m) ? MONTH_NAMES[m - 1].toUpperCase() + ' ' + y : 'NO DATE YET';
       const head = document.createElement('tr');
-      head.innerHTML = '<td colspan="10" style="background:var(--lace);font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
+      head.innerHTML = '<td colspan="10" style="background:transparent;font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
       tb.appendChild(head);
     }
     const after = (r.revenue || 0) * (1 - (r.discountPct || 0) / 100);
@@ -674,7 +791,15 @@ function renderTracker() {
     const tr = document.createElement('tr');
     tr.dataset.trk = r.id;
     tr.innerHTML =
-      '<td><b>' + r.orderNo + '</b></td>' +
+      /* admin can correct a mistyped order number in place; everyone
+         else sees it as plain text. Gated the same way the client and
+         mobile columns are — on isAdmin, not on CSS. onchange, never
+         oninput: renumbering asks a question and half a number typed
+         would ask it on every keystroke. */
+      '<td>' + (isAdmin
+        ? '<input class="order-edit" value="' + esc(r.orderNo || '') + '" ' +
+          'aria-label="Order number" onchange="trkRenumber(\'' + r.id + '\',this.value,this)">'
+        : '<b>' + r.orderNo + '</b>') + '</td>' +
       (showClient
         ? '<td class="col-client"><input value="' + esc(r.client || '') + '" placeholder="—" onchange="trkPatch(\'' + r.id + '\',\'client\',this.value)"></td>' +
           '<td class="col-client"><input inputmode="tel" value="' + esc(r.mobile || '') + '" placeholder="—" onchange="trkPatch(\'' + r.id + '\',\'mobile\',this.value)"></td>'
@@ -711,10 +836,10 @@ function barChart(perMonth, year) {
   /* gridlines */
   for (let g = 1; g <= 3; g++) {
     const gy = padT + (H - padT - padB) * g / 4;
-    s += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#F1EBE4" stroke-width="1"/>';
+    s += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
   }
   /* baseline */
-  s += '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="#E8DDD8" stroke-width="1.5"/>';
+  s += '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>';
   perMonth.forEach((v, i) => {
     const x = padL + i * bw + bw * 0.18;
     const w = bw * 0.64;
@@ -723,10 +848,10 @@ function barChart(perMonth, year) {
     if (v) {
       s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 4) + ' Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y +
         ' L' + (x + w - 4) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 4) +
-        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="#550318"><title>' + MONTH_NAMES[i] + ' ' + year + ': ' + AED(v) + '</title></path>';
-      s += '<text x="' + (x + w / 2) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#550318" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
+        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="#1DB97A"><title>' + MONTH_NAMES[i] + ' ' + year + ': ' + AED(v) + '</title></path>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#1DB97A" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
     }
-    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9.5" fill="#9B8E8A" font-family="Lato,Arial" letter-spacing="1">' + MONTH_NAMES[i].slice(0, 3).toUpperCase() + '</text>';
+    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9.5" fill="#A4B3AB" font-family="Lato,Arial" letter-spacing="1">' + MONTH_NAMES[i].slice(0, 3).toUpperCase() + '</text>';
   });
   return s + '</svg>';
 }
@@ -898,7 +1023,7 @@ function renderCompare() {
         return '<td><input type="text" inputmode="decimal" value="' + (overrides[ym] != null ? overrides[ym] : '') + '"' +
           ' placeholder="' + (v ? Math.round(v).toLocaleString() : 'auto') + '"' +
           ' onchange="saveMonthOverride(\'' + ym + '\', this.value)"' +
-          ' style="width:110px;padding:8px;border:1px solid var(--champagne);border-radius:2px;background:#FBF6EC;font-size:12px;font-family:Lato,Arial;"></td>';
+          ' style="width:110px;padding:8px;border:1px solid var(--champagne);border-radius:2px;background:rgba(245,165,36,.14);font-size:12px;font-family:Lato,Arial;"></td>';
       }
       return '<td>' + (v ? AED(v) : '—') + (overrides[ym] != null ? ' <span title="manually set" style="color:#8a6d33;font-size:10px;">✎</span>' : '') + '</td>';
     }).join('') +
@@ -1043,8 +1168,8 @@ function renderContribution() {
   [2, 4, 6, 8, 10, 12].forEach(v => {
     if (v > mx) return;
     const y = BASE - (v / mx) * (BASE - TOP);
-    g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="#EFE8E4"/>' +
-      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#B9A9A2">' + v + '%</text>';
+    g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="rgba(255,255,255,.07)"/>' +
+      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#7E8F87">' + v + '%</text>';
   });
   use.forEach((m, k) => {
     const x = PADL + k * bw;
@@ -1055,19 +1180,19 @@ function renderContribution() {
       const hOld = (sOld / mx) * (BASE - TOP);
       const w = bw * 0.33;
       g += '<rect x="' + (x + bw * 0.1).toFixed(1) + '" y="' + (BASE - hOld).toFixed(1) + '" width="' + w.toFixed(1) +
-        '" height="' + Math.max(hOld, 0).toFixed(1) + '" fill="#D7A7B0" rx="1.5"/>' +
+        '" height="' + Math.max(hOld, 0).toFixed(1) + '" fill="#5FE3F5" rx="1.5"/>' +
         '<rect x="' + (x + bw * 0.48).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
-        '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
+        '" height="' + hMain.toFixed(1) + '" fill="#1DB97A" rx="1.5"/>' +
         '<text x="' + (x + bw * 0.48 + w / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="9.5" font-weight="700" fill="#550318">' + sMain.toFixed(1) + '</text>';
+        '" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1DB97A">' + sMain.toFixed(1) + '</text>';
     } else {
       const w = bw * 0.5;
       g += '<rect x="' + (x + bw * 0.25).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
-        '" height="' + hMain.toFixed(1) + '" fill="#550318" rx="1.5"/>' +
+        '" height="' + hMain.toFixed(1) + '" fill="#1DB97A" rx="1.5"/>' +
         '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="10" font-weight="700" fill="#550318">' + sMain.toFixed(2) + '</text>';
+        '" text-anchor="middle" font-size="10" font-weight="700" fill="#1DB97A">' + sMain.toFixed(2) + '</text>';
     }
-    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="10" fill="#9B8E8A">' +
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="10" fill="#A4B3AB">' +
       MONTH_NAMES[m - 1].slice(0, 3) + '</text>';
   });
   const chart = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" ' +
@@ -1136,8 +1261,8 @@ function renderContribution() {
         '</div>' +
         '<h4>Event share by month</h4><p class="rsub">Percentage of company total trading income' +
           (repCompare ? ' — ' + repYear + ' against ' + prev : '') + '</p>' + chart +
-        (repCompare ? '<div class="rleg"><span><i style="background:#D7A7B0"></i>' + prev +
-          '</span><span><i style="background:#550318"></i>' + repYear + '</span></div>' : '') +
+        (repCompare ? '<div class="rleg"><span><i style="background:#5FE3F5"></i>' + prev +
+          '</span><span><i style="background:#1DB97A"></i>' + repYear + '</span></div>' : '') +
         '<h4 style="margin-top:16px;">Monthly detail</h4>' +
         '<p class="rsub">AED net of VAT, both columns. Share shown only where both figures are final.</p>' +
         '<table><thead>' + th + '</thead><tbody>' + body + '</tbody></table>' +
