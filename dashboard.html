@@ -221,12 +221,31 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
   .wrap > #whatsNew,
   .wrap > .kpis,
   .wrap > #bookedWrap{grid-column:1/-1;}
-  .kpis{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
   /* the month tile keeps its extra weight, but at a quarter width it no
      longer needs the larger figure to say so — the glow does that. */
   .kpi:first-child .kv{font-size:21px;}
   .hero{padding-bottom:56px;}
 }
+</style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* label (5) */
+.date-line,
+.kpi .kl,
+.kpi .tu .t,
+.kpi .tu .d,
+.foot{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* button (2) */
+.hero-links a,
+.hero-links button{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
+.kpi .kv .pc{font-size:.66em;color:var(--ink2);margin-left:1px;letter-spacing:0;}
+
+/* ── the wordmark — one look wherever the logo appears ── */
+.fl-wm{font:300 19px/1 var(--ui) !important;letter-spacing:.3em !important;color:var(--ink) !important;text-transform:uppercase;}
+.fl-wm small,.fl-wm-tag{display:block;font:500 8.5px/1 var(--ui) !important;letter-spacing:.38em !important;
+  color:#8FC9AE !important;text-transform:uppercase !important;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -237,12 +256,12 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
 
 <div class="hero">
   <div class="hero-top">
-    <div class="wordmark">FLOWERS.AE<small>The Art of Gifting</small></div>
+    <div class="wordmark fl-wm">FLOWERS.AE<small>The Art of Gifting</small></div>
     <div class="hero-links">
-      <a href="events.html">EVENTS</a>
-      <a href="tools.html">TOOLS</a>
-      <a href="home.html" id="home-link">HOME</a>
-      <button onclick="FLApp.logout()">LOG OUT</button>
+      <a href="events.html">Events</a>
+      <a href="tools.html">Tools</a>
+      <a href="home.html" id="home-link">Home</a>
+      <button onclick="FLApp.logout()">Log out</button>
     </div>
   </div>
   <div class="greet" id="greet"></div>
@@ -263,13 +282,13 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);
   <div class="kpis" id="kpis"></div>
 
   <div class="card">
-    <h3>Sales by Month</h3>
+    <h3>Sales by month</h3>
     <div class="year-chips" id="salesYears"></div>
     <div id="salesChart"></div>
   </div>
 
   <div class="card">
-    <h3>Year vs Year</h3>
+    <h3>Year vs year</h3>
     <div class="legend" id="yoyLegend"></div>
     <div id="yoyChart"></div>
   </div>
@@ -294,6 +313,8 @@ const me = FLApp.currentUser();
 if (FLApp.isCeo()) document.getElementById('home-link').style.display = 'none';
 
 const AED = n => 'AED ' + Math.round(n).toLocaleString('en-US');
+/* the figure with its currency set small and grey in front */
+const AEDk = n => '<span class="cur">AED</span>' + Math.round(n).toLocaleString('en-US');
 const AEDf = n => 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', {minimumFractionDigits: 2});
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const now = new Date();
@@ -305,7 +326,7 @@ const h = now.getHours();
 document.getElementById('greet').textContent =
   (h < 12 ? 'Good morning, ' : h < 17 ? 'Good afternoon, ' : 'Good evening, ') + me.name;
 document.getElementById('dateline').textContent =
-  now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+  now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 /* ── data ── */
 const COMMISSION_PCT = 10;
@@ -452,6 +473,36 @@ const monthTracked = FLApp.trackerAll().filter(t =>
   t.eventDate && t.eventDate.slice(0, 7) === ymNow && !sheetByNo[String(t.orderNo || '').trim()]);
 const monthOrders = monthEvs.length + monthTracked.length;
 
+/* ── AOV: average order value, counted like the Events tile ── */
+function ordersIn(y, m) {
+  const ym = y + '-' + String(m).padStart(2, '0');
+  const sheets = evs.filter(e => e.date && e.date.slice(0, 7) === ym);
+  const nos = new Set(sheets.map(e => String(e.orderNo || '').trim()).filter(Boolean));
+  return sheets.length + FLApp.trackerAll().filter(t => t.eventDate && t.eventDate.slice(0, 7) === ym &&
+    !nos.has(String(t.orderNo || '').trim())).length;
+}
+const aov = monthOrders ? mSales / monthOrders : null;
+const pmY = CM === 1 ? prevY : CY, pmM = CM === 1 ? 12 : CM - 1;
+const pmOrders = ordersIn(pmY, pmM);
+const aovPrev = pmOrders ? monthTotal(pmY, pmM) / pmOrders : null;
+const aovDelta = aov != null && aovPrev ? (aov - aovPrev) / aovPrev * 100 : null;
+
+/* ── event share of company income, as the Contribution report sums it ── */
+const VAT = 1.05;
+const coInc = FLApp.companyIncome();
+function shareFor(y, months) {
+  let e = 0, c = 0;
+  months.forEach(m => { const ym = y + '-' + String(m).padStart(2, '0');
+    if (coInc[ym] != null) { e += monthTotal(y, m) / VAT; c += +coInc[ym]; } });
+  return c ? e / c * 100 : null;
+}
+const closedMonths = Array.from({ length: CM - 1 }, (_, i) => i + 1).filter(m => coInc[CY + '-' + String(m).padStart(2, '0')] != null);
+const shareYtd = shareFor(CY, closedMonths);
+const sharePrev = shareFor(prevY, closedMonths);
+const shareNow = coInc[ymNow] != null ? shareFor(CY, [CM]) : null;
+const lastClosed = closedMonths.length ? MONTHS[closedMonths[closedMonths.length - 1] - 1].slice(0, 3) : '';
+
+
 const deltaHtml = d => d == null ? '' :
   '<b class="' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(0) + '%</b> vs last year';
 /* the compact form that sits on the same line as its own figure */
@@ -489,9 +540,9 @@ document.getElementById('kpis').innerHTML =
      the other number. */
   '<div class="kpi"><div class="kl">Sales — ' + MONTHS[CM - 1] + '</div>' +
     '<div class="two-up">' +
-      '<div class="tu"><span class="n">' + AED(mPlaced) + '</span><span class="t">sold this month</span></div>' +
+      '<div class="tu"><span class="n">' + AEDk(mPlaced) + '</span><span class="t">sold this month</span></div>' +
       '<div class="tu-rule"></div>' +
-      '<div class="tu"><span class="n placed">' + AED(mSales) + '</span><span class="t">delivering this month</span>' +
+      '<div class="tu"><span class="n placed">' + AEDk(mSales) + '</span><span class="t">delivering this month</span>' +
         (mSales ? deltaInline(mDelta) : '') + '</div>' +
     '</div>' +
     '<div class="kd">' + (monthOrders
@@ -503,7 +554,15 @@ document.getElementById('kpis').innerHTML =
     (monthTracked.length
       ? monthEvs.length + ' sheet' + (monthEvs.length === 1 ? '' : 's') + ' made · ' + monthTracked.length + ' to come'
       : approvedCount + ' approved · ' + pending.filter(e => monthEvs.includes(e)).length + ' pending') + '</div></div>' +
-  '<div class="kpi"><div class="kl">Sales — ' + CY + ' so far</div><div class="kv">' + AED(ytd) + '</div><div class="kd">' + deltaHtml(ytdDelta) + '</div></div>';
+  '<div class="kpi"><div class="kl">Sales — ' + CY + ' so far</div><div class="kv">' + AEDk(ytd) + '</div><div class="kd">' + deltaHtml(ytdDelta) + '</div></div>' +
+  '<div class="kpi"><div class="kl">Average order — ' + MONTHS[CM - 1] + '</div><div class="kv">' + (aov == null ? '—' : AEDk(aov)) + '</div><div class="kd">' +
+    (aov == null ? 'no orders yet this month'
+      : monthOrders + ' order' + (monthOrders === 1 ? '' : 's') + (aovDelta == null ? '' :
+        ' · <b class="' + (aovDelta >= 0 ? 'up' : 'down') + '">' + (aovDelta >= 0 ? '▲' : '▼') + ' ' + Math.abs(aovDelta).toFixed(0) + '%</b> vs ' + MONTHS[pmM - 1].slice(0, 3))) + '</div></div>' +
+  '<div class="kpi"><div class="kl">Event share of company — ' + CY + '</div><div class="kv">' + (shareYtd == null ? '—' : shareYtd.toFixed(2) + '<span class="pc">%</span>') + '</div><div class="kd">' +
+    (shareYtd == null ? 'add company income in GP Sheets → Years'
+      : 'Jan–' + lastClosed + ' closed' + (sharePrev != null ? ' · ' + (shareYtd - sharePrev >= 0 ? '+' : '') + (shareYtd - sharePrev).toFixed(2) + ' pts vs ' + prevY : '') +
+        (shareNow != null ? '<br>' + MONTHS[CM - 1] + ' so far ' + shareNow.toFixed(2) + '%' : '')) + '</div></div>';
 
 /* ── chart palette ─────────────────────────────────────────────────────
    These used to be seven loose hex values scattered through the two chart
@@ -529,6 +588,12 @@ const CSSVAR = (name, fallback) => {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return v || fallback;
 };
+/* SVG text is in viewBox units, so a fixed size came out at 8px on a
+   monitor and 5px on a phone. Convert real pixels to units at draw time.
+   Under 480px twelve labels do not fit at full size. */
+function chartW() { const el = document.getElementById('salesChart'); return (el && el.clientWidth) || 620; }
+function chartNarrow() { return chartW() < 480; }
+function chartPx(px) { return (px * 620 / Math.max(chartW(), 240)).toFixed(1); }
 const CHART = {
   grid:     'rgba(255,255,255,.07)',
   axis:     'rgba(255,255,255,.16)',
@@ -587,9 +652,9 @@ function barChart(perMonth, highlightM, pale) {
       } else {
         s += slice(y, H - padB, col, true);
       }
-      s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + (i === maxIdx ? 11 : 9) + '" font-weight="' + (i === maxIdx ? 700 : 600) + '" fill="' + CHART.label + '" font-family="' + CHART.font + '">' + Math.round(v / 1000) + 'K</text>';
+      s += '<text x="' + (x + w / 2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="' + chartPx(i === maxIdx ? 12.5 : 11.5) + '" font-weight="' + (i === maxIdx ? 600 : 500) + '"' + (chartNarrow() && i !== maxIdx && i + 1 !== highlightM ? ' visibility="hidden"' : '') + ' fill="' + CHART.label + '" font-family="' + CHART.font + '">' + Math.round(v / 1000) + 'K</text>';
     }
-    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="' + CHART.axisText + '" font-family="' + CHART.font + '" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="' + chartPx(chartNarrow() ? 10.5 : 12) + '" fill="' + CHART.axisText + '" font-family="' + CHART.font + '">' + MONTHS[i].slice(0, 3) + '</text>';
   });
   return s + '</svg>';
 }
@@ -634,7 +699,7 @@ function renderYoy() {
         ' L' + (x + w - 3) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 3) +
         ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="' + col + '"><title>' + MONTHS[i] + ' ' + yr + ': ' + AEDf(v) + '</title></path>';
     });
-    s += '<text x="' + (base + gw / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" fill="' + CHART.axisText + '" font-family="' + CHART.font + '" letter-spacing="1">' + MONTHS[i].slice(0, 3).toUpperCase() + '</text>';
+    s += '<text x="' + (base + gw / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="' + chartPx(chartNarrow() ? 10.5 : 12) + '" fill="' + CHART.axisText + '" font-family="' + CHART.font + '">' + MONTHS[i].slice(0, 3) + '</text>';
   }
   document.getElementById('yoyChart').innerHTML = s + '</svg>';
 }

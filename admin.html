@@ -166,6 +166,39 @@ button{font-family:var(--ui);}
     -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
 </style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (4) */
+.header h1,
+.card h2,
+.tile .b,
+.user-row .avatar{font-weight:600;letter-spacing:-.012em;}
+
+/* section (2) */
+.grp,
+h2{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (9) */
+.header p,
+.card h2 .when,
+.tile .t,
+.tile .s,
+.user-row .seen,
+.dev-row .rt,
+.srow .lb small,
+.lockmsg,
+.radio small{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* pill (2) */
+.badge,
+.pill{font-size:11.5px;font-weight:600;letter-spacing:.01em;text-transform:none;}
+
+/* button (1) */
+.mini{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
+
+/* th (1) */
+table.perm th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -173,7 +206,7 @@ button{font-family:var(--ui);}
 <script>FLApp.guardRole(['admin']);</script>
 
 <div class="topbar">
-  <a href="home.html">‹ HOME</a>
+  <a href="home.html">‹ Home</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="user-chip"></span>
     <button class="mini" onclick="FLApp.logout()">Log out</button>
@@ -272,7 +305,12 @@ button{font-family:var(--ui);}
 </div>
 
 <script>
-document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase() + ' · ADMIN';
+document.getElementById('user-chip').innerHTML = (function (n, r) {
+  const ini = String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return '<span class="fl-user"><span class="av">' + esc(ini) + '</span><span class="nm"><b>' + esc(n) + '</b>' +
+    (r ? '<small>' + esc(r) + '</small>' : '') + '</span></span>';
+})(FLApp.currentUser().name, 'Admin');
 
 const KB = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -504,7 +542,7 @@ async function renderUsers() {
       sel.className = 'role-sel';
       ['staff', 'finance', 'ceo', 'admin'].forEach(opt => {
         const o = document.createElement('option');
-        o.value = opt; o.textContent = opt.toUpperCase();
+        o.value = opt; o.textContent = (s => s.charAt(0).toUpperCase() + s.slice(1))(opt);
         if (opt === r) o.selected = true;
         sel.appendChild(o);
       });

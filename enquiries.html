@@ -208,6 +208,66 @@ input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBord
   .enq,.card,.deal-panel,.deal-item,.ebody{
     -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
+
+/* ── v5.7.44 Won, lost & pending ────────────────────────────────────── */
+.nq-strip{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:12px;color:var(--ink);padding:14px 18px;}
+.nq-strip .s1{font:600 15px/1.3 var(--ui);color:var(--ink);}
+.nq-strip .s2{font:400 13px/1.4 var(--ui);color:var(--ink2);}
+.nq-strip .s3{color:var(--ink3);}
+#chartWrap .nq-panel + *, #chartWrap{margin-bottom:16px;}
+#chartWrap:has(.nq-panel) .nq-strip{border-radius:12px 12px 0 0;}
+.nq-panel{border:1px solid var(--cardBorder);border-top:0;border-radius:0 0 12px 12px;padding:16px 18px;}
+.nq-months{gap:6px;margin-bottom:14px;}
+.nq-months button{position:relative;height:34px;padding:0 14px;border-radius:17px;font:500 13px/1 var(--ui);color:var(--ink2);border-color:var(--cardBorder);}
+.nq-months button::after{content:'';position:absolute;inset:-5px -2px;}
+.nq-months button.on{background:var(--p);border-color:var(--p);color:var(--onP);font-weight:600;}
+.nq-bar{height:30px;border-radius:6px;}
+.nq-bar span{font:600 12px/1 var(--ui);color:#07070C;}
+.nq-mid{font:600 30px/1 var(--ui) !important;fill:var(--ink);}
+.nq-midsub{font:500 12px/1 var(--ui) !important;fill:var(--ink3);letter-spacing:0;}
+.listbar{justify-content:flex-start;margin:4px 0 12px;}
+.listbar select{min-height:40px;font:500 13px/1 var(--ui);padding:0 12px;border-radius:8px;}
+</style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (5) */
+.header h1,
+.card h2,
+.enq-name,
+.kpi .v,
+.nq-mid{font-weight:600;letter-spacing:-.012em;}
+
+/* section (2) */
+.grp,
+.nq-why{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (13) */
+.header p,
+label,
+.tfield label,
+.f-lbl,
+.tl-lbl,
+.tl-flag,
+.paid-row,
+.kpi .k,
+.nq-bar span,
+.nq-key,
+.nq-midsub,
+.nq-sub,
+.nq-foot{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* pill (3) */
+.status-pill,
+.quote-badge,
+.erow .pl{font-size:11.5px;font-weight:600;letter-spacing:.01em;text-transform:none;}
+
+/* button (6) */
+.add-btn,
+.fchip,
+.enq-actions a,
+.enq-actions button,
+.msg-compose button,
+.settle button{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
 </style>
 </head>
 <body>
@@ -216,8 +276,8 @@ input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBord
 <script>FLApp.guardRole(['admin','ceo']);</script>
 
 <div class="topbar">
-  <a href="home.html">‹ HOME</a>
-  <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
+  <a href="home.html">‹ Home</a>
+  <button onclick="FLApp.logout()" class="logout">Log out</button>
 </div>
 
 <div class="header">
@@ -253,8 +313,7 @@ input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBord
   <div class="focusbar" id="focusbar" style="display:none;"></div>
   <div id="chartWrap"></div>
   <div class="kpis" id="kpis"></div>
-  <div id="list"></div>
-  <div class="tailbar no-print">
+  <div class="tailbar listbar no-print">
     <select id="sortSelect" onchange="sortBy=this.value;render()">
       <option value="enquiryNew">Newest enquiry first</option>
       <option value="enquiry">Oldest enquiry first</option>
@@ -264,6 +323,7 @@ input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBord
     </select>
     <select id="monthSelect" onchange="setMonthChoice(this.value)"></select>
   </div>
+  <div id="list"></div>
 </div>
 
 <script>
@@ -279,7 +339,7 @@ function STATUSES() { return FLApp.allStatuses(); }
 const isAdmin = FLApp.isAdmin();
 const myRole = isAdmin ? 'admin' : (FLApp.isCeo() ? 'ceo' : null);
 let sortBy = 'enquiryNew';     /* newest enquiry first, every time the page opens */
-let monthFilter = 'all';
+let monthFilter = (d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'))(new Date());   /* the list opens on this month too */
 let viewBy = 'received';       /* which date the Month box filters on */
 let openId = null;             /* the one card currently unfolded */
 let showSettled = false;       /* the 10-day fold, closed by default */
@@ -565,8 +625,9 @@ function quoteLink(e) {
    Collapsed by default with the headline on the strip, so the page still
    opens as a work list. */
 const REASON_COLOURS = ['#1DB97A', '#2DD4A0', '#19B8CC', '#5FE3F5'];
-let chartMonth = 'all';
-let chartOpen = false;
+/* open, on this month — closed and all-time, nobody looked at it */
+let chartMonth = (d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'))(new Date());
+let chartOpen = true;
 function toggleChart() { chartOpen = !chartOpen; render(); }
 function setChartMonth(m) { chartMonth = m; render(); }
 
@@ -609,7 +670,7 @@ function donutSvg(list, total) {
   return '<svg viewBox="0 0 170 170" class="nq-donut" aria-hidden="true">' +
     '<g transform="translate(85,85) rotate(-90)">' + arcs + '</g>' +
     '<text x="85" y="80" text-anchor="middle" class="nq-mid">' + total + '</text>' +
-    '<text x="85" y="96" text-anchor="middle" class="nq-midsub">LOST</text></svg>';
+    '<text x="85" y="96" text-anchor="middle" class="nq-midsub">Lost</text></svg>';
 }
 function renderChart() {
   const host = document.getElementById('chartWrap');
@@ -661,8 +722,8 @@ function renderChart() {
       return '<span style="flex:' + n + ';background:' + colour + ';" title="' +
         word + ' ' + n + '">' + label + '</span>';
     };
-    html += '<div class="nq-bar">' + seg('WON', d.won, 'var(--good)') +
-      seg('LOST', d.lost, 'var(--rouge)') + seg('PENDING', d.pending, '#F5A524') + '</div>';
+    html += '<div class="nq-bar">' + seg('Won', d.won, 'var(--good)') +
+      seg('Lost', d.lost, 'var(--bad)') + seg('Pending', d.pending, '#F5A524') + '</div>';
 
     /* One visual language for the reasons, whatever the size of the month.
        A boxed amber warning for "only 1 lost" read as an error on a card

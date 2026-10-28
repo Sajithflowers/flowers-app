@@ -104,6 +104,23 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
 .attn .due{display:block;font-size:11px;color:var(--tx3);margin-top:1px;}
 .attn .late{color:var(--bad);font-weight:700;}
 </style>
+<link rel="stylesheet" href="type.css">
+<style>
+/* ── the wordmark — one look wherever the logo appears ── */
+.fl-wm{font:300 19px/1 var(--ui) !important;letter-spacing:.3em !important;color:var(--ink) !important;text-transform:uppercase;}
+.fl-wm small,.fl-wm-tag{display:block;font:500 8.5px/1 var(--ui) !important;letter-spacing:.38em !important;
+  color:#8FC9AE !important;text-transform:uppercase !important;margin-top:8px;}</style>
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* section (1) */
+.attn-hd{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (2) */
+.greet,
+.foot{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* button (1) */
+.logout{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -112,7 +129,7 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
 
 <div class="header">
   <div class="header-top">
-    <h1>FLOWERS.AE</h1>
+    <h1 class="fl-wm">FLOWERS.AE<small>The Art of Gifting</small></h1>
     <button class="logout" onclick="FLApp.logout()">Log out</button>
   </div>
   <div class="gold-rule"></div>
@@ -172,7 +189,7 @@ const u = FLApp.currentUser();
 if (u) {
   const r = FLApp.role(u);
   document.getElementById('greet').textContent = 'Welcome back, ' + u.name +
-    (r !== 'staff' ? ' · ' + r.toUpperCase() : '');
+    (r !== 'staff' ? ' · ' + (s => s.charAt(0).toUpperCase() + s.slice(1))(r) : '');
   if (FLApp.canFinance()) document.getElementById('tool-events').style.display = '';
   if (FLApp.isAdmin()) document.getElementById('tool-admin').style.display = '';
   if (FLApp.isCeo()) { location.replace('dashboard.html'); }  /* CEO lands straight on her dashboard */
@@ -184,7 +201,7 @@ if (u) {
     if (pend) {
       const b = document.getElementById('dash-badge');
       b.style.display = '';
-      b.textContent = pend + ' PENDING';
+      b.textContent = pend + ' pending';
     }
   }
   FLApp.renderWhatsNew('whatsNew');

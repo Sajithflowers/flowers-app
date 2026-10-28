@@ -227,6 +227,19 @@ input:focus,select:focus,.search-wrap input:focus,.add-row input:focus{
   .card,.section{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
 </style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (1) */
+.header h1{font-weight:600;letter-spacing:-.012em;}
+
+/* section (1) */
+.card-title{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (3) */
+.hero-charge .label,
+.price-date,
+.price-list-item .ptype{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -234,13 +247,18 @@ input:focus,select:focus,.search-wrap input:focus,.add-row input:focus{
 <script>FLApp.guard();</script>
 
 <div style="background:#0A1A14;display:flex;align-items:center;justify-content:space-between;padding:9px 15px;">
-  <a href="tools.html" class="backlink">‹ TOOLS</a>
+  <a href="tools.html" class="backlink">‹ Tools</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="fl-user-chip" style="color:rgba(230,204,161,.6);font-size:11px;letter-spacing:1px;"></span>
-    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">Log out</button>
   </span>
 </div>
-<script>document.getElementById('fl-user-chip').textContent = FLApp.currentUser() ? FLApp.currentUser().name : '';</script>
+<script>document.getElementById('fl-user-chip').innerHTML = FLApp.currentUser() ? (function (n, r) {
+  const ini = String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return '<span class="fl-user"><span class="av">' + esc(ini) + '</span><span class="nm"><b>' + esc(n) + '</b>' +
+    (r ? '<small>' + esc(r) + '</small>' : '') + '</span></span>';
+})(FLApp.currentUser().name, (r => ({ admin: 'Admin', ceo: 'CEO', finance: 'Finance', staff: 'Staff' })[r] || r)(FLApp.role(FLApp.currentUser()))) : '';</script>
 
 <div class="header">
   <h1>🌸 Event GP Calculator</h1>
@@ -352,7 +370,7 @@ input:focus,select:focus,.search-wrap input:focus,.add-row input:focus{
     <div class="summary-row"><span class="lbl">📦 Sundries</span><span class="val" id="s-sundries">AED 0</span></div>
     <div class="summary-row"><span class="lbl">🚚 Transportation</span><span class="val" id="s-transport">AED 0</span></div>
     <div class="summary-row"><span class="lbl">⏰ Overtime</span><span class="val" id="s-ot">AED 0</span></div>
-    <div class="summary-row total-row"><span class="lbl">TOTAL COST</span><span class="val" id="s-total">AED 0</span></div>
+    <div class="summary-row total-row"><span class="lbl">Total cost</span><span class="val" id="s-total">AED 0</span></div>
   </div>
 
   <!-- Recommended charge -->

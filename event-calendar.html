@@ -147,10 +147,110 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-
   border-radius:var(--r);box-shadow:0 24px 60px rgba(0,0,0,.65);color:var(--ink);}
 .modal-head{background:var(--cardSolid);border-bottom:1px solid var(--cardBorder);}
 .modal-head h3{font-family:var(--ui);color:var(--ink);}
+
+/* ── v5.7.44 calendar ─────────────────────────────────────────────────
+   A month is a table of days: hairlines, not boxes. Colour lives on the
+   events, never on the whole day. Event rows are .ev, NOT .chip — theme.css
+   owns .chip as a 44px button and that collision is what made every event
+   a fat pill. */
+.wrap{max-width:1120px;}
+.cal-card{padding:22px 24px 20px;}
+.cal-top{margin-bottom:18px;align-items:flex-end;}
+.cal-head{display:flex;flex-direction:column;gap:4px;}
+.cal-row{display:flex;align-items:center;gap:8px;}
+.cal-title{font:600 22px/1.2 var(--ui);letter-spacing:-.02em;color:var(--ink);min-width:0;text-align:left;margin-right:6px;}
+.cal-sum{font:400 13px/1.4 var(--ui);color:var(--ink3);}
+.cal-sum b{font-weight:500;color:var(--ink2);font-variant-numeric:tabular-nums;}
+.cal-nav button{width:36px;height:36px;min-width:36px;min-height:36px;border-radius:8px;font-size:16px;position:relative;}
+.cal-nav button::after{content:'';position:absolute;inset:-4px;}
+.cal-today{width:auto !important;padding:0 14px !important;font:600 13px/1 var(--ui) !important;color:var(--ink) !important;
+  border:1px solid var(--cardBorder) !important;background:rgba(255,255,255,.05) !important;border-radius:8px !important;}
+.legend{gap:16px;align-items:center;}
+.legend-key{display:inline-flex;align-items:center;gap:7px;font:500 13px/1 var(--ui);color:var(--ink2);}
+.legend-key i{width:8px;height:8px;border-radius:50%;}
+.legend-key.good i{background:var(--p);} .legend-key.chance i{background:var(--s);}
+
+.grid{gap:0;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-top:0;}
+.wd{background:transparent;color:var(--ink3);font:500 12px/1 var(--ui);letter-spacing:0;text-transform:none;
+  text-align:left;padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.08);}
+.day{min-height:116px;background:transparent;border:0;border-radius:0;padding:8px 8px 10px;gap:3px;
+  border-right:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);}
+.grid > .day:nth-child(7n){border-right:0;}
+.grid > .day.lastrow{border-bottom:0;}
+.day:hover{background:rgba(255,255,255,.03) !important;}
+.day.out{cursor:default;}
+.day.out:hover{background:transparent !important;}
+.day-num{font:500 13px/1 var(--ui);color:var(--ink2);height:24px;min-width:24px;display:inline-flex;align-items:center;
+  justify-content:center;align-self:flex-start;border-radius:12px;margin:0 0 3px -2px;padding:0 2px;}
+.day.past .day-num{color:var(--ink3);}
+.day.out .day-num{color:rgba(255,255,255,.22);}
+.day.today .day-num{background:var(--p);color:var(--onP);font-weight:600;width:24px;height:24px;padding:0;margin-left:-2px;}
+.ev{display:flex;align-items:baseline;gap:6px;min-width:0;padding:4px 6px 4px 7px;border-radius:5px;
+  font:500 12px/1.25 var(--ui);color:var(--ink);background:rgba(29,185,122,.13);box-shadow:inset 2px 0 0 var(--p);}
+.ev.chance{background:rgba(25,184,204,.12);box-shadow:inset 2px 0 0 var(--s);}
+.ev.chance-past{background:rgba(255,255,255,.05);box-shadow:inset 2px 0 0 var(--ink3);color:var(--ink3);}
+.day.past .ev.good{background:rgba(29,185,122,.08);}
+.ev .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;}
+.ev .am{font-size:11.5px;font-weight:500;color:var(--ink3);font-variant-numeric:tabular-nums;flex-shrink:0;}
+.more{font:500 12px/1 var(--ui);color:var(--ink3);padding:3px 0 0 7px;}
+.dots{display:none;gap:3px;flex-wrap:wrap;padding-left:1px;}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--p);}
+.dots i.chance{background:var(--s);} .dots i.chance-past{background:var(--ink3);}
+
+.agenda{display:none;margin-top:18px;}
+.ag-day{font:600 13px/1.3 var(--ui);color:var(--ink);margin:16px 0 6px;}
+.ag-day span{font-weight:400;color:var(--ink3);margin-left:6px;}
+.ag-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;background:rgba(255,255,255,.04);
+  margin-bottom:6px;cursor:pointer;min-height:44px;}
+.ag-row i{width:8px;height:8px;border-radius:50%;background:var(--p);flex-shrink:0;}
+.ag-row i.chance{background:var(--s);}
+.ag-row .nm{flex:1;min-width:0;font:500 14px/1.3 var(--ui);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ag-row .nm small{display:block;font-size:12px;font-weight:400;color:var(--ink3);}
+.ag-row .am{font:500 13px/1 var(--ui);color:var(--ink2);font-variant-numeric:tabular-nums;}
+.ag-empty{font:400 13px/1.5 var(--ui);color:var(--ink3);padding:8px 0;}
+
+@media (max-width:560px){
+  .cal-card{padding:16px 12px 14px;}
+  .cal-top{flex-direction:column;align-items:flex-start;gap:10px;}
+  .cal-title{font-size:19px;}
+  .wd{text-align:center;padding:10px 0 8px;}
+  .day{min-height:54px;padding:6px 2px 6px;align-items:center;}
+  .day-num{margin:0 0 4px;}
+  .day .ev,.day .more{display:none;}
+  .dots{display:flex;justify-content:center;}
+  .agenda{display:block;}
+}
 *{animation-name:none !important;}
 @media (max-width:560px){
   .cal-card{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
+</style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (3) */
+.header h1,
+.cal-title,
+.modal-head h3{font-weight:600;letter-spacing:-.012em;}
+
+/* section (1) */
+.sec-lbl{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (6) */
+.header p,
+.wd,
+.more,
+.block-del,
+.edit-row label,
+.add-form label{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* pill (1) */
+.tag{font-size:11.5px;font-weight:600;letter-spacing:.01em;text-transform:none;}
+
+/* button (4) */
+.chip,
+.btn-mini,
+.msg-compose button,
+.btn-save{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
 </style>
 </head>
 <body>
@@ -159,8 +259,8 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-
 <script>FLApp.guardRole(['admin','ceo']);</script>
 
 <div class="topbar">
-  <a href="tools.html">‹ EVENT TOOLS</a>
-  <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
+  <a href="tools.html">‹ Event tools</a>
+  <button onclick="FLApp.logout()" class="logout">Log out</button>
 </div>
 
 <div class="header">
@@ -171,19 +271,23 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);font-
 <div class="wrap">
   <div class="cal-card">
     <div class="cal-top">
-      <div class="cal-nav">
-        <button onclick="shiftMonth(-1)">‹</button>
-        <div class="cal-title" id="calTitle"></div>
-        <button onclick="shiftMonth(1)">›</button>
-        <button class="cal-today" onclick="goToday()">Today</button>
+      <div class="cal-head">
+        <div class="cal-row cal-nav">
+          <div class="cal-title" id="calTitle"></div>
+          <button onclick="shiftMonth(-1)" aria-label="Previous month">‹</button>
+          <button onclick="shiftMonth(1)" aria-label="Next month">›</button>
+          <button class="cal-today" onclick="goToday()">Today</button>
+        </div>
+        <div class="cal-sum" id="calSum"></div>
       </div>
       <div class="legend">
-        <span class="legend-chip good"><span class="sw"></span>Green <small>— Confirmed events</small></span>
-        <span class="legend-chip chance"><span class="sw"></span>Blue <small>— Chance to have event</small></span>
+        <span class="legend-key good"><i></i>Confirmed</span>
+        <span class="legend-key chance"><i></i>Tentative</span>
       </div>
     </div>
 
     <div class="grid" id="calGrid"></div>
+    <div class="agenda" id="calAgenda"></div>
   </div>
 </div>
 
@@ -231,34 +335,63 @@ function commentsForOrder(orderNo) {
   return (row && row.comments) || [];
 }
 
+function trkAmount(r) {
+  const rev = parseFloat(r.revenue) || 0, d = parseFloat(r.discountPct) || 0;
+  return rev * (1 - d / 100);
+}
+function kAED(n) { return n >= 1000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '') + 'K' : String(Math.round(n)); }
+function dayEvents(d) {
+  const iso = isoFor(d), isPast = iso < todayISO;
+  return confirmedForDay(d).map(r => ({ type: 'good', name: r.client || ('Order #' + r.orderNo),
+      sub: 'Order #' + r.orderNo, amount: trkAmount(r) }))
+    .concat(chanceForDay(d).map(c => ({ type: isPast ? 'chance-past' : 'chance', name: c.text, sub: 'Tentative', amount: 0 })));
+}
+
 function render() {
   document.getElementById('calTitle').textContent = MONTH_NAMES[viewMonth] + ' ' + viewYear;
   const grid = document.getElementById('calGrid');
   const firstDow = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const prevDays = new Date(viewYear, viewMonth, 0).getDate();
+  const cells = Math.ceil((firstDow + daysInMonth) / 7) * 7;
   let html = WD.map(d => '<div class="wd">' + d + '</div>').join('');
-  for (let i = 0; i < firstDow; i++) html += '<div class="day blank"></div>';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const iso = isoFor(d);
-    const conf = confirmedForDay(d);
-    const chance = chanceForDay(d);
-    const isPast = iso < todayISO;
-    const chanceType = isPast ? 'chance-past' : 'chance';
-    const all = conf.map(r => ({ type: 'good', text: 'Order #' + r.orderNo }))
-      .concat(chance.map(c => ({ type: chanceType, text: c.text })));
-    const shown = all.slice(0, 2);
-    const extra = all.length - shown.length;
-    let tint = '';
-    if (conf.length && chance.length) tint = isPast ? ' has-both-past' : ' has-both';
-    else if (conf.length) tint = ' has-good';
-    else if (chance.length) tint = isPast ? ' has-chance-past' : ' has-chance';
-    html += '<div class="day' + (iso === todayISO ? ' today' : '') + tint + '" onclick="openDay(' + d + ')">' +
-      '<div class="day-num">' + d + '</div>' +
-      shown.map(e => '<div class="chip"><span class="cdot ' + e.type + '"></span><span class="ctxt' + (e.type === 'chance-past' ? ' past-txt' : '') + '">' + esc(e.text) + '</span></div>').join('') +
+  let nConf = 0, nChance = 0, booked = 0, agenda = '', earlier = 0;
+  for (let c = 0; c < cells; c++) {
+    const d = c - firstDow + 1;
+    const last = c >= cells - 7 ? ' lastrow' : '';
+    if (d < 1 || d > daysInMonth) {
+      const n = d < 1 ? prevDays + d : d - daysInMonth;
+      html += '<div class="day out' + last + '"><div class="day-num">' + n + '</div></div>';
+      continue;
+    }
+    const iso = isoFor(d), evs = dayEvents(d);
+    evs.forEach(e => { if (e.type === 'good') { nConf++; booked += e.amount; } else nChance++; });
+    const shown = evs.slice(0, 3), extra = evs.length - shown.length;
+    html += '<div class="day' + (iso === todayISO ? ' today' : '') + (iso < todayISO ? ' past' : '') + last +
+      '" onclick="openDay(' + d + ')"><div class="day-num">' + d + '</div>' +
+      shown.map(e => '<div class="ev ' + e.type + '" title="' + esc(e.name) + '"><span class="nm">' + esc(e.name) + '</span>' +
+        (e.amount ? '<span class="am">' + kAED(e.amount) + '</span>' : '') + '</div>').join('') +
       (extra > 0 ? '<div class="more">+' + extra + ' more</div>' : '') +
+      (evs.length ? '<div class="dots">' + evs.slice(0, 4).map(e => '<i class="' + e.type + '"></i>').join('') + '</div>' : '') +
       '</div>';
+    /* the phone list starts at today: what is coming is what gets looked up */
+    if (evs.length && iso < todayISO) earlier += evs.length;
+    else if (evs.length) {
+      const wd = new Date(viewYear, viewMonth, d).toLocaleDateString('en-GB', { weekday: 'short' });
+      agenda += '<div class="ag-day">' + wd + ' ' + d + ' ' + MONTH_NAMES[viewMonth].slice(0, 3) +
+        (iso === todayISO ? '<span>Today</span>' : '') + '</div>' +
+        evs.map(e => '<div class="ag-row" onclick="openDay(' + d + ')"><i class="' + e.type + '"></i><span class="nm">' + esc(e.name) +
+          '<small>' + esc(e.sub) + '</small></span>' + (e.amount ? '<span class="am">' + AED(Math.round(e.amount)) + '</span>' : '') + '</div>').join('');
+    }
   }
   grid.innerHTML = html;
+  document.getElementById('calAgenda').innerHTML =
+    (earlier ? '<div class="ag-empty">' + earlier + ' earlier this month — tap a date above to see them.</div>' : '') +
+    (agenda || '<div class="ag-empty">Nothing else booked this month.</div>');
+  document.getElementById('calSum').innerHTML = nConf || nChance
+    ? '<b>' + nConf + '</b> confirmed' + (booked ? ' · <b>' + AED(Math.round(booked)) + '</b> booked' : '') +
+      (nChance ? ' · <b>' + nChance + '</b> tentative' : '')
+    : 'Nothing booked yet';
 }
 
 function msgListHtml(comments) {

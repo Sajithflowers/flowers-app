@@ -161,6 +161,68 @@ input::placeholder,textarea::placeholder{color:var(--ink3);}
 @media (max-width:560px){
   .card,.summary,.srow{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
+
+/* ── v5.7.44 editor ───────────────────────────────────────────────────
+   3: in review mode the fields are not editable, so they should read as
+   a document — bright values, no input boxes — not as a greyed-out form.
+   The Shopify link is the one action the CEO takes here: it gets colour. */
+.card h2{font:600 17px/1.3 var(--ui) !important;letter-spacing:-.01em;color:var(--p);}
+.v,.tot,.ncell,.sec-total,.big{font-family:var(--ui) !important;font-weight:600;font-variant-numeric:tabular-nums;}
+.btn-open{background:var(--s) !important;color:var(--onP) !important;border:0 !important;font:600 14px/1 var(--ui) !important;
+  letter-spacing:0 !important;text-transform:none !important;padding:0 18px !important;border-radius:8px !important;min-height:44px;}
+.btn-open:hover{filter:brightness(1.08);}
+body.readonly label{color:var(--ink3);margin-bottom:2px;}
+body.readonly input:disabled,body.readonly textarea:disabled{background:transparent !important;border-color:transparent !important;
+  padding-left:0;padding-right:0;min-height:0;opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);font:500 16px/1.4 var(--ui);}
+body.readonly .line input:disabled{font-size:14px;}
+/* the summary rows were picking up the CARD's box (a shared ".card,.summary,
+   .srow" rule), so every line was its own bordered pill with the text on the
+   edge. They are table rows; profit and margin are the answer, so they lead. */
+.srow{background:transparent !important;border:0 !important;border-bottom:1px solid rgba(255,255,255,.07) !important;
+  border-radius:0 !important;box-shadow:none !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;
+  padding:10px 2px !important;font:400 14px/1.4 var(--ui);align-items:baseline;}
+.srow .k{color:var(--ink2);} .srow .v{font-weight:500;color:var(--ink);}
+.srow.big{padding:14px 2px !important;}
+.srow.big .k{font:600 15px/1.3 var(--ui);color:var(--ink);}
+.srow.big .v{font:600 24px/1.1 var(--ui) !important;letter-spacing:-.02em;}
+.srow.big .v .sub{font:400 12.5px/1.4 var(--ui);letter-spacing:0;margin-top:4px;}
+.srow:last-child{border-bottom:0 !important;}
+
+/* the client's name leads; money is green, the discount (money given
+   away) is a soft red, the order number is the teal link colour */
+#f-name{font-size:22px !important;font-weight:600 !important;letter-spacing:-.015em;}
+body.readonly #f-name{font-size:24px !important;}
+#f-order{color:#6FDCEA !important;-webkit-text-fill-color:#6FDCEA !important;font-weight:600 !important;}
+#f-budget{color:#4FE0A3 !important;-webkit-text-fill-color:#4FE0A3 !important;font-weight:600 !important;}
+#f-disc{color:#FCA5A5 !important;-webkit-text-fill-color:#FCA5A5 !important;font-weight:600 !important;}
+body.readonly #f-budget,body.readonly #f-disc,body.readonly #f-order,body.readonly #f-date{font-size:18px !important;}
+.card h2{border-left:4px solid var(--p);padding-left:10px;line-height:1.15 !important;}
+.line .tot{color:#fff !important;font-weight:600 !important;}
+.sec-total{font:500 13px/1.4 var(--ui) !important;color:var(--ink2) !important;}
+.sec-total b,.sec-total strong{color:#4FE0A3;font-size:16px;font-weight:600;}
+#sum-order{font:500 13px/1 var(--ui) !important;letter-spacing:0 !important;color:var(--ink3) !important;}
+</style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (1) */
+.card h2{font-weight:600;letter-spacing:-.012em;}
+
+/* section (1) */
+.line-head{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
+
+/* label (2) */
+label,
+.srow .sub{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* pill (2) */
+.read-tag,
+.pill{font-size:11.5px;font-weight:600;letter-spacing:.01em;text-transform:none;}
+
+/* button (4) */
+.add-line,
+.danger,
+.appr,
+.share-btn{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
 </style>
 </head>
 <body>
@@ -169,7 +231,7 @@ input::placeholder,textarea::placeholder{color:var(--ink3);}
 <script>FLApp.guardRole(['admin','finance','ceo']);</script>
 
 <div class="topbar">
-  <a href="events.html">‹ EVENTS</a>
+  <a href="events.html">‹ Events</a>
   <span class="status" id="save-status">—</span>
 </div>
 
@@ -186,7 +248,7 @@ input::placeholder,textarea::placeholder{color:var(--ink3);}
     </div>
     <div class="shopify-row" id="shopifyRow">
       <div><label>Shopify order link (optional)</label><input id="f-shopify" placeholder="Paste link…"></div>
-      <button class="btn-open" onclick="openShopify()">OPEN ↗</button>
+      <button class="btn-open" onclick="openShopify()">Open ↗</button>
     </div>
     <div class="grid2" id="occasionRow" style="display:none;">
       <div><label>Occasion (optional)</label><input id="f-occasion" list="occasion-list" placeholder="e.g. Birthday, Anniversary"></div>
@@ -635,10 +697,10 @@ function calc() {
 
 function refresh() {
   const c = calc();
-  document.getElementById('sum-order').textContent = (ev.orderNo || '').trim() ? 'ORDER #' + ev.orderNo.trim() : '';
-  document.getElementById('flowersTotal').textContent = 'Flowers total: ' + AED(c.flowers);
-  document.getElementById('sundriesTotal').textContent = 'Sundries total: ' + AED(c.sundries);
-  document.getElementById('otherTotal').textContent = 'Other cost total: ' + AED(c.other);
+  document.getElementById('sum-order').textContent = (ev.orderNo || '').trim() ? 'Order #' + ev.orderNo.trim() : '';
+  document.getElementById('flowersTotal').innerHTML = 'Flowers total <b>' + AED(c.flowers) + '</b>';
+  document.getElementById('sundriesTotal').innerHTML = 'Sundries total <b>' + AED(c.sundries) + '</b>';
+  document.getElementById('otherTotal').innerHTML = 'Other cost total <b>' + AED(c.other) + '</b>';
   document.getElementById('summaryBox').innerHTML =
     '<div class="srow"><span class="k">Event budget</span><span class="v">' + AED(c.budget) + '</span></div>' +
     (c.discPct ? '<div class="srow"><span class="k">Discount (' + c.discPct + '%)</span><span class="v">− ' + AED(c.discount) + '</span></div>' +
@@ -956,6 +1018,11 @@ if (READONLY) {
 ['flowers', 'sundries', 'other'].forEach(renderLines);
 refresh();
 applyReadonly();
+if (READONLY) {
+  document.body.classList.add('readonly');
+  const n = document.getElementById('f-notes');
+  if (n && !n.value.trim()) n.closest('.card').style.display = 'none';
+}
 status.textContent = READONLY ? 'Review mode — read only' : (params.get('id') ? 'Saved ✓' : 'New event');
 
 /* If this page opened in the fraction of a second before the photo store

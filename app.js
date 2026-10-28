@@ -1156,32 +1156,36 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['The whole app is green now, not purple',
-       'Every screen, not just three. Emerald with teal for the second colour, on a dark background. Amber now means one thing and one thing only — something is waiting for you — so the approvals banner is the only warm thing anywhere and cannot be missed.'],
-      ['Proposals and Timelines have been removed',
-       'Both screens and both editors are gone. Nothing was deleted from the database, so any proposal you had made is still stored and could be brought back; only the screens went. Worth knowing: timelines never synced between devices, so they only ever existed on whichever device typed them.'],
-      ['You can correct an order number in the Tracker',
-       'Admin only. Tap the number and change it. If any GP sheets are on the old number it asks whether to move them across, and if you say no it changes nothing at all — not even the Tracker row. It refuses an empty number and refuses one another row already has, because two rows sharing a number is how a sale loses its costing.'],
-      ['Everything was measured, not eyeballed',
-       'Every page was checked at phone width and desktop width for readable contrast and for buttons big enough to hit. Six things were failing and have been fixed, including one that was already wrong in the last version. Nothing is below the standard on any screen now.'],
-      ['Less movement, not more',
-       'The old version faded six blocks up the screen every time you opened it, which meant the month figure was unreadable for the first half second. That is gone. Now only the figures and the charts move: the numbers roll up to their value and the bars grow out of the baseline. Everything else is simply there.'],
-      ['The quotation and the expense sheet were not touched',
-       'Not one character. Both are byte for byte what they were, because they print for clients and Jo approves on one of them.']
+      ['A new look and a new font',
+       'Every screen now uses Space Grotesk, with no more shouting capitals. The top bar shows a simple "Up to date" dot instead of SYNCED.'],
+      ['The calendar is redesigned',
+       'Each event shows the client\x27s name and value, the month shows its total, and on a phone there is a list of what is coming.'],
+      ['Two new figures on the dashboard',
+       'Average order value for this month, and events\x27 share of company income.'],
+      ['The Contribution PDF is readable',
+       'It is now a white page. Its total covers finished months only, so the month in progress no longer slips in.'],
+      ['Pages open on this month',
+       'GP Sheets and Enquiries both start on the current month. The Enquiries filters are now at the top.'],
+      ['Quotations and expense sheets were not touched',
+       'Not one character.']
     ],
     ceo: [
-      ['The app is green instead of purple, on every screen',
-       'Your approvals banner is still the first thing on the dashboard and still says the same thing. Amber is now reserved for it alone — nothing else in the app is a warm colour — so it stands out more than it did, not less.'],
-      ['Your approve and reject buttons look different, and only look different',
-       'They are green and red as before, just brighter so they read on the dark background. What they DO has not changed by one line. The code underneath the GP sheet is byte for byte identical to last version — the only thing that changed on that page is colour. Please press them once on a real sheet before trusting that, and tell me immediately if anything is off.'],
-      ['The expense sheet is exactly as it was',
-       'Untouched, deliberately. So are the quotations.']
+      ['A cleaner look and a new font',
+       'Same screens, easier to read.'],
+      ['GP sheets read like a document',
+       'The client\x27s name is large, budget in green, discount in red, and a clear button to open the Shopify order. An empty notes box is hidden.'],
+      ['Two new figures on the dashboard',
+       'Average order value for this month, and events\x27 share of company income.'],
+      ['Your approve and reject buttons work exactly as before',
+       'Only the look changed.']
     ],
     finance: [
-      ['The app is green instead of purple',
-       'Every screen, but only the colours. Not one number, report, total or calculation changed anywhere. The charts are new colours drawing the same figures.'],
-      ['Proposals and Timelines are gone from the menu',
-       'Neither held any financial figure. Nothing was removed from the database.']
+      ['A new look and font',
+       'The colours and type changed; the calculations did not, with one exception below.'],
+      ['Contribution report: total now covers finished months only',
+       'It used to include the month still in progress, even though its footnote said it did not. The PDF is also a readable white page now.'],
+      ['Dashboard: event share of company',
+       'A new tile with the same figure as the report.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1748,7 +1752,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.43';
+  const APP_VERSION = '5.7.44';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

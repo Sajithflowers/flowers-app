@@ -86,6 +86,13 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);
   .pane,.tool{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
 </style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (3) */
+.header h1,
+.tool h2,
+.tool .arrow{font-weight:600;letter-spacing:-.012em;}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -93,10 +100,10 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);
 <script>FLApp.guard();</script>
 
 <div class="topbar">
-  <a href="home.html">‹ HOME</a>
+  <a href="home.html">‹ Home</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="user-chip"></span>
-    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">Log out</button>
   </span>
 </div>
 
@@ -173,7 +180,12 @@ body{background:var(--ground);background-attachment:fixed;color:var(--ink);
 
 <script>
 const _u = FLApp.currentUser();
-document.getElementById('user-chip').textContent = _u ? _u.name.toUpperCase() : '';
+document.getElementById('user-chip').innerHTML = _u ? (function (n, r) {
+  const ini = String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return '<span class="fl-user"><span class="av">' + esc(ini) + '</span><span class="nm"><b>' + esc(n) + '</b>' +
+    (r ? '<small>' + esc(r) + '</small>' : '') + '</span></span>';
+})(_u.name, (r => ({ admin: 'Admin', ceo: 'CEO', finance: 'Finance', staff: 'Staff' })[r] || r)(FLApp.role(_u))) : '';
 if (_u) {
   const _role = FLApp.role(_u);
   const isCeoOrFinance = FLApp.isCeo() || _role === 'finance';

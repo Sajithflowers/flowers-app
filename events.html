@@ -210,12 +210,263 @@ td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var
 .order-edit:hover{border-color:var(--cardBorder);background:rgba(0,0,0,.2);}
 .order-edit:focus{border-color:transparent;background:rgba(0,0,0,.3);
   outline:2px solid var(--p);outline-offset:1px;}
+
+/* ── v5.7.44 type, approved 28 Oct on the Monthly preview ──────────────
+   Scoped to the tabs and the Monthly tab only; the rest of the app
+   still runs the v5.7.43 type until it is previewed. What changed:
+   - one face. Inter has tabular figures, so JetBrains Mono goes here.
+   - figures lead at 30px against 12-13px labels; "AED" is set small
+     and grey in front so a figure reads as a number, not a string.
+   - medium, not bold: light type on a dark ground looks a weight
+     heavier than it is.
+   - neutral greys at the SAME luminance as the green-tinted ones, so
+     they pass on glass exactly where the old ones did (>=4.8:1).
+   - no amber: it only ever means "waiting on you". */
+.header .tabs{gap:4px;border-bottom:1px solid var(--cardBorder);margin-top:14px;}
+.header .tab{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;
+  color:#9AA39F;font:500 14px/1 var(--ui);letter-spacing:-.006em;text-transform:none;
+  padding:15px 14px 13px;min-height:44px;margin-bottom:-1px;}
+.header .tab:hover{color:#ABB4B0;}
+.header .tab.active{background:none;color:#DDE3E0;border-bottom-color:var(--p);}
+
+#tab-monthly{--ink:#DDE3E0;--ink2:#ABB4B0;--ink3:#9AA39F;
+  font:400 14px/1.5 var(--ui);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+#tab-monthly .fig{font-family:var(--ui);font-variant-numeric:tabular-nums lining-nums;}
+#tab-monthly .chip{font:500 13px/1 var(--ui);letter-spacing:0;color:var(--ink2);}
+#tab-monthly .chip.on{color:var(--onP);font-weight:600;}
+
+#tab-monthly .kpi{padding:22px 24px;}
+#tab-monthly .kpi .kl{font:500 13px/1.2 var(--ui);letter-spacing:-.003em;text-transform:none;color:var(--ink2);}
+#tab-monthly .kpi .kv{display:flex;align-items:baseline;gap:6px;margin-top:12px;
+  font:500 30px/1.05 var(--ui);font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.028em;color:var(--ink);}
+#tab-monthly .kpi.lead .kv{color:var(--p);}
+#tab-monthly .kpi .kv.neg{color:var(--bad);}
+#tab-monthly .kv .cur{font:500 13px/1 var(--ui);letter-spacing:.02em;color:var(--ink3);}
+#tab-monthly .kv .pc{font-size:20px;letter-spacing:-.01em;color:var(--ink2);margin-left:-5px;}
+#tab-monthly .kpi .kd{font:400 13px/1.45 var(--ui);letter-spacing:0;color:var(--ink3);margin-top:8px;}
+#tab-monthly .kpi .kd + .kd{margin-top:2px;}
+#tab-monthly .kpi .kd b{font:500 13px/1.45 var(--ui);font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap;}
+#tab-monthly .gauge{position:relative;height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:14px;}
+#tab-monthly .gauge i{position:absolute;left:0;top:0;bottom:0;background:var(--p);border-radius:2px;}
+#tab-monthly .gauge s{position:absolute;top:-4px;width:2px;height:12px;margin-left:-1px;background:var(--ink);border-radius:1px;}
+
+#tab-monthly .chart-card{padding:22px 24px 18px;}
+#tab-monthly .chart-card h3{margin:0;font:600 16px/1.3 var(--ui);letter-spacing:-.012em;color:var(--ink);}
+#tab-monthly .chart-card .csub{margin:4px 0 26px;font:400 13px/1.45 var(--ui);color:var(--ink3);}
+#tab-monthly .mchart{display:flex;align-items:flex-end;gap:12px;height:160px;}
+#tab-monthly .mcol{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;height:100%;}
+#tab-monthly .mcol .v{font:500 12px/1 var(--ui);font-variant-numeric:tabular-nums;color:var(--ink3);white-space:nowrap;}
+#tab-monthly .mcol .b{width:100%;max-width:52px;border-radius:4px 4px 0 0;}
+#tab-monthly .mcol.hi .v{color:var(--ink);font-weight:600;}
+#tab-monthly .mmonths{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.065);}
+#tab-monthly .mmonths span{flex:1;min-width:0;text-align:center;font:500 12px/1 var(--ui);color:var(--ink3);}
+#tab-monthly .mmonths span.hi{color:var(--ink);}
+
+#tab-monthly .month-head{font:600 16px/1.3 var(--ui);letter-spacing:-.012em;color:var(--ink);margin:28px 2px 10px;}
+#tab-monthly table{font:400 13px/1.4 var(--ui);font-variant-numeric:tabular-nums lining-nums;}
+#tab-monthly th{background:transparent;color:var(--ink3);font:500 12px/1.2 var(--ui);letter-spacing:0;text-transform:none;padding:12px 12px;}
+#tab-monthly td{padding:11px 12px;color:var(--ink);}
+#tab-monthly td b{font-weight:600;}
+/* the id selector above outranks td.pos/td.neg, so restate them: a loss
+   or a GP under target must still read red */
+#tab-monthly td.pos{color:var(--p);font-weight:500;}
+#tab-monthly td.neg{color:var(--bad);font-weight:500;}
+#tab-monthly tr.total td{background:rgba(255,255,255,.035);color:var(--ink);font-weight:600;
+  border-top:1px solid rgba(255,255,255,.14);}
+@media (min-width:900px){ #tab-monthly .kpis{grid-template-columns:repeat(4,minmax(0,1fr));} }
+@media (max-width:560px){
+  #tab-monthly .kpi{padding:18px;}
+  #tab-monthly .kpi .kv{font-size:24px;}
+  #tab-monthly .kv .pc{font-size:17px;}
+  #tab-monthly .mchart,#tab-monthly .mmonths{gap:4px;}
+  #tab-monthly .mcol .v{font-size:10.5px;letter-spacing:-.02em;}
+  #tab-monthly .mmonths span{font-size:11px;}
+  /* twelve values do not fit across a phone; keep the one you are
+     looking at and the year's peak */
+  #tab-monthly .mcol:not(.hi):not(.pk) .v{visibility:hidden;}
+  .header .tab{padding:15px 11px 13px;}
+}
 /* editorial motion: only the bars move, and they wipe up out of the axis */
+
+/* ── v5.7.44 the contribution report is paper ───────────────────────── */
+#repPaper{--pInk:#17201B;--pInk2:#4E5954;--pInk3:#66706B;--pRule:#E3E8E5;--pDeep:#0E7A4E;
+  background:#fff !important;color:var(--pInk);border:1px solid var(--pRule);border-radius:10px;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);-webkit-backdrop-filter:none;backdrop-filter:none;}
+/* a plain family list: html2canvas hands this to a canvas, and a list holding
+   system-ui / -apple-system came out as Times in the PDF, and Inter (a variable
+   font) lost its word spaces. The device sans-serif renders cleanly. */
+#repPaper,#repPaper *{font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif !important;}
+#repPaper .rh{background:linear-gradient(135deg,#0B2A22,#0E6B47);padding:22px 28px 20px;}
+#repPaper .rwm{font-size:19px;font-weight:600;letter-spacing:.14em;color:#fff;}
+#repPaper .rwm small{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:#A8E6C9;font-weight:600;margin-top:5px;}
+#repPaper .rdt{font-size:12.5px;letter-spacing:0;text-transform:none;color:#CDEBDD;}
+#repPaper .rdt b{font-size:17px;font-weight:600;letter-spacing:-.01em;margin-bottom:3px;}
+#repPaper .rb{background:#fff;padding:24px 28px 24px;}
+#repPaper .rk{background:var(--pRule);border-color:var(--pRule);border-radius:8px;margin-bottom:24px;}
+#repPaper .rk > div{background:#fff;padding:16px 18px;}
+#repPaper .rk .k{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--pInk2);}
+#repPaper .rk .v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--pInk);font-variant-numeric:tabular-nums;margin-top:8px;}
+#repPaper .rk .s{font-size:12px;color:var(--pInk3);margin-top:4px;}
+#repPaper h4{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--pInk);}
+#repPaper .rsub{font-size:12.5px;color:var(--pInk2);margin-bottom:12px;}
+#repPaper .rleg{color:var(--pInk2);font-size:12px;}
+#repPaper svg line{stroke:#E6EBE8;}
+#repPaper svg text{fill:var(--pInk3);font-size:11px;}
+#repPaper svg text[font-weight="700"]{fill:var(--pDeep);font-weight:600;}
+#repPaper table{font-size:13px;}
+#repPaper thead th{background:#F2F5F3;color:var(--pInk2);font-size:12px;font-weight:600;letter-spacing:0;
+  text-transform:none;padding:10px 10px;border-bottom:1px solid var(--pRule);}
+#repPaper tbody td{color:var(--pInk);padding:9px 10px;border-bottom:1px solid #EEF1EF;}
+#repPaper tbody tr:nth-child(even),#repPaper td.ra,#repPaper tbody tr:nth-child(even) td.ra{background:#F8FAF9;}
+#repPaper tbody tr.ro td{color:var(--pInk3);}
+#repPaper .rsh{color:var(--pDeep);font-weight:600;}
+#repPaper .rsf{color:var(--pInk3);font-size:11.5px;font-style:italic;letter-spacing:0;}
+#repPaper tbody tr.rs td{background:#E8F5EE;color:#0B3D2A;font-weight:600;border-top:1.5px solid var(--pDeep);}
+#repPaper .rfoot{color:var(--pInk2);font-size:11.5px;border-top-color:var(--pRule);}
+#repPaper .rk > div.rkey{background:#E8F5EE;}
+#repPaper .rk > div.rkey .k{color:#0B3D2A;font-weight:600;}
+#repPaper .rk > div.rkey .v{color:#0E7A4E;font-size:30px;}
+#repPaper tbody td.rsh{font-weight:600;color:#0E7A4E;}
+#repPaper tbody tr.ro td.rsh{color:var(--pInk3);font-weight:500;}
+#repPaper tbody tr.rs td{background:#0E5E40 !important;color:#fff !important;font-weight:600;border-top:0;padding:12px 10px;}
+#repPaper tbody tr.rs td:last-child{font-size:15px;font-weight:700;}
+#repPaper .rfin{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.18);
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:1px;}
+#repPaper .rsig{color:var(--pInk3);font-size:11.5px;letter-spacing:.02em;text-transform:none;}
+
+/* ── v5.7.44 GP Sheets list ───────────────────────────────────────────
+   1: the filter row was four 44px pills — now a compact row whose hit
+   area still reaches 44px. 8: serif, spaced-out headings and boxed rows
+   replaced with a plain list. */
+#tab-events .search{font:400 14px/1.4 var(--ui);margin-bottom:12px;}
+#tab-events .filters{gap:6px;margin:0 0 18px;}
+#tab-events .fchip{position:relative;min-height:34px;height:34px;padding:0 14px;border-radius:17px;
+  font:500 13px/1 var(--ui);letter-spacing:0;text-transform:none;color:var(--ink2);}
+#tab-events .fchip::after{content:'';position:absolute;inset:-5px -2px;}
+#tab-events .fchip.on{color:var(--onP);font-weight:600;}
+#tab-events .drill{border-radius:12px;border-left:1px solid var(--cardBorder);padding:14px 18px;margin-bottom:8px;gap:12px;}
+#tab-events .drill.year{border-left:1px solid var(--cardBorder);}
+#tab-events .drill.year .dr-title{font:600 20px/1.2 var(--ui) !important;letter-spacing:-.015em;color:var(--ink);}
+#tab-events .drill.month{margin-left:0;border-left:1px solid var(--cardBorder);padding:12px 18px;}
+#tab-events .drill.month .dr-title{font:500 15px/1.3 var(--ui);letter-spacing:0;color:var(--ink);}
+#tab-events .dr-arrow{color:var(--ink3);font-size:16px;}
+#tab-events .dr-meta{font:400 13px/1.5 var(--ui);color:var(--ink3);}
+#tab-events .dr-meta b{font:500 13px/1.5 var(--ui);color:var(--p);}
+#tab-events .ev{display:flex;align-items:center;gap:16px;border-radius:12px;border-left:1px solid var(--cardBorder);
+  padding:14px 18px;margin-bottom:8px;}
+#tab-events .ev:hover{border-color:rgba(255,255,255,.2);}
+#tab-events .ev-main{flex:1;min-width:0;}
+#tab-events .ev h2{font:600 16px/1.3 var(--ui);letter-spacing:-.01em;color:var(--ink);margin:0;}
+#tab-events .ev .meta{font:400 13px/1.4 var(--ui);color:var(--ink3);margin-top:4px;gap:4px 14px;}
+#tab-events .ev .meta b{font-weight:500;color:var(--ink2);font-variant-numeric:tabular-nums;}
+#tab-events .ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+#tab-events .ev .gp{font:600 18px/1 var(--ui);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+#tab-events .ev .gp small{font-size:11px;font-weight:500;color:var(--ink3);margin-left:4px;letter-spacing:0;}
+.st{display:inline-flex;align-items:center;gap:6px;font:500 12.5px/1 var(--ui);color:var(--ink2);white-space:nowrap;}
+.st i{width:7px;height:7px;border-radius:50%;background:var(--amber);}
+.st.pending{color:#F6BE63;}
+.st.approved i{background:var(--ok);} .st.approved{color:#7FE9AC;}
+.st.rejected i{background:var(--bad);} .st.rejected{color:#FCA5A5;}
+@media (max-width:560px){ #tab-events .ev{padding:12px 14px;gap:10px;} #tab-events .ev .gp{font-size:16px;} }
+
+/* ── v5.7.44 page tabs: a switcher you can find at a glance ─────────── */
+.header .tabs{display:inline-flex !important;gap:4px;margin:18px auto 4px;padding:4px;border:1px solid var(--cardBorder) !important;
+  border-radius:12px;background:rgba(255,255,255,.04);}
+.header{display:flex;flex-direction:column;align-items:center;}
+.header .tab{border:0 !important;border-radius:9px !important;margin:0 !important;padding:0 22px !important;min-height:42px;
+  display:inline-flex;align-items:center;font:600 15px/1 var(--ui) !important;color:var(--ink2) !important;letter-spacing:-.005em !important;}
+.header .tab:hover{color:var(--ink) !important;background:rgba(255,255,255,.05);}
+.header .tab.active{background:var(--p) !important;color:var(--onP) !important;box-shadow:0 6px 18px rgba(29,185,122,.28);}
+@media (max-width:560px){ .header .tabs{width:100%;} .header .tab{flex:1;justify-content:center;padding:0 6px !important;font-size:14px !important;} }
+
+/* ── v5.7.44 the Monthly chart ─────────────────────────────────────────
+   A y-axis you can read values off, an average line, the month you are
+   looking at lit up, every other month on hover. Bars grow out of the
+   axis once, on open (a transition — this page switches animations off). */
+#tab-monthly .nchart{position:relative;display:grid;grid-template-columns:44px 1fr;height:220px;margin-top:6px;}
+#tab-monthly .ny{position:relative;}
+#tab-monthly .ny span{position:absolute;right:10px;transform:translateY(50%);font:500 11.5px/1 var(--ui);color:var(--ink3);
+  font-variant-numeric:tabular-nums;}
+#tab-monthly .nplot{position:relative;display:flex;align-items:flex-end;gap:10px;border-bottom:1px solid rgba(255,255,255,.12);}
+#tab-monthly .ngrid{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(255,255,255,.06);pointer-events:none;}
+#tab-monthly .navg{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed rgba(95,227,245,.55);pointer-events:none;z-index:2;}
+#tab-monthly .navg b{position:absolute;right:0;top:-11px;font:600 11px/1 var(--ui);color:#06181B;background:#5FE3F5;
+  padding:5px 8px;border-radius:999px;}
+#tab-monthly .ncol{position:relative;flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+  align-items:center;outline:none;border-radius:10px 10px 0 0;}
+#tab-monthly .ncol.hi{background:linear-gradient(180deg,rgba(29,185,122,0),rgba(29,185,122,.07));}
+#tab-monthly .nb{width:100%;max-width:46px;border-radius:8px 8px 3px 3px;transform-origin:bottom;transform:scaleY(0);
+  transition:transform .65s cubic-bezier(.16,1,.3,1),filter .2s;
+  background:linear-gradient(180deg,rgba(45,190,133,.62),rgba(45,190,133,.12));box-shadow:inset 0 2px 0 rgba(140,255,205,.35);}
+#tab-monthly .nchart.go .nb{transform:none;}
+#tab-monthly .ncol:hover .nb,#tab-monthly .ncol:focus .nb{filter:brightness(1.35);}
+#tab-monthly .ncol.hi .nb{background:linear-gradient(180deg,#6CF5BF,#1DB97A 55%,rgba(29,185,122,.55));
+  box-shadow:0 0 0 1px rgba(108,245,191,.35),0 10px 30px rgba(29,185,122,.45);}
+#tab-monthly .nv{font:600 12px/1 var(--ui);color:var(--ink2);margin-bottom:8px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+#tab-monthly .ncol.hi .nv{color:#fff;font-size:13px;}
+#tab-monthly .ncol:not(.hi):not(.pk) .nv{visibility:hidden;}
+#tab-monthly .tip{position:absolute;bottom:calc(var(--h) + 34px);left:50%;transform:translate(-50%,6px);opacity:0;pointer-events:none;
+  transition:opacity .15s,transform .15s;z-index:5;white-space:nowrap;background:#0B1512;border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:9px 11px;box-shadow:0 14px 30px rgba(0,0,0,.5);text-align:left;}
+#tab-monthly .tip b{display:block;font:600 14px/1.2 var(--ui);color:#fff;font-variant-numeric:tabular-nums;}
+#tab-monthly .tip span{display:block;font:500 11.5px/1.3 var(--ui);color:var(--ink3);margin-top:3px;}
+#tab-monthly .ncol:hover .tip,#tab-monthly .ncol:focus .tip{opacity:1;transform:translate(-50%,0);}
+#tab-monthly .nmonths{display:grid;grid-template-columns:44px 1fr;margin-top:10px;}
+#tab-monthly .nmonths div{display:flex;gap:10px;}
+#tab-monthly .nmonths span{flex:1;min-width:0;text-align:center;font:500 12px/1 var(--ui);color:var(--ink3);}
+#tab-monthly .nmonths span.hi{color:#fff;font-weight:600;}
+@media (max-width:560px){
+  #tab-monthly .nchart{grid-template-columns:34px 1fr;height:180px;}
+  #tab-monthly .nplot,#tab-monthly .nmonths div{gap:4px;}
+  #tab-monthly .nmonths{grid-template-columns:34px 1fr;}
+  #tab-monthly .nmonths span{font-size:10.5px;}
+  #tab-monthly .nv{font-size:10.5px;}
+  #tab-monthly .navg b{font-size:10px;padding:4px 6px;}
+}
+
+/* ── the wordmark — one look wherever the logo appears ── */
+.fl-wm{font:300 19px/1 var(--ui) !important;letter-spacing:.3em !important;color:var(--ink) !important;text-transform:uppercase;}
+.fl-wm small,.fl-wm-tag{display:block;font:500 8.5px/1 var(--ui) !important;letter-spacing:.38em !important;
+  color:#8FC9AE !important;text-transform:uppercase !important;margin-top:8px;}
 *{animation-name:none !important;}
 @media (max-width:560px){
   .ev,.kpi,.chart-card,.drill,.section,.rep{
     -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
 }
+</style>
+<link rel="stylesheet" href="type.css">
+<style id="type-roles">/* v5.7.44 type: this page's own labels, buttons and pills */
+/* serif (9) */
+.header h1,
+.ev h2,
+.year-head,
+.month-head,
+.trk-form h3,
+.drill.year .dr-title,
+.drill.month .dr-title,
+.kpi .kv,
+.chart-card h3{font-weight:600;letter-spacing:-.012em;}
+
+/* label (6) */
+.header p,
+.trk-grid label,
+.rep-ctl .lbl,
+.rep-pdf,
+.kpi .kl,
+.kpi .kd{font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;}
+
+/* pill (1) */
+.pill{font-size:11.5px;font-weight:600;letter-spacing:.01em;text-transform:none;}
+
+/* button (5) */
+.tab,
+.fchip,
+.fab,
+.mini,
+.trk-add{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
+
+/* th (1) */
+th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
 </style>
 </head>
 <body>
@@ -229,11 +480,11 @@ td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var
 <script src="vendor/html2canvas.min.js"></script>
 
 <div class="topbar">
-  <a href="home.html">‹ HOME</a>
+  <a href="home.html">‹ Home</a>
   <span style="display:flex;align-items:center;gap:12px;">
     <span id="sync-chip" style="font-size:10px;letter-spacing:1px;color:rgba(230,204,161,.7);"></span>
     <span id="user-chip"></span>
-    <button onclick="FLApp.logout()" class="logout">LOG OUT</button>
+    <button onclick="FLApp.logout()" class="logout">Log out</button>
   </span>
 </div>
 
@@ -310,7 +561,12 @@ td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var
 <button class="fab" onclick="location.href='event-editor.html'">＋ New Event</button>
 
 <script>
-document.getElementById('user-chip').textContent = FLApp.currentUser().name.toUpperCase() + ' · ' + FLApp.role(FLApp.currentUser()).toUpperCase();
+document.getElementById('user-chip').innerHTML = (function (n, r) {
+  const ini = String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return '<span class="fl-user"><span class="av">' + esc(ini) + '</span><span class="nm"><b>' + esc(n) + '</b>' +
+    (r ? '<small>' + esc(r) + '</small>' : '') + '</span></span>';
+})(FLApp.currentUser().name, (r => ({ admin: 'Admin', ceo: 'CEO', finance: 'Finance', staff: 'Staff' })[r] || r)(FLApp.role(FLApp.currentUser())));
 if (FLApp.isAdmin()) document.getElementById('trkForm').style.display = '';
 
 const AED = n => 'AED ' + (Math.round(n * 100) / 100).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -344,9 +600,14 @@ function switchTab(t) {
 
 /* ── Events list: Year → Month → events drill-down ──
    position is remembered, so coming back from an event lands on the same month */
-let openYear = sessionStorage.getItem('fl_drill_year') || null;
-let openMonth = sessionStorage.getItem('fl_drill_month') || null;
+/* First visit in a session opens on THIS month — a single "2026" row to
+   click through was a wasted step every time. Once someone navigates,
+   their place is kept as before. */
+const DRILL_SET = !!sessionStorage.getItem('fl_drill_set');
+let openYear = DRILL_SET ? (sessionStorage.getItem('fl_drill_year') || null) : String(new Date().getFullYear());
+let openMonth = DRILL_SET ? (sessionStorage.getItem('fl_drill_month') || null) : openYear + '-' + (new Date().getMonth() + 1);
 function saveDrill() {
+  sessionStorage.setItem('fl_drill_set', '1');
   if (openYear) sessionStorage.setItem('fl_drill_year', openYear); else sessionStorage.removeItem('fl_drill_year');
   if (openMonth) sessionStorage.setItem('fl_drill_month', openMonth); else sessionStorage.removeItem('fl_drill_month');
 }
@@ -359,6 +620,12 @@ function apprPill(ev) {
   return '<span class="pill pending">Pending review</span>';
 }
 
+function evStatus(ev) {
+  const s = apprStatus(ev);
+  const t = s === 'approved' ? 'Approved' : s === 'rejected' ? 'Not approved' : 'Pending review';
+  return '<span class="st ' + s + '"><i></i>' + t + '</span>';
+}
+const AEDw = n => 'AED ' + Math.round(n).toLocaleString('en-US');
 function evCard(ev) {
   const c = calcEvent(ev);
   const el = document.createElement('div');
@@ -370,16 +637,14 @@ function evCard(ev) {
     : (apprStatus(ev) === 'pending' && a.priorReason
       ? '<div class="reject-reason" style="color:var(--good);">Was: "' + a.priorReason + '"' + (a.adminNote ? ' — Resent: "' + a.adminNote + '"' : '') + '</div>'
       : '');
+  /* one row: who and what on the left, the two things that matter on the right */
   el.innerHTML =
-    '<div class="ev-top"><h2></h2><span class="gp ' + (c.gp >= GPT ? 'pos' : 'neg') + '">' + c.gp.toFixed(1) + '%</span></div>' +
-    '<div class="meta">' +
-      '<span>' + fmtD(ev.date) + '</span>' +
-      '<span>Order <b>' + (ev.orderNo || '—') + '</b></span>' +
-      '<span>Budget <b>' + AED(c.budget) + '</b></span>' +
-      (c.discPct ? '<span>Disc <b>' + c.discPct + '%</b></span>' : '') +
-      '<span>Cost <b>' + AED(c.cost) + '</b></span>' +
-      apprPill(ev) +
-    '</div>' + rejectedReason;
+    '<div class="ev-main"><h2></h2>' +
+      '<div class="meta"><span>' + fmtD(ev.date) + '</span><span>#' + (ev.orderNo || '—') + '</span>' +
+        '<span>Budget <b>' + AEDw(c.budget) + '</b></span>' +
+        (c.discPct ? '<span>−' + c.discPct + '%</span>' : '') +
+        '<span>Cost <b>' + AEDw(c.cost) + '</b></span></div>' + rejectedReason + '</div>' +
+    '<div class="ev-side"><span class="gp ' + (c.gp >= GPT ? 'pos' : 'neg') + '">' + c.gp.toFixed(1) + '%<small>GP</small></span>' + evStatus(ev) + '</div>';
   el.querySelector('h2').textContent = ev.name || 'Untitled event';
   return el;
 }
@@ -779,7 +1044,7 @@ function renderTracker() {
       groupAfter = 0;
       lastGroup = groupKey;
       const [y, m] = groupKey ? groupKey.split('-').map(Number) : [null, null];
-      const label = (y && m) ? MONTH_NAMES[m - 1].toUpperCase() + ' ' + y : 'NO DATE YET';
+      const label = (y && m) ? MONTH_NAMES[m - 1] + ' ' + y : 'No date yet';
       const head = document.createElement('tr');
       head.innerHTML = '<td colspan="10" style="background:transparent;font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
       tb.appendChild(head);
@@ -827,33 +1092,36 @@ function renderTracker() {
 let dashYear = null;
 let dashMonth = 'all';
 
-function barChart(perMonth, year) {
-  /* single-series revenue-by-month bars, rouge on white, recessive grid */
-  const W = 620, H = 250, padL = 10, padR = 10, padT = 26, padB = 26;
+function barChart(perMonth, year, hi, counts) {
+  /* a readable scale: the smallest clean step that needs five lines or fewer */
   const max = Math.max(...perMonth, 1);
-  const bw = (W - padL - padR) / 12;
-  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sales by month ' + year + '">';
-  /* gridlines */
-  for (let g = 1; g <= 3; g++) {
-    const gy = padT + (H - padT - padB) * g / 4;
-    s += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
+  const mag = Math.pow(10, Math.floor(Math.log10(max / 5)));
+  const step = [1, 2, 2.5, 5, 10, 20].map(k => k * mag).find(x => Math.ceil(max / x) <= 5);
+  const top = Math.ceil(max / step) * step;
+  const kfmt = v => v >= 1000000 ? (v / 1000000).toFixed(1).replace(/\.0$/, '') + 'M' : Math.round(v / 1000) + 'K';
+  const filled = perMonth.filter(v => v > 0);
+  const avg = filled.length ? filled.reduce((x, y) => x + y, 0) / filled.length : 0;
+  const peak = perMonth.indexOf(max);
+  let ys = '', grid = '';
+  for (let v = 0; v <= top; v += step) {
+    const pc = v / top * 100;
+    ys += '<span style="bottom:' + pc + '%">' + (v ? kfmt(v) : '0') + '</span>';
+    if (v) grid += '<div class="ngrid" style="bottom:' + pc + '%"></div>';
   }
-  /* baseline */
-  s += '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>';
+  let cols = '', months = '';
   perMonth.forEach((v, i) => {
-    const x = padL + i * bw + bw * 0.18;
-    const w = bw * 0.64;
-    const h = v ? Math.max(3, (H - padT - padB) * v / max) : 0;
-    const y = H - padB - h;
-    if (v) {
-      s += '<path d="M' + x + ' ' + (H - padB) + ' L' + x + ' ' + (y + 4) + ' Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y +
-        ' L' + (x + w - 4) + ' ' + y + ' Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + 4) +
-        ' L' + (x + w) + ' ' + (H - padB) + ' Z" fill="#1DB97A"><title>' + MONTH_NAMES[i] + ' ' + year + ': ' + AED(v) + '</title></path>';
-      s += '<text x="' + (x + w / 2) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#1DB97A" font-family="Lato,Arial">' + Math.round(v / 1000) + 'K</text>';
-    }
-    s += '<text x="' + (x + w / 2) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9.5" fill="#A4B3AB" font-family="Lato,Arial" letter-spacing="1">' + MONTH_NAMES[i].slice(0, 3).toUpperCase() + '</text>';
+    const cls = (i === hi ? ' hi' : '') + (i === peak && v ? ' pk' : '');
+    const n = (counts && counts[i]) || 0;
+    cols += '<div class="ncol' + cls + '" style="--h:' + (v / top * 100) + '%" tabindex="0" aria-label="' + MONTH_NAMES[i] + ' ' + year + ': ' + AED(v) + '">' +
+      '<div class="tip"><b>' + (v ? 'AED ' + Math.round(v).toLocaleString('en-US') : 'No sales') + '</b><span>' +
+        MONTH_NAMES[i] + ' ' + year + (n ? ' · ' + n + ' event' + (n === 1 ? '' : 's') : '') + '</span></div>' +
+      (v ? '<span class="nv">' + kfmt(v) + '</span>' : '') +
+      '<span class="nb" style="height:' + (v / top * 100) + '%;transition-delay:' + (i * 24) + 'ms"></span></div>';
+    months += '<span' + (i === hi ? ' class="hi"' : '') + '>' + MONTH_NAMES[i].slice(0, 3) + '</span>';
   });
-  return s + '</svg>';
+  return '<div class="nchart" role="img" aria-label="Sales by month ' + year + '"><div class="ny">' + ys + '</div>' +
+    '<div class="nplot">' + grid + (avg ? '<div class="navg" style="bottom:' + (avg / top * 100) + '%"><b>Avg ' + kfmt(avg) + '</b></div>' : '') +
+    cols + '</div></div><div class="nmonths"><span></span><div>' + months + '</div></div>';
 }
 
 function renderMonthly() {
@@ -891,16 +1159,29 @@ function renderMonthly() {
 
   const monthChipList = ['all'].concat(Object.keys(byMonth).map(Number).sort((a, b) => a - b));
   html += '<div class="year-chips" style="margin-top:-4px;">' + monthChipList.map(m =>
-    '<button class="chip ' + (String(m) === String(dashMonth) ? 'on' : '') + '" onclick="dashMonth=\'' + m + '\';renderMonthly()">' + (m === 'all' ? 'All Year' : MONTH_NAMES[m - 1]) + '</button>').join('') + '</div>';
+    '<button class="chip ' + (String(m) === String(dashMonth) ? 'on' : '') + '" onclick="dashMonth=\'' + m + '\';renderMonthly()">' + (m === 'all' ? 'All year' : MONTH_NAMES[m - 1]) + '</button>').join('') + '</div>';
 
+  /* whole dirhams up top; the tables below keep the fils */
+  const whole = n => Math.round(n).toLocaleString('en-US');
+  const fig = n => '<span class="cur">AED</span>' + (n < 0 ? '−' : '') + whole(Math.abs(n));
+  const gap = kGp - GPT;
   html += '<div class="kpis">' +
-    '<div class="kpi"><div class="kl">Sales</div><div class="kv">' + AED(kB) + '</div><div class="kv-sub">(After discounts ' + AED(kA) + ')</div><div class="kd">' + kCount + ' events in ' + kLabel + '</div></div>' +
-    '<div class="kpi"><div class="kl">Total cost</div><div class="kv">' + AED(kC) + '</div><div class="kd">flowers · sundries · other</div></div>' +
-    '<div class="kpi"><div class="kl">Profit</div><div class="kv ' + (kP >= 0 ? 'pos' : 'neg') + '">' + AED(kP) + '</div><div class="kd">commission ' + AED(kP > 0 ? kP * 0.1 : 0) + '</div></div>' +
-    '<div class="kpi"><div class="kl">GP margin</div><div class="kv ' + (kGp >= GPT ? 'pos' : 'neg') + '">' + kGp.toFixed(1) + '%</div><div class="kd"><b class="hl">of after-discount sales</b> &middot; vs ' + GPT + '% target: ' + (kGp - GPT >= 0 ? '+' : '') + (kGp - GPT).toFixed(1) + '%</div></div>' +
+    '<div class="kpi lead"><div class="kl">Sales</div><div class="kv">' + fig(kB) + '</div>' +
+      '<div class="kd">After discounts <b>AED ' + whole(kA) + '</b></div><div class="kd">' + kCount + ' events in ' + kLabel + '</div></div>' +
+    '<div class="kpi"><div class="kl">Total cost</div><div class="kv">' + fig(kC) + '</div><div class="kd">Flowers, sundries and other</div></div>' +
+    '<div class="kpi"><div class="kl">Profit</div><div class="kv' + (kP < 0 ? ' neg' : '') + '">' + fig(kP) + '</div><div class="kd">Commission <b>AED ' + whole(kP > 0 ? kP * 0.1 : 0) + '</b></div></div>' +
+    '<div class="kpi"><div class="kl">GP margin</div><div class="kv">' + kGp.toFixed(1) + '<span class="pc">%</span></div>' +
+      '<div class="gauge"><i style="width:' + Math.min(Math.max(kGp, 0), 100) + '%"></i><s style="left:' + GPT + '%"></s></div>' +
+      '<div class="kd"><b>' + Math.abs(gap).toFixed(1) + ' pts</b> ' + (gap >= 0 ? 'over' : 'under') + ' the ' + GPT + '% target</div></div>' +
     '</div>';
 
-  html += '<div class="chart-card"><h3>Sales by Month — ' + dashYear + '</h3>' + barChart(perMonth, dashYear) + '</div>';
+  /* the highlighted bar: the chosen month, else this month if this is
+     this year, else none */
+  const now = new Date();
+  const hi = dashMonth !== 'all' ? Number(dashMonth) - 1 : (String(now.getFullYear()) === dashYear ? now.getMonth() : -1);
+  const hiNote = hi < 0 ? '' : ' &middot; ' + MONTH_NAMES[hi] + (dashMonth !== 'all' ? ' selected' : ' is the current month');
+  html += '<div class="chart-card"><h3>Sales by month</h3><p class="csub">' + list.length + ' events in ' + dashYear + hiNote + '</p>' +
+    barChart(perMonth, dashYear, hi, Array.from({ length: 12 }, (_, i) => (byMonth[i + 1] || []).length)) + '</div>';
 
   html += Object.keys(byMonth).map(Number).sort((a, b) => b - a).map(m => {
     const mlist = byMonth[m];
@@ -917,14 +1198,16 @@ function renderMonthly() {
     const tGp = tA ? tP / tA * 100 : 0;
     const comTh = FLApp.isAdmin() ? '<th>Commission</th>' : '';
     const comTd = FLApp.isAdmin() ? '<td>' + AED(tCom) + '</td>' : '';
-    return '<div class="month-head">' + MONTH_NAMES[m - 1].toUpperCase() + ' ' + dashYear + '</div>' +
+    return '<div class="month-head">' + MONTH_NAMES[m - 1] + ' ' + dashYear + '</div>' +
       '<div class="tblwrap"><table><thead><tr><th>Order #</th><th>Event name</th><th>Budget</th><th>Discount</th><th>After discount</th><th>Cost</th><th>Profit</th><th>GP</th>' + comTh + '</tr></thead><tbody>' +
       rows +
-      '<tr class="total"><td>TOTAL</td><td>' + mlist.length + ' events</td><td>' + AED(tB) + '</td><td>' + (tB ? (tD / tB * 100).toFixed(1) + '%' : '—') + '</td><td>' + AED(tA) + '</td><td>' + AED(tC) + '</td><td>' + AED(tP) + '</td><td>' + tGp.toFixed(2) + '%</td>' + comTd + '</tr>' +
+      '<tr class="total"><td>Total</td><td>' + mlist.length + ' events</td><td>' + AED(tB) + '</td><td>' + (tB ? (tD / tB * 100).toFixed(1) + '%' : '—') + '</td><td>' + AED(tA) + '</td><td>' + AED(tC) + '</td><td>' + AED(tP) + '</td><td>' + tGp.toFixed(2) + '%</td>' + comTd + '</tr>' +
       '</tbody></table></div>';
   }).join('');
 
   box.innerHTML = html;
+  /* let the bars grow once, after they are on the page */
+  requestAnimationFrame(() => requestAnimationFrame(() => { const c = box.querySelector('.nchart'); if (c) c.classList.add('go'); }));
 }
 
 /* ── Years comparison (app events + imported history) ── */
@@ -1098,7 +1381,7 @@ function repClosed(y, ev, co) {
   const out = [];
   for (let m = 1; m <= 12; m++) {
     const ym = y + '-' + String(m).padStart(2, '0');
-    if (ev[ym] != null && co[ym] != null) out.push(m);
+    if (ev[ym] != null && co[ym] != null && ym < repThisMonth()) out.push(m);
   }
   return out;
 }
@@ -1168,8 +1451,8 @@ function renderContribution() {
   [2, 4, 6, 8, 10, 12].forEach(v => {
     if (v > mx) return;
     const y = BASE - (v / mx) * (BASE - TOP);
-    g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="rgba(255,255,255,.07)"/>' +
-      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#7E8F87">' + v + '%</text>';
+    g += '<line x1="' + PADL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 6) + '" y2="' + y.toFixed(1) + '" stroke="#E6EBE8"/>' +
+      '<text x="' + (PADL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#66706B">' + v + '%</text>';
   });
   use.forEach((m, k) => {
     const x = PADL + k * bw;
@@ -1184,15 +1467,15 @@ function renderContribution() {
         '<rect x="' + (x + bw * 0.48).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
         '" height="' + hMain.toFixed(1) + '" fill="#1DB97A" rx="1.5"/>' +
         '<text x="' + (x + bw * 0.48 + w / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1DB97A">' + sMain.toFixed(1) + '</text>';
+        '" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0E7A4E">' + sMain.toFixed(1) + '</text>';
     } else {
       const w = bw * 0.5;
       g += '<rect x="' + (x + bw * 0.25).toFixed(1) + '" y="' + (BASE - hMain).toFixed(1) + '" width="' + w.toFixed(1) +
         '" height="' + hMain.toFixed(1) + '" fill="#1DB97A" rx="1.5"/>' +
         '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE - hMain - 3.5).toFixed(1) +
-        '" text-anchor="middle" font-size="10" font-weight="700" fill="#1DB97A">' + sMain.toFixed(2) + '</text>';
+        '" text-anchor="middle" font-size="10" font-weight="600" fill="#0E7A4E">' + sMain.toFixed(2) + '</text>';
     }
-    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="10" fill="#A4B3AB">' +
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (BASE + 12) + '" text-anchor="middle" font-size="10" fill="#4E5954">' +
       MONTH_NAMES[m - 1].slice(0, 3) + '</text>';
   });
   const chart = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" role="img" ' +
@@ -1210,18 +1493,18 @@ function renderContribution() {
     const isOpen = (ym === openYm) || (ev[ym] != null && co[ym] == null && ym >= openYm);
     if (isOpen && ev[ym] != null) openName = MONTH_NAMES[m - 1];
     const blank = ev[ym] == null && co[ym] == null;
-    body += '<tr' + ((isOpen || blank) ? ' class="ro"' : '') + '><td>' + MONTH_NAMES[m - 1] + '</td>';
+    body += '<tr' + ((isOpen || blank) ? ' class="ro"' : '') + '><td>' + MONTH_NAMES[m - 1] + (isOpen && ev[ym] != null ? ' <span class="rsf">in progress</span>' : '') + '</td>';
     if (repCompare) {
       const sp = (ev[ymp] != null && co[ymp]) ? ev[ymp] / co[ymp] * 100 : null;
       body += '<td class="n ra">' + repAED0(ev[ymp]) + '</td><td class="n ra">' + repAED0(co[ymp]) +
         '</td><td class="n ra">' + repPct(sp) + '</td>';
     }
     const sc = (ev[ym] != null && co[ym]) ? ev[ym] / co[ym] * 100 : null;
-    body += '<td class="n">' + repAED0(ev[ym]) + (isOpen && ev[ym] != null ? ' <span class="rsf">so far</span>' : '') + '</td>' +
+    body += '<td class="n">' + repAED0(ev[ym]) + '</td>' +
       '<td class="n">' + (co[ym] == null ? (ev[ym] != null ? 'not closed' : '—') : repAED0(co[ym])) + '</td>' +
       '<td class="n rsh">' + repPct(sc) + '</td></tr>';
     if (m === use[use.length - 1]) {
-      body += '<tr class="rs"><td>' + firstM + '–' + lastM + '</td>';
+      body += '<tr class="rs"><td>Total ' + firstM + '–' + lastM + ' <span class="rfin">final</span></td>';
       if (repCompare) body += '<td class="n">' + repAED0(e2) + '</td><td class="n">' + repAED0(c2) + '</td><td class="n">' + repPct(sh2) + '</td>';
       body += '<td class="n">' + repAED0(e) + '</td><td class="n">' + repAED0(c) + '</td><td class="n">' + repPct(sh) + '</td></tr>';
     }
@@ -1246,7 +1529,7 @@ function renderContribution() {
 
   document.getElementById('repDoc').innerHTML =
     '<div class="rep" id="repPaper">' +
-      '<div class="rh"><div class="rwm">FLOWERS.AE<small>The Art of Gifting</small></div>' +
+      '<div class="rh"><div class="rwm fl-wm">FLOWERS.AE<small>The Art of Gifting</small></div>' +
         '<div class="rdt"><b>Events Contribution</b>' + firstM + '–' + lastM + ' ' + repYear +
         ' · prepared ' + repToday() + '</div></div>' +
       '<div class="rb">' +
@@ -1255,7 +1538,7 @@ function renderContribution() {
             '</div><div class="s">AED net of VAT · ' + firstM + '–' + lastM + '</div></div>' +
           '<div><div class="k">Company total trading income</div><div class="v">' + repAED0(c) +
             '</div><div class="s">AED, same ' + use.length + ' months</div></div>' +
-          '<div><div class="k">Event share</div><div class="v">' + repPct(sh) + '</div><div class="s">' +
+          '<div class="rkey"><div class="k">Event share</div><div class="v">' + repPct(sh) + '</div><div class="s">' +
             (repCompare && sh2 != null ? prev + ': ' + repPct(sh2) + ' · ' + (sh - sh2 >= 0 ? '+' : '') +
               (sh - sh2).toFixed(2) + ' pts' : 'of company total trading income') + '</div></div>' +
         '</div>' +
@@ -1302,7 +1585,14 @@ if (FLApp.syncEnabled()) {
   const fp = () => ['fl_events', 'fl_tracker', 'fl_meta_monthly'].map(k => (localStorage.getItem(k) || '').length).join(':');
   let lastFp = fp();
   FLApp.onSync(state => {
-    chip.textContent = state === 'syncing' ? '⟳ SYNCING…' : state === 'synced' ? '☁ SYNCED' : '⚠ OFFLINE';
+    /* plain words; the title says what it means for the person reading it */
+    const st = state === 'syncing' ? ['busy', 'Updating…', 'Fetching and sending the latest changes']
+      : state === 'synced' ? ['ok', 'Up to date', 'Everything on this device matches the other devices']
+      : state === 'storage-full' ? ['err', 'Storage full', 'This device is out of space — tell Sajith']
+      : ['off', 'Offline', 'No connection — your changes are kept on this device and sent when it reconnects'];
+    chip.className = 'fl-status ' + st[0];
+    chip.title = st[2];
+    chip.innerHTML = '<i></i><span>' + st[1] + '</span>';
     if (state === 'synced' && fp() !== lastFp) {
       lastFp = fp();
       const active = document.querySelector('.section.active').id;
