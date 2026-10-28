@@ -121,6 +121,17 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
 /* button (1) */
 .logout{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;}
 </style>
+<style>
+.ann-wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.ann{margin:10px 0 0;padding:12px 14px 12px 16px;border-radius:10px;display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink);}
+.ann.info{background:rgba(25,184,204,.10);border:1px solid rgba(25,184,204,.45);}
+.ann.imp{background:rgba(var(--amberRGB),.10);border:1px solid rgba(var(--amberRGB),.5);}
+.ann .ic{font:600 12px ui-monospace,Consolas,monospace;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+.ann.info .ic{background:rgba(25,184,204,.2);color:var(--s);}
+.ann.imp .ic{background:rgba(var(--amberRGB),.2);color:var(--amber);}
+.ann .by{display:block;margin-top:3px;font:400 11.5px ui-monospace,Consolas,monospace;color:var(--ink3);}
+.ann .cl{margin-left:auto;background:none;border:0;color:var(--ink3);font-size:18px;line-height:1;cursor:pointer;min-width:32px;min-height:32px;}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -136,6 +147,7 @@ body{font-family:var(--ui);background:var(--pg);color:var(--tx);min-height:100vh
   <div class="greet" id="greet"></div>
 </div>
 
+<div class="ann-wrap" id="annWrap"></div>
 <div class="tools">
   <!-- what changed in this release, once, then never again -->
   <div id="whatsNew"></div>
@@ -309,6 +321,29 @@ function renderAttention() {
   ).join('');
   document.getElementById('attn').style.display = '';
 }
+</script>
+<script>
+/* Admin's announcement: shows until its date, or until this person closes it */
+function drawAnnouncement() {
+  const box = document.getElementById('annWrap');
+  let a = null;
+  try { a = JSON.parse(FLApp.appSettings().announce || 'null'); } catch (e) {}
+  const today = new Date().toISOString().slice(0, 10);
+  let closed = ''; try { closed = localStorage.getItem('fl_ann_closed') || ''; } catch (e) {}
+  if (!a || !a.text || (a.until && a.until < today) || closed === a.at) { box.innerHTML = ''; return; }
+  const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const until = a.until ? ' · until ' + new Date(a.until + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+  box.innerHTML = '<div class="ann ' + (a.level === 'imp' ? 'imp' : 'info') + '"><span class="ic">' + (a.level === 'imp' ? 'Important' : 'Info') + '</span>' +
+    '<span>' + esc(a.text) + '<span class="by">from ' + esc(a.by) + until + '</span></span>' +
+    '<button class="cl" aria-label="Close" onclick="closeAnnouncement()">✕</button></div>';
+}
+function closeAnnouncement() {
+  try { const a = JSON.parse(FLApp.appSettings().announce || 'null'); if (a) localStorage.setItem('fl_ann_closed', a.at); } catch (e) {}
+  drawAnnouncement();
+}
+drawAnnouncement();
+window.addEventListener('focus', drawAnnouncement);
+setInterval(drawAnnouncement, 60000);
 </script>
 </body>
 </html>

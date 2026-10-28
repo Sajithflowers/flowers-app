@@ -123,7 +123,14 @@ h1,h2,h3{font-family:var(--ui);color:var(--ink);}
 .pos{color:var(--ok);} .neg{color:var(--bad);}
 input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);
   color:var(--ink);border-radius:var(--rs);min-height:44px;}
+/* the light theme's input:focus{background:#fff} was still winning, so a box
+   turned white with pale text the moment you clicked into it */
+input:focus,select:focus,textarea:focus{background:rgba(0,0,0,.42);border-color:var(--p);color:var(--ink);}
 input::placeholder,textarea::placeholder{color:var(--ink3);}
+#missingBox{display:none;margin-bottom:14px;padding:12px 14px;border-radius:var(--rs);
+  background:rgba(var(--amberRGB),.10);border:1px solid rgba(var(--amberRGB),.45);color:var(--ink);font-size:14px;line-height:1.5;}
+#missingBox b{color:var(--amber);font-weight:600;}
+#missingBox ul{margin:4px 0 0;padding-left:20px;}
 /* .attach button is in the list the JS bulk-hides for non-admins, so it
    keeps that exact selector. It was cream-on-cream here (2.36:1) and
    35px tall. */
@@ -231,11 +238,12 @@ label,
 <script>FLApp.guardRole(['admin','finance','ceo']);</script>
 
 <div class="topbar">
-  <a href="events.html">‹ Events</a>
+  <a href="events.html" id="backLink">‹ Events</a>
   <span class="status" id="save-status">—</span>
 </div>
 
 <div class="wrap">
+  <div id="missingBox"></div>
   <div class="card">
     <h2>Event Details</h2>
     <label>Event name</label>
@@ -1024,6 +1032,38 @@ if (READONLY) {
   if (n && !n.value.trim()) n.closest('.card').style.display = 'none';
 }
 status.textContent = READONLY ? 'Review mode — read only' : (params.get('id') ? 'Saved ✓' : 'New event');
+
+/* ── Missing details: a live box at the top, and a check on "‹ Events".
+   Only for whoever fills the sheet in; the CEO's review view is unchanged. ── */
+function missingList() {
+  const out = [];
+  if (!(ev.orderNo || '').trim()) out.push('Order number');
+  if (!(ev.shopify || '').trim()) out.push('Shopify order link');
+  const fl = (ev.flowers || []).filter(l => (l.name || '').trim() || parseFloat(l.price) || l.img);
+  if (!fl.length) out.push('Flowers (no flower lines yet)');
+  else if (!fl.some(l => l.img)) out.push('Flower invoice (no invoice uploaded)');
+  return out;
+}
+function renderMissing() {
+  const box = document.getElementById('missingBox');
+  const m = READONLY ? [] : missingList();
+  box.style.display = m.length ? 'block' : 'none';
+  box.innerHTML = m.length ? '<b>Still missing</b><ul>' + m.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '';
+}
+if (!READONLY) {
+  const origRefresh = refresh;
+  refresh = function () { origRefresh(); renderMissing(); };
+  renderMissing();
+  document.getElementById('backLink').addEventListener('click', async e => {
+    const m = missingList();
+    const untouched = !(ev.name || '').trim() && !(ev.budget || '').toString().trim() && m.length === 3;
+    if (!m.length || untouched) return;
+    e.preventDefault();
+    const leave = await FLApp.flConfirm('This sheet is still missing:\n\n• ' + m.join('\n• ') +
+      '\n\nIt is saved. Leave anyway?', 'Leave anyway', 'Stay and add', 'cancel');
+    if (leave) location.href = 'events.html';
+  });
+}
 
 /* If this page opened in the fraction of a second before the photo store
    finished loading, the invoice images here are placeholders and render

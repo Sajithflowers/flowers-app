@@ -1121,7 +1121,7 @@ const FLApp = (() => {
   /* Only the email preference is a setting. The GP target, the cut-off day and the
      commission rate are deliberately NOT settings: all three appear on, or decide, the
      documents Jo approves. Sajith's instruction — do not touch that area. */
-  const SETTING_DEFAULTS = { emailMode: 'off' };
+  const SETTING_DEFAULTS = { emailMode: 'off', announce: '' };
   function appSettings() {
     const s = (metaDoc().settings) || {};
     const out = {};
@@ -1138,7 +1138,7 @@ const FLApp = (() => {
     d.updated = new Date().toISOString();
     localStorage.setItem(META_KEY, JSON.stringify(d));
     markDirty('meta_monthly');
-    if (currentUser()) recordEvent('Setting changed: ' + key + ' = ' + value, currentUser().name);
+    if (currentUser()) recordEvent('Setting changed: ' + key + ' = ' + (key === 'announce' ? (value ? 'banner published' : 'banner removed') : value), currentUser().name);
     scheduleSync();
   }
 
@@ -1156,36 +1156,32 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['A new look and a new font',
-       'Every screen now uses Space Grotesk, with no more shouting capitals. The top bar shows a simple "Up to date" dot instead of SYNCED.'],
-      ['The calendar is redesigned',
-       'Each event shows the client\x27s name and value, the month shows its total, and on a phone there is a list of what is coming.'],
-      ['Two new figures on the dashboard',
-       'Average order value for this month, and events\x27 share of company income.'],
-      ['The Contribution PDF is readable',
-       'It is now a white page. Its total covers finished months only, so the month in progress no longer slips in.'],
-      ['Pages open on this month',
-       'GP Sheets and Enquiries both start on the current month. The Enquiries filters are now at the top.'],
-      ['Quotations and expense sheets were not touched',
-       'Not one character.']
+      ['Admin is now a control room',
+       'A side menu, live health lights, Insights, Team activity, a Data explorer and Export to Excel. Everything you had before is still there.'],
+      ['Errors, Network and Self-test',
+       'Every crash on any device shows up in Admin › Errors with its full detail and a "Copy for Claude" button. Network lists every server call, and Self-test checks this device in one tap.'],
+      ['Announcements',
+       'Admin › Settings can now put a message at the top of everyone’s home screen until a date you choose.'],
+      ['GP sheets warn you',
+       'A sheet now tells you if the order number, Shopify link, flowers or invoice are missing. Boxes also no longer turn white when you click in them.'],
+      ['A new dashboard for Jo',
+       'Live status, new figure tiles and charts, an Intelligence section and a Board report button.']
     ],
     ceo: [
-      ['A cleaner look and a new font',
-       'Same screens, easier to read.'],
-      ['GP sheets read like a document',
-       'The client\x27s name is large, budget in green, discount in red, and a clear button to open the Shopify order. An empty notes box is hidden.'],
-      ['Two new figures on the dashboard',
-       'Average order value for this month, and events\x27 share of company income.'],
-      ['Your approve and reject buttons work exactly as before',
-       'Only the look changed.']
+      ['Your dashboard is new',
+       'Live status at the top, clearer figures with trends, revenue against last year in one chart, and your running total against 2025 with a projection to year end.'],
+      ['Intelligence',
+       'Scroll below the charts for plain-English insights, margin health, top events, the next 14 days, the enquiry funnel and seasonality.'],
+      ['Board report',
+       'The button in the top bar turns the dashboard into a clean one-page report for printing or PDF.'],
+      ['Your approvals work exactly as before',
+       'They are still the first thing under the header.']
     ],
     finance: [
-      ['A new look and font',
-       'The colours and type changed; the calculations did not, with one exception below.'],
-      ['Contribution report: total now covers finished months only',
-       'It used to include the month still in progress, even though its footnote said it did not. The PDF is also a readable white page now.'],
-      ['Dashboard: event share of company',
-       'A new tile with the same figure as the report.']
+      ['A new dashboard',
+       'The same figures with clearer tiles and charts, plus margin health, cost breakdown and seasonality. No calculation changed.'],
+      ['Board report',
+       'The button in the top bar turns the dashboard into a clean one-page report for printing or PDF.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1277,13 +1273,110 @@ const FLApp = (() => {
      already handle, and the next cycle goes out 18 seconds later as usual. */
   const FETCH_MS = 30000;          /* the small checks — tiny payloads */
   const FETCH_UPLOAD_MS = 60000;   /* pushing work up; can be megabytes of photos */
+  /* ── developer recorders (Admin › Errors / Network) ──────────────────
+     They only note what happened, in small capped lists on this device.
+     Never the request body, never a key or token, never a photo. Every
+     write is wrapped so a recorder can never break the thing it watches. */
+  const NET_KEY = 'fl_netlog', ERR_KEY = 'fl_errlog';
+  let netBuf = null, netTimer = null;
+  function netWhy(m, p) {
+    if (/\/auth\/v1\/token/.test(p)) return 'login refresh';
+    if (/\/auth\//.test(p)) return 'login';
+    if (/\/profiles/.test(p)) return 'team accounts';
+    if (/updates\/.*latest/.test(p)) return 'update check';
+    if (/kind=eq\.device/.test(p)) return m === 'GET' ? 'device list' : 'device';
+    if (/fl_shared/.test(p) && m === 'POST' && /on_conflict/.test(p)) return 'upload shared / heartbeat';
+    if (/fl_shared/.test(p)) return 'pull shared';
+    if (/fl_docs/.test(p) && m === 'GET') return 'pull changes';
+    if (/fl_docs/.test(p)) return 'upload changes';
+    if (/storage\/v1\/object/.test(p)) return m === 'GET' ? 'download file' : 'upload file';
+    return '';
+  }
+  function netNote(url, opts, status, t0, res) {
+    try {
+      const u = new URL(url, location.href);
+      ['apikey', 'access_token', 'token', 'key'].forEach(k => u.searchParams.delete(k));
+      const path = (u.pathname + (u.search ? decodeURIComponent(u.search) : '')).slice(0, 160);
+      const m = ((opts && opts.method) || 'GET').toUpperCase();
+      const len = res && res.headers && res.headers.get('content-length');
+      if (!netBuf) netBuf = JSON.parse(localStorage.getItem(NET_KEY) || '[]');
+      netBuf.unshift({ t: new Date(t0).toISOString(), m, p: path, s: status, ms: Date.now() - t0,
+        b: len ? +len : null, w: netWhy(m, path) });
+      netBuf = netBuf.slice(0, 200);
+      clearTimeout(netTimer);
+      netTimer = setTimeout(() => { try { localStorage.setItem(NET_KEY, JSON.stringify(netBuf)); } catch (e) {} }, 1500);
+    } catch (e) { /* never let the recorder fail a request */ }
+  }
+  function netLog() { try { return netBuf || JSON.parse(localStorage.getItem(NET_KEY) || '[]'); } catch (e) { return []; } }
   function fetchT(url, opts, ms) {
+    const t0 = Date.now();
+    return fetchT0(url, opts, ms).then(r => { netNote(url, opts, r.status, t0, r); return r; },
+                                       e => { netNote(url, opts, 0, t0, null); throw e; });
+  }
+  function fetchT0(url, opts, ms) {
     if (typeof AbortController === 'undefined') return fetch(url, opts);
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), ms || FETCH_MS);
     return fetch(url, Object.assign({}, opts || {}, { signal: ctl.signal }))
       .then(r => { clearTimeout(timer); return r; },
             e => { clearTimeout(timer); throw e; });
+  }
+  const crumbs = [];
+  function crumb(x) { try { crumbs.push({ t: Date.now(), x: String(x).slice(0, 80) }); if (crumbs.length > 8) crumbs.shift(); } catch (e) {} }
+  function errLog() { try { return JSON.parse(localStorage.getItem(ERR_KEY) || '[]'); } catch (e) { return []; } }
+  function errNote(sev, msg, stack, src, line) {
+    try {
+      msg = String(msg || 'Unknown error').slice(0, 300);
+      if (/ResizeObserver loop|Script error\.?$/.test(msg)) return;     /* browser noise, not ours */
+      const page = (src ? String(src) : location.pathname).split('/').pop().split('?')[0] || 'index.html';
+      const key = msg + '|' + page;
+      const now = Date.now(), cut = now - 30 * 864e5;
+      const list = errLog().filter(e => Date.parse(e.last) > cut);
+      let e = list.find(x => x.k === key);
+      if (!e) { e = { k: key, msg, sev, page, line: line || null, first: new Date(now).toISOString(), n: 0, times: [] }; list.unshift(e); }
+      e.n++; e.last = new Date(now).toISOString(); e.times = (e.times || []).concat(e.last).slice(-20);
+      e.ver = APP_VERSION;
+      /* keep just the file name from each address, so traces are short and never carry a full path */
+      e.stack = String(stack || '').replace(/(?:https?|file|capacitor|app):\/\/[^\s)]*\/([^\/\s)]+)/g, '$1').slice(0, 1200); e.line = line || e.line;
+      const me = currentUser(); e.who = me ? me.name : null;
+      e.crumbs = crumbs.map(c => ({ s: Math.round((c.t - now) / 1000), x: c.x }));
+      list.sort((x, y) => Date.parse(y.last) - Date.parse(x.last));
+      localStorage.setItem(ERR_KEY, JSON.stringify(list.slice(0, 30)));
+    } catch (x) { /* the recorder must never throw */ }
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('error', ev => errNote('error', ev.message, ev.error && ev.error.stack, ev.filename, ev.lineno));
+    window.addEventListener('unhandledrejection', ev => {
+      const r = ev.reason;
+      errNote(/Failed to fetch|NetworkError|AbortError|Load failed/i.test(String(r && (r.message || r))) ? 'warn' : 'error',
+        'Unhandled rejection: ' + (r && r.message ? r.message : String(r)), r && r.stack);
+    });
+    crumb('opened ' + ((location.pathname.split('/').pop()) || 'index.html'));
+    document.addEventListener('click', ev => {
+      const b = ev.target && ev.target.closest && ev.target.closest('button, a');
+      if (b) crumb('tapped "' + (b.textContent || b.title || '').trim().replace(/\s+/g, ' ').slice(0, 40) + '"');
+    }, true);
+  }
+  /* health summary for the heartbeat: no personal data, just how the device is doing */
+  function diagInfo() {
+    let used = 0;
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); used += (k.length + (localStorage.getItem(k) || '').length) * 2; } } catch (e) {}
+    let plat = 'Web browser';
+    try {
+      const ua = navigator.userAgent;
+      if (window.Capacitor && Capacitor.getPlatform && Capacitor.getPlatform() === 'android') plat = 'Android app';
+      else if (/Electron/i.test(ua)) plat = 'Windows app';
+      else if (/iPhone|iPad/.test(ua)) plat = navigator.standalone ? 'iPhone app' : 'iPhone browser';
+      const eng = (ua.match(/(Edg|Chrome|Version|Firefox)\/(\d+)/) || []);
+      if (eng[2]) plat += ' · ' + (eng[1] === 'Version' ? 'Safari' : eng[1] === 'Edg' ? 'Edge' : eng[1]) + ' ' + eng[2];
+    } catch (e) {}
+    const errs = errLog().filter(e => Date.parse(e.last) > Date.now() - 7 * 864e5);
+    return { plat, screen: (screen.width || 0) + '×' + (screen.height || 0),
+      store: Math.round(used / (5120 * 1024) * 100), queue: JSON.parse(localStorage.getItem('fl_dirty') || '[]').length,
+      err: errs.reduce((s, e) => s + (e.n || 1), 0), sync: localStorage.getItem('fl_sync_stamp') || null };
+  }
+  function errorsForHeartbeat() {
+    return errLog().slice(0, 15).map(e => Object.assign({}, e, { stack: (e.stack || '').slice(0, 800) }));
   }
   const TOMB_KEY = 'fl_tombstones';
   const DIRTY_KEY = 'fl_dirty';        /* record ids with unpushed local changes */
@@ -1752,7 +1845,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.44';
+  const APP_VERSION = '5.7.45';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
@@ -1848,7 +1941,7 @@ const FLApp = (() => {
       /* version travels with the heartbeat so the Admin panel can show which
          devices are behind — the tablet sat three weeks stale and nothing said so */
       data: { device: deviceName(), who: me ? me.name : null, time: new Date().toISOString(),
-              version: APP_VERSION },
+              version: APP_VERSION, diag: diagInfo(), errors: errorsForHeartbeat() },
       deleted: false,
       updated: new Date().toISOString()
     };
@@ -1885,6 +1978,7 @@ const FLApp = (() => {
   }
 
   function recordEvent(type, who) {
+    crumb(type);
     const entry = { id: 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), type, who, device: deviceName(), time: new Date().toISOString() };
     const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
     log.unshift(entry);
@@ -2325,6 +2419,7 @@ const FLApp = (() => {
     role, isAdmin, canFinance, isCeo, guardRole,
     adminSetRole, adminSetDisabled, adminDeleteUser, fetchAllProfiles, fetchAllDevices, removeDevice,
     requestPasswordReset, confirmPasswordReset, confirmSignup,
+    errorLog: errLog, netLog, diagInfo,
     eventsAll, eventGet, eventSave, eventDelete, eventsLoaded, whenReady, hydratePhotos,
     trackerAll, trackerSave, trackerDelete,
     occasionsAll, occasionSave, occasionDelete,

@@ -199,6 +199,313 @@ h2{font-size:13px;font-weight:600;letter-spacing:-.003em;text-transform:none;}
 /* th (1) */
 table.perm th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
 </style>
+<style id="admin-ctl">/* control room */
+@font-face{font-family:'JetBrains Mono';font-weight:100 800;font-display:swap;src:url(fonts/jetbrainsmono-var.woff2) format('woff2');}
+:root{--mono:'JetBrains Mono',ui-monospace,Consolas,monospace;}
+body{background-image:linear-gradient(rgba(29,185,122,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(29,185,122,.035) 1px,transparent 1px),var(--ground);
+  background-size:32px 32px,32px 32px,auto;background-attachment:fixed;}
+.header{display:none;}
+.ac{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;max-width:1320px;margin:0 auto;padding:20px 20px 60px;}
+.ac-side{position:sticky;top:16px;align-self:start;min-width:0;}
+.kv{border-bottom-color:rgba(255,255,255,.07) !important;}
+.ac-brand{padding:6px 10px 16px;}
+.ac-brand b{display:block;font:600 18px/1.2 var(--ui);color:var(--ink);letter-spacing:-.01em;}
+.ac-brand small{display:block;margin-top:4px;font:500 11px var(--mono);color:var(--p);letter-spacing:.02em;}
+.ac-nav{display:flex;flex-direction:column;gap:2px;}
+.ac-nav button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:0 12px;border:1px solid transparent;
+  border-radius:var(--rs);background:none;color:var(--ink2);font:500 14px var(--ui);text-align:left;cursor:pointer;}
+.ac-nav button svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.ac-nav button:hover{background:rgba(255,255,255,.04);color:var(--ink);}
+.ac-nav button.on{background:rgba(29,185,122,.12);border-color:rgba(29,185,122,.35);color:var(--ink);}
+.ac-nav button.on svg{color:var(--p);}
+.ac-nav .n{margin-left:auto;font:500 11px var(--mono);color:var(--ink3);}
+.ac-sys{margin-top:18px;padding:12px;border:1px solid var(--cardBorder);border-radius:var(--rs);font:400 11px/1.7 var(--mono);color:var(--ink3);}
+.ac-sys b{color:var(--ink2);font-weight:500;}
+.ac-main{min-width:0;}
+.ac-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 18px;}
+.ac-head h1{margin:0;font:600 26px/1.15 var(--ui);letter-spacing:-.02em;color:var(--ink);}
+.ac-head p{margin:5px 0 0;color:var(--ink2);font-size:14px;}
+.ac-clock{font:500 12px var(--mono);color:var(--ink3);white-space:nowrap;}
+.sec{display:none;} .sec.on{display:block;}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;}
+.cols>.card{margin:0;}
+.card{border-left:1px solid var(--cardBorder) !important;border-radius:12px !important;padding:18px 20px !important;margin-bottom:16px;}
+.card h2{display:flex;align-items:center;gap:8px;font:600 15px var(--ui) !important;letter-spacing:0 !important;text-transform:none !important;color:var(--ink) !important;margin:0 0 12px;}
+.card h2 .when{margin-left:auto;font:400 11px var(--mono);color:var(--ink3);}
+.kv .v{font-family:var(--mono);font-size:13px;}
+
+/* health strip */
+.tiles{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:12px !important;margin-bottom:16px !important;}
+.tile{position:relative;overflow:hidden;padding:14px 16px 15px !important;border-radius:12px !important;border-left:1px solid var(--cardBorder) !important;}
+.tile::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--p),var(--s));opacity:.75;}
+.tile.alert::before{background:var(--bad);}
+.tile.warn::before{background:var(--amber);}
+.tile .t{display:flex;align-items:center;gap:7px;font:500 12px var(--ui) !important;letter-spacing:0 !important;text-transform:none !important;color:var(--ink2) !important;}
+.tile .b{font:500 24px/1.2 var(--mono) !important;color:var(--ink) !important;margin-top:8px !important;letter-spacing:-.02em;}
+.tile.alert .b{color:var(--bad) !important;}
+.tile .s{font:400 12px var(--ui) !important;color:var(--ink3) !important;margin-top:3px !important;}
+.led{display:inline-block;flex-shrink:0;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(74,222,128,.16),0 0 10px rgba(74,222,128,.6);}
+.led.bad{background:var(--bad);box-shadow:0 0 0 3px rgba(248,113,113,.16),0 0 10px rgba(248,113,113,.55);}
+.led.warn{background:var(--amber);box-shadow:0 0 0 3px rgba(var(--amberRGB),.16);}
+.led.off{background:var(--ink3);box-shadow:none;}
+.meter{height:5px;border-radius:9px;background:rgba(255,255,255,.08);margin-top:9px;overflow:hidden;}
+.meter i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--p),var(--s));}
+
+/* devices */
+#deviceList{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px;}
+.dv{position:relative;padding:14px 15px;border:1px solid var(--cardBorder);border-radius:12px;background:rgba(0,0,0,.18);}
+.dv.here{border-color:rgba(29,185,122,.45);}
+.dv-top{display:flex;align-items:center;gap:11px;}
+.dv-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:rgba(29,185,122,.10);color:var(--p);flex-shrink:0;}
+.dv-ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.dv.dead .dv-ic{background:rgba(255,255,255,.05);color:var(--ink3);}
+.dv-nm{font:600 14px var(--ui);color:var(--ink);line-height:1.3;}
+.dv-who{font-size:12px;color:var(--ink3);}
+.dv-st{position:absolute;top:15px;right:15px;}
+.dv-meta{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:12px;font:400 12px var(--mono);color:var(--ink3);}
+.dv-meta b{font-weight:500;color:var(--ink);text-align:right;}
+.dv-meta b.old{color:var(--bad);}
+.dv-meta b.cur{color:var(--ok);}
+.dv .tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font:500 10px var(--mono);background:rgba(29,185,122,.15);color:var(--p);vertical-align:2px;}
+.dv .mini{margin-top:10px;width:100%;}
+
+/* terminal */
+.term{border:1px solid var(--cardBorder);border-radius:12px;background:#050A08;overflow:hidden;}
+.term-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);font:500 11px var(--mono);color:var(--ink3);}
+.term-bar i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.14);}
+.term-bar span{margin-left:8px;}
+.term-bar .live{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--ok);}
+.term-body{padding:6px 0;max-height:560px;overflow-y:auto;}
+.term-body.mini{max-height:none;}
+.tl{display:grid;grid-template-columns:92px 84px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:6px 14px;font:400 12.5px/1.5 var(--mono);color:var(--ink2);}
+.tl:hover{background:rgba(255,255,255,.03);}
+.tl .tm{color:var(--ink3);}
+.tl .tg{font-weight:600;font-size:11px;letter-spacing:.04em;}
+.tl .tg.c{color:var(--ok);} .tl .tg.d{color:var(--bad);} .tl .tg.a{color:var(--s);}
+.tl .tg.w{color:var(--amber);} .tl .tg.u{color:var(--peri);} .tl .tg.x{color:var(--ink3);}
+.tl .msg{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tl .by{color:var(--ink3);white-space:nowrap;}
+.term .filter{margin:10px 14px 4px;width:calc(100% - 28px);border-radius:8px;font:400 13px var(--mono);}
+.term-foot{padding:8px 14px 12px;font:400 11px var(--mono);color:var(--ink3);}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 14px 0;}
+.chips button{min-height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--cardBorder);background:none;color:var(--ink2);font:500 11px var(--mono);cursor:pointer;}
+.chips button.on{background:rgba(29,185,122,.14);border-color:rgba(29,185,122,.45);color:var(--p);}
+#logList,#logNote{display:none;}
+
+/* role + status badges: finance was emerald text on emerald, locked was a red alarm */
+.badge{padding:3px 9px !important;font:600 11px var(--mono) !important;letter-spacing:.02em !important;text-transform:lowercase !important;}
+.badge.admin{background:rgba(29,185,122,.16) !important;color:var(--p) !important;border:1px solid rgba(29,185,122,.4);}
+.badge.finance{background:rgba(25,184,204,.14) !important;color:var(--s) !important;border:1px solid rgba(25,184,204,.4);}
+.badge.ceo{background:rgba(110,155,240,.15) !important;color:var(--peri) !important;border:1px solid rgba(110,155,240,.4);}
+.badge.staff{background:rgba(255,255,255,.06) !important;color:var(--ink2) !important;border:1px solid var(--cardBorder);}
+.badge.locked{background:transparent !important;color:var(--ink3) !important;border:1px solid var(--cardBorder);}
+#statusBox .dev-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:8px;border-radius:10px;background:rgba(0,0,0,.18);}
+#statusBox .lt b{font-weight:600;color:var(--ink);}
+#statusBox .lm{font:400 12px var(--mono);color:var(--ink3);margin-top:3px;}
+/* the light theme left cream divider lines and white value boxes behind */
+.chk,.radio,.user-row,.srow{border-bottom-color:rgba(255,255,255,.07) !important;}
+#setBox .srow{background:rgba(0,0,0,.18) !important;border:1px solid var(--cardBorder) !important;border-radius:10px !important;padding:14px 16px !important;margin-bottom:8px;}
+#setBox .lb b{font-weight:600;color:var(--ink);}
+#setBox .lb small{display:block;margin-top:3px;font-size:12.5px;color:var(--ink2);}
+#setBox .inp{width:70px;flex-shrink:0;min-height:42px;text-align:center;background:rgba(0,0,0,.4) !important;border:1px solid rgba(29,185,122,.35) !important;
+  color:var(--p) !important;-webkit-text-fill-color:var(--p);opacity:1;font:600 17px var(--mono) !important;}
+#setBox .lockmsg{color:var(--ink3) !important;font:400 11px/1.4 var(--mono) !important;max-width:140px;}
+
+@media (max-width:980px){
+  .ac{grid-template-columns:1fr;gap:0;padding:12px 14px 50px;}
+  .ac-side{position:sticky;top:0;z-index:5;margin:0 -14px 14px;padding:8px 14px;background:rgba(5,10,8,.92);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--cardBorder);}
+  .ac-brand,.ac-sys{display:none;}
+  .ac-nav{flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:6px;}
+  .ac-nav button{width:auto;flex-shrink:0;min-height:38px;border-color:var(--cardBorder);border-radius:999px;font-size:13px;}
+  .ac-nav .n{display:none;}
+  .cols{grid-template-columns:1fr;}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+  .ac-head h1{font-size:22px;}
+  .ac-clock{display:none;}
+}
+@media (max-width:560px){
+  .tl{grid-template-columns:52px 62px minmax(0,1fr);gap:8px;padding:7px 12px;font-size:12px;}
+  .tl .tm{font-size:11px;line-height:1.35;}
+  .tl .msg{white-space:normal;}
+  .tl .by{grid-column:3;font-size:11px;margin-top:-4px;}
+  .tile .b{font-size:20px !important;}
+}
+
+/* ── round 2 ── */
+.btn-go{min-height:40px;padding:0 16px;border-radius:var(--rs);border:1px solid var(--p);background:var(--p);color:var(--onP);
+  font:600 13px var(--ui);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-ghost{min-height:36px;padding:0 13px;border-radius:var(--rs);border:1px solid var(--cardBorder);background:rgba(255,255,255,.04);
+  color:var(--ink);font:500 12.5px var(--ui);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;}
+.ac-nav .n.hot.bad{background:var(--bad);}
+.ac-nav .n.hot{color:var(--onP);background:var(--amber);border-radius:999px;padding:1px 7px;font-weight:600;}
+
+
+.err{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:12px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);
+  font:400 12.5px/1.5 var(--mono);}
+.err:last-child{border-bottom:0;}
+.err .tm{color:var(--ink3);}
+.err .m{color:#FCA5A5;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.err .m small{display:block;color:var(--ink3);white-space:normal;}
+.err .x{color:var(--ink2);text-align:right;white-space:nowrap;}
+.err .x b{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;background:rgba(248,113,113,.15);color:var(--bad);font-weight:600;}
+.err.seen .m{color:var(--ink2);}
+.err.seen .x b{background:rgba(255,255,255,.06);color:var(--ink3);}
+.sample{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;font:500 10.5px var(--mono);color:var(--s);border:1px solid rgba(25,184,204,.4);}
+
+.ann-prev{margin:14px 0 4px;padding:12px 16px;border-radius:10px;display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink);}
+.ann-prev.info{background:rgba(25,184,204,.10);border:1px solid rgba(25,184,204,.45);}
+.ann-prev.imp{background:rgba(var(--amberRGB),.10);border:1px solid rgba(var(--amberRGB),.5);}
+.ann-prev .ic{font:600 12px var(--mono);padding:2px 8px;border-radius:999px;white-space:nowrap;}
+.ann-prev.info .ic{background:rgba(25,184,204,.2);color:var(--s);}
+.ann-prev.imp .ic{background:rgba(var(--amberRGB),.2);color:var(--amber);}
+.ann-prev .by{display:block;margin-top:3px;font:400 11.5px var(--mono);color:var(--ink3);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
+.fgrid label{display:block;font-size:12.5px;color:var(--ink2);margin:0 0 5px;}
+.fgrid select,.fgrid input,#annText{width:100%;font:400 14px var(--ui);padding:10px 12px;}
+#annText{min-height:76px;resize:vertical;}
+.seg{display:flex;gap:6px;}
+.seg button{flex:1;min-height:40px;border-radius:var(--rs);border:1px solid var(--cardBorder);background:none;color:var(--ink2);font:500 13px var(--ui);cursor:pointer;}
+.seg button.on.info{border-color:var(--s);color:var(--s);background:rgba(25,184,204,.1);}
+.seg button.on.imp{border-color:var(--amber);color:var(--amber);background:rgba(var(--amberRGB),.1);}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.exp-meta{margin-top:10px;font:400 12px var(--mono);color:var(--ink3);}
+@media (max-width:560px){
+  .err{grid-template-columns:1fr;gap:2px;}
+  .err .x{text-align:left;}
+  .fgrid{grid-template-columns:1fr;}
+}
+
+/* ── round 3 ── */
+.ac-grp{margin:14px 12px 4px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);}
+.ac-grp:first-child{margin-top:0;}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+.kpi{padding:14px 16px;border:1px solid var(--cardBorder);border-radius:12px;background:var(--cardBg);}
+.kpi .l{font-size:12px;color:var(--ink2);}
+.kpi .v{margin-top:6px;font:500 24px/1.15 var(--mono);color:var(--ink);letter-spacing:-.02em;}
+.kpi .v small{font-size:13px;color:var(--ink3);margin-left:3px;}
+.kpi .s{margin-top:3px;font-size:12px;color:var(--ink3);}
+.kpi .v.good{color:var(--ok);} .kpi .v.bad{color:var(--bad);} .kpi .v.mid{color:var(--amber);}
+.chart30{display:flex;align-items:flex-end;gap:3px;height:150px;padding:8px 0 0;border-bottom:1px solid rgba(255,255,255,.1);}
+.chart30 i{flex:1;min-width:0;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--p),rgba(29,185,122,.35));position:relative;}
+.chart30 i.z{background:rgba(255,255,255,.06);height:2px !important;}
+.chart30 i.t{background:linear-gradient(180deg,var(--now),rgba(95,227,245,.35));}
+.chart30 i:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;white-space:nowrap;
+  padding:4px 8px;border-radius:6px;background:#050A08;border:1px solid var(--cardBorder);font:500 11px var(--mono);color:var(--ink);z-index:3;}
+.axis{display:flex;justify-content:space-between;margin-top:6px;font:400 11px var(--mono);color:var(--ink3);}
+.heat{display:grid;grid-template-columns:34px repeat(24,minmax(12px,1fr));gap:3px;font:400 10.5px var(--mono);color:var(--ink3);overflow-x:auto;}
+.heat b{font-weight:400;align-self:center;}
+.heat span{aspect-ratio:1;border-radius:3px;background:rgba(29,185,122,.06);}
+.heat em{font-style:normal;text-align:center;}
+.hbar{display:grid;grid-template-columns:130px minmax(0,1fr) 46px;gap:10px;align-items:center;margin:7px 0;font-size:13px;color:var(--ink);}
+.hbar .tr{height:8px;border-radius:9px;background:rgba(255,255,255,.06);overflow:hidden;}
+.hbar .tr i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--p),var(--s));}
+.hbar .n{text-align:right;font:500 12px var(--mono);color:var(--ink2);}
+.hbar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dq{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px;color:var(--ink);}
+.dq:last-child{border-bottom:0;}
+.dq .ic{flex-shrink:0;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font:600 12px var(--mono);
+  background:rgba(var(--amberRGB),.14);color:var(--amber);}
+.dq.ok .ic{background:rgba(74,222,128,.12);color:var(--ok);}
+.dq small{display:block;color:var(--ink3);font:400 12px var(--mono);margin-top:2px;}
+.spec{width:100%;border-collapse:collapse;font-size:13px;}
+.spec td{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top;}
+.spec tr:last-child td{border-bottom:0;}
+.spec td:first-child{color:var(--ink2);width:42%;}
+.spec td:last-child{text-align:right;font:500 12.5px var(--mono);color:var(--ink);word-break:break-all;}
+.spec .ok{color:var(--ok) !important;} .spec .bad{color:var(--bad) !important;} .spec .mid{color:var(--amber) !important;}
+.qlist{margin-top:8px;max-height:150px;overflow:auto;padding:8px 10px;border-radius:8px;background:#050A08;border:1px solid var(--cardBorder);
+  font:400 11.5px/1.7 var(--mono);color:var(--ink2);}
+.ping{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.ping .res{font:500 12.5px var(--mono);color:var(--ink2);}
+.xp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start;}
+.xt{width:100%;border-collapse:collapse;font-size:13px;}
+.xt th{text-align:left;font:500 11px var(--mono);color:var(--ink3);padding:0 8px 8px;border-bottom:1px solid var(--cardBorder);}
+.xt td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink);}
+.xt td.n{text-align:right;font:400 12px var(--mono);color:var(--ink2);white-space:nowrap;}
+.xt tr{cursor:pointer;} .xt tbody tr:hover td{background:rgba(255,255,255,.03);}
+.xt tr.on td{background:rgba(29,185,122,.10);}
+.xt code{font:400 11px var(--mono);color:var(--ink3);display:block;}
+.recs{max-height:230px;overflow:auto;border:1px solid var(--cardBorder);border-radius:8px;margin-bottom:10px;}
+.recs div{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;font:400 12px var(--mono);color:var(--ink2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);}
+.recs div:hover,.recs div.on{background:rgba(29,185,122,.10);color:var(--ink);}
+.recs div span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+pre.json{margin:0;max-height:420px;overflow:auto;padding:12px 14px;border-radius:10px;background:#050A08;border:1px solid var(--cardBorder);
+  font:400 12px/1.6 var(--mono);color:var(--ink2);white-space:pre-wrap;word-break:break-word;}
+pre.json .k{color:var(--s);} pre.json .s{color:#A7F3D0;} pre.json .n{color:#FCD34D;} pre.json .b{color:var(--peri);}
+.ro{display:inline-block;margin-left:auto;padding:1px 8px;border-radius:999px;font:500 10.5px var(--mono);color:var(--ink3);border:1px solid var(--cardBorder);}
+.tteam{width:100%;border-collapse:collapse;font-size:13px;}
+.tteam th{text-align:left;font:500 11px var(--mono);color:var(--ink3);padding:0 10px 8px 0;border-bottom:1px solid var(--cardBorder);}
+.tteam td{padding:10px 10px 10px 0;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink);vertical-align:top;}
+.tteam td.m{font:400 12px var(--mono);color:var(--ink2);}
+@media (max-width:980px){ .ac-grp{display:none;} .kpis{grid-template-columns:repeat(2,minmax(0,1fr));} .xp{grid-template-columns:1fr;} }
+@media (max-width:560px){ .hbar{grid-template-columns:96px minmax(0,1fr) 38px;} .tteam .hide-s{display:none;} .kpi .v{font-size:20px;} }
+
+/* ── round 4: developer tools ── */
+.kpis.k4 .v.bad{color:var(--bad);}
+.chart14{display:flex;align-items:flex-end;gap:4px;height:90px;border-bottom:1px solid rgba(255,255,255,.1);}
+.chart14 i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--bad),rgba(248,113,113,.3));position:relative;}
+.chart14 i.z{background:rgba(255,255,255,.06);height:2px !important;}
+.chart14 i:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;white-space:nowrap;
+  padding:4px 8px;border-radius:6px;background:#050A08;border:1px solid var(--cardBorder);font:500 11px var(--mono);color:var(--ink);z-index:3;}
+.ex{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start;}
+.ex-list{border:1px solid var(--cardBorder);border-radius:12px;background:#050A08;overflow:hidden;}
+.ex-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:start;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+.ex-row:last-child{border-bottom:0;}
+.ex-row:hover{background:rgba(255,255,255,.03);}
+.ex-row.on{background:rgba(248,113,113,.08);box-shadow:inset 3px 0 0 var(--bad);}
+.ex-row .sv{width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--bad);}
+.ex-row .sv.warn{background:var(--amber);} .ex-row .sv.fixed{background:var(--ok);}
+.ex-row .m{font:500 12.5px/1.45 var(--mono);color:var(--ink);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.ex-row .m small{display:block;font-weight:400;color:var(--ink3);margin-top:2px;-webkit-line-clamp:1;}
+.ex-row .c{text-align:right;font:500 12px var(--mono);color:var(--ink2);white-space:nowrap;}
+.ex-row .c b{display:block;color:var(--bad);font-size:13px;}
+.ex-row.fixed .m{color:var(--ink3);text-decoration:line-through;}
+.ex-d{border:1px solid var(--cardBorder);border-radius:12px;background:var(--cardBg);padding:16px 18px;}
+.ex-d h3{margin:0 0 4px;font:600 14px/1.45 var(--mono);color:#FCA5A5;word-break:break-word;}
+.ex-d .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px;}
+.ex-d .tags span{padding:2px 9px;border-radius:999px;font:500 11px var(--mono);color:var(--ink2);border:1px solid var(--cardBorder);}
+.ex-d .tags .bad{color:var(--bad);border-color:rgba(248,113,113,.4);} .ex-d .tags .ok{color:var(--ok);border-color:rgba(74,222,128,.4);}
+.ex-d .lab{margin:14px 0 6px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);}
+pre.stack{margin:0;padding:10px 12px;border-radius:8px;background:#050A08;border:1px solid var(--cardBorder);font:400 11.5px/1.65 var(--mono);color:var(--ink2);
+  white-space:pre-wrap;word-break:break-all;max-height:190px;overflow:auto;}
+pre.stack b{color:#FCA5A5;font-weight:500;} pre.stack i{color:var(--s);font-style:normal;}
+.crumbs{font:400 12px/1.5 var(--mono);color:var(--ink2);}
+.crumbs div{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:4px 0;border-left:2px solid rgba(255,255,255,.1);padding-left:10px;}
+.crumbs div span{color:var(--ink3);}
+.crumbs div.boom{border-left-color:var(--bad);color:#FCA5A5;}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.fbar select{min-height:36px;padding:0 10px;font:500 12.5px var(--mono);width:auto;}
+.nt{width:100%;border-collapse:collapse;font:400 12.5px var(--mono);}
+.nt th{text-align:left;font-weight:500;font-size:11px;color:var(--ink3);padding:8px 10px;border-bottom:1px solid var(--cardBorder);}
+.nt td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.045);color:var(--ink2);white-space:nowrap;}
+.nt td.p{color:var(--ink);max-width:420px;overflow:hidden;text-overflow:ellipsis;}
+.nt .st{display:inline-block;min-width:36px;text-align:center;padding:1px 6px;border-radius:6px;font-weight:600;}
+.nt .st.ok{background:rgba(74,222,128,.12);color:var(--ok);} .nt .st.bad{background:rgba(248,113,113,.14);color:var(--bad);}
+.nt .st.warn{background:rgba(var(--amberRGB),.14);color:var(--amber);}
+.nt .ms{display:flex;align-items:center;gap:8px;}
+.nt .ms i{display:block;height:6px;border-radius:9px;background:var(--p);min-width:2px;}
+.nt .ms i.slow{background:var(--amber);} .nt .ms i.bad{background:var(--bad);}
+.nt .mth{color:var(--s);}
+.st-list{border:1px solid var(--cardBorder);border-radius:10px;overflow:hidden;}
+.st-row{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;color:var(--ink);}
+.st-row:last-child{border-bottom:0;}
+.st-row .ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font:600 12px var(--mono);background:rgba(255,255,255,.06);color:var(--ink3);}
+.st-row.pass .ic{background:rgba(74,222,128,.14);color:var(--ok);}
+.st-row.warn .ic{background:rgba(var(--amberRGB),.16);color:var(--amber);}
+.st-row.fail .ic{background:rgba(248,113,113,.16);color:var(--bad);}
+.st-row small{display:block;font:400 12px var(--mono);color:var(--ink3);margin-top:1px;}
+.st-row .t{font:400 11.5px var(--mono);color:var(--ink3);}
+.st-sum{display:flex;gap:16px;align-items:center;margin:12px 0 0;font:500 13px var(--mono);color:var(--ink2);flex-wrap:wrap;}
+.st-sum b.ok{color:var(--ok);} .st-sum b.warn{color:var(--amber);} .st-sum b.bad{color:var(--bad);}
+.dv-x{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.1);display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font:400 11.5px var(--mono);color:var(--ink3);}
+.dv-x b{font-weight:500;color:var(--ink2);text-align:right;}
+.dv-x b.bad{color:var(--bad);} .dv-x b.warn{color:var(--amber);} .dv-x b.ok{color:var(--ok);}
+.dv-x .na{grid-column:1 / -1;color:var(--ink3);font-style:italic;}
+@media (max-width:980px){ .ex{grid-template-columns:1fr;} }
+@media (max-width:560px){ .nt .hide-s{display:none;} .nt td.p{max-width:150px;} }
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -213,37 +520,80 @@ table.perm th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:non
   </span>
 </div>
 
-<div class="header">
-  <h1>Admin Panel</h1>
-  <div class="gold-rule"></div>
-  <p>Accounts, devices &amp; app health</p>
-</div>
+<div class="ac">
+  <aside class="ac-side">
+    <div class="ac-brand"><b>Admin</b><small id="acVer">v—</small></div>
+    <nav class="ac-nav" id="acNav"><div class="ac-grp">Operate</div><button data-sec="overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Overview</span><span class="n" id="n-overview"></span></button><button data-sec="insights"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Insights</span><span class="n"></span></button><div class="ac-grp">People</div><button data-sec="team"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg><span>Team</span><span class="n" id="n-team"></span></button><button data-sec="devices"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1.2"/></svg><span>Devices</span><span class="n" id="n-devices"></span></button><button data-sec="access"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg><span>Access</span><span class="n" id="n-access"></span></button><div class="ac-grp">Data</div><button data-sec="data"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="8" ry="2.8"/><path d="M4 5.5v13c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8v-13M4 12c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8"/></svg><span>Data</span><span class="n" id="n-data"></span></button><div class="ac-grp">Developer</div><button data-sec="activity"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>Activity</span><span class="n" id="n-activity"></span></button><button data-sec="errors"><svg viewBox="0 0 24 24"><path d="M12 3l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg><span>Errors</span><span class="n" id="n-errors"></span></button><button data-sec="network"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 4 5.6 4 9s-1.4 6.4-4 9c-2.6-2.6-4-5.6-4-9s1.4-6.4 4-9z"/></svg><span>Network</span><span class="n" id="n-net"></span></button><button data-sec="system"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.6"/><path d="M7 20h10M9 16v4M15 16v4M7 8l3 2-3 2M12 12h4"/></svg><span>System</span><span class="n"></span></button><div class="ac-grp">Config</div><button data-sec="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span><span class="n" id="n-settings"></span></button></nav>
+    <div class="ac-sys" id="acSys"></div>
+  </aside>
+  <main class="ac-main">
+    <div class="ac-head"><div><h1 id="acTitle">Overview</h1><p id="acSub">How the app is doing, right now.</p></div>
+      <div class="ac-clock" id="acClock"></div></div>
 
-<div class="wrap">
-
-  <div class="tiles" id="tiles"></div>
-
-  <div class="grp">The App</div>
-
-  <div class="card">
+    <section class="sec" data-sec="overview">
+      <div class="tiles" id="tiles"></div>
+      <div class="term" style="margin-bottom:16px;">
+        <div class="term-bar"><i></i><i></i><i></i><span>activity — latest</span><span class="live"><span class="led"></span>live</span></div>
+        <div class="term-body mini" id="feedMini"></div>
+      </div>
+      <div class="cols"><div class="card">
     <h2>Version <span class="when" id="verWhen"></span></h2>
     <div id="verBox"><div class="empty">Checking…</div></div>
-  </div>
-
-  <div class="card">
+  </div><div class="card">
     <h2>Syncing</h2>
     <div id="syncBox"></div>
     <div style="margin-top:11px;"><button class="mini" onclick="syncNowClicked(this)">↻ Sync now</button></div>
-  </div>
+  </div></div>
+    </section>
 
-  <div class="card">
+    <section class="sec" data-sec="insights">
+      <div class="kpis" id="opsKpis"></div>
+      <div class="card"><h2>Activity, last 30 days <span class="when" id="act30n"></span></h2><div class="chart30" id="act30"></div><div class="axis" id="act30ax"></div></div>
+      <div class="card"><h2>When the app is used <span class="when">Dubai time · darker = busier</span></h2><div class="heat" id="heat"></div></div>
+      <div class="cols">
+        <div class="card"><h2>Who does what</h2><div id="byWho"></div></div>
+        <div class="card"><h2>Most common actions</h2><div id="byType"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px;"><h2>Data quality</h2><div id="dqList"></div></div>
+    </section>
+
+    <section class="sec" data-sec="team">
+      <div class="card"><h2>Team activity <span class="when">from the activity log</span></h2><div style="overflow-x:auto;"><table class="tteam" id="teamAct"></table></div></div><div class="card">
+    <h2>Team Accounts</h2>
+    <div id="userList"></div>
+  </div></section>
+
+    <section class="sec" data-sec="devices"><div class="card">
+    <h2>Devices</h2>
+    <div class="kv"><span class="k">This device is called</span>
+      <span class="v"><span id="thisDeviceName"></span>
+        <button class="mini" style="margin-left:7px;" onclick="renameThisDevice()">Rename</button></span></div>
+    <div id="deviceList"></div>
+  </div></section>
+
+    <section class="sec" data-sec="access"><div class="card">
+    <h2>Who can see what</h2>
+    <div id="permBox"></div>
+    <p class="note">Roles are enforced by the app and the database, not just hidden on screen.</p>
+  </div><div class="card">
+    <h2>Enquiry statuses</h2>
+    <div id="statusBox"></div>
+    <p class="note">Every status says whether it counts as still open, won or lost — that is what
+      keeps the pipeline figure on the dashboard honest. The first six cannot be removed.</p>
+  </div></section>
+
+    <section class="sec" data-sec="data">
+      <div class="card"><h2>Data explorer <span class="ro">read-only</span></h2>
+        <div class="xp"><div style="overflow-x:auto;"><table class="xt"><thead><tr><th>Store</th><th style="text-align:right">Records</th><th style="text-align:right">Size</th><th style="text-align:right">Changed</th></tr></thead><tbody id="xpBody"></tbody></table></div>
+          <div><div class="recs" id="xpRecs"></div><pre class="json" id="xpJson">Pick a store, then a record, to see exactly what is saved.</pre>
+            <div class="row-btns" style="margin-top:10px;"><button class="btn-ghost" onclick="xpCopy(this)">Copy record</button></div></div></div>
+      </div>
+      <div class="cols"><div class="card">
     <h2>Storage</h2>
     <div id="storeBox"><div class="empty">Measuring…</div></div>
     <p class="note">The working store is the one that filled up in August and stopped the tablet
       syncing. Photos live separately and have hundreds of megabytes of room.</p>
-  </div>
-
-  <div class="card">
+  </div><div class="card">
     <h2>Data check <span class="when" id="checkWhen"></span></h2>
     <div id="checkBox"><div class="empty">Not run yet.</div></div>
     <div style="margin-top:12px;display:flex;gap:7px;flex-wrap:wrap;">
@@ -252,56 +602,106 @@ table.perm th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:non
     </div>
     <p class="note">The backup is one file holding everything on this device, photos included —
       keep it somewhere safe. It is a safety net, not a replacement for the cloud.</p>
-  </div>
+  </div></div><div class="card" style="margin-top:16px;">
+        <h2>Export to Excel</h2>
+        <div class="fgrid">
+          <div><label>What</label><select id="expWhat" onchange="expMonths()">
+            <option value="gp">GP sheets (with cost, profit, GP%)</option>
+            <option value="trk">Tracker orders</option>
+            <option value="enq">Enquiries</option>
+            <option value="log">Activity log</option></select></div>
+          <div><label>Month</label><select id="expMonth" onchange="expCount()"></select></div>
+        </div>
+        <div class="row-btns"><button class="btn-go" onclick="expDownload()">Download for Excel</button></div>
+        <div class="exp-meta" id="expMeta"></div>
+      </div>
+    </section>
 
-  <div class="card">
-    <h2>Business settings</h2>
-    <div id="setBox"></div>
-    <p class="note">Shown so you can see the rules, not change them. All three affect what the
-      CEO approves, so changing any of them is a job for me &mdash; ask and I will do it properly.</p>
-  </div>
-
-  <div class="card">
-    <h2>Email alerts</h2>
-    <div id="mailBox"></div>
-  </div>
-
-  <div class="grp">People &amp; Devices</div>
-
-  <div class="card">
-    <h2>Team Accounts</h2>
-    <div id="userList"></div>
-  </div>
-
-  <div class="card">
-    <h2>Devices</h2>
-    <div class="kv"><span class="k">This device is called</span>
-      <span class="v"><span id="thisDeviceName"></span>
-        <button class="mini" style="margin-left:7px;" onclick="renameThisDevice()">Rename</button></span></div>
-    <div id="deviceList"></div>
-  </div>
-
-  <div class="card">
-    <h2>Who can see what</h2>
-    <div id="permBox"></div>
-    <p class="note">Roles are enforced by the app and the database, not just hidden on screen.</p>
-  </div>
-
-  <div class="card">
-    <h2>Enquiry statuses</h2>
-    <div id="statusBox"></div>
-    <p class="note">Every status says whether it counts as still open, won or lost — that is what
-      keeps the pipeline figure on the dashboard honest. The first six cannot be removed.</p>
-  </div>
-
-  <div class="card">
-    <h2>Activity Log</h2>
-    <input class="filter" id="logFilter" placeholder="Filter by name, device or action…" oninput="renderLog()">
+    <section class="sec" data-sec="activity">
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>activity.log</span><span class="live"><span class="led"></span>live</span></div>
+        <input class="filter" id="logFilter" placeholder="filter: name, device or action…" oninput="renderLog()">
+        <div class="chips" id="logChips"></div>
+        <div class="term-body" id="termBody"></div>
+        <div class="term-foot" id="termFoot"></div>
+      </div>
+      <div class="card">
+    <h2>Housekeeping</h2>
+    
     <div id="logList"></div>
     <p class="note" id="logNote"></p>
     <div id="tidyBox" style="margin-top:12px;"></div>
   </div>
+    </section>
 
+    <section class="sec" data-sec="errors">
+      <div class="kpis k4" id="errKpis"></div>
+      <div class="card"><h2>Errors, last 14 days <span class="when" id="err14n"></span></h2><div class="chart14" id="err14"></div><div class="axis" id="err14ax"></div></div>
+      <div class="fbar"><div class="chips" id="errChips" style="padding:0"></div>
+        <select id="errDev" onchange="renderErrs()"><option value="">All devices</option></select>
+        <select id="errVer" onchange="renderErrs()"><option value="">All versions</option></select></div>
+      <div class="ex"><div class="ex-list" id="errList"></div><div class="ex-d" id="errDetail"></div></div>
+      <p class="note">Each device catches its own crashes and failed requests and sends a short report here. It includes the technical trace and the last few things the person did. It never includes passwords, login tokens or photos. A repeat of the same error is counted, not stored again.</p>
+    </section>
+
+    <section class="sec" data-sec="network">
+      <div class="kpis k4" id="netKpis"></div>
+      <div class="card"><h2>Requests to the server <span class="when">newest first · this device · last 200 calls</span></h2>
+        <div class="fbar"><div class="chips" id="netChips" style="padding:0"></div></div>
+        <div style="overflow-x:auto;"><table class="nt"><thead><tr><th>Time</th><th>Method</th><th>Endpoint</th><th>Status</th><th>Time taken</th><th class="hide-s">Size</th><th class="hide-s">Why</th></tr></thead><tbody id="netBody"></tbody></table></div>
+      </div>
+      <p class="note">Every call the app makes: pulling changes, uploading, the heartbeat, update checks, logins. Addresses only, never the keys or the data. The last 200 calls are kept on each device.</p>
+    </section>
+
+    <section class="sec" data-sec="system">
+      <div class="card"><h2>Self-test <span class="when" id="stWhen">not run yet</span></h2>
+        <div class="st-list" id="stList"></div>
+        <div class="st-sum" id="stSum"></div>
+        <div class="row-btns"><button class="btn-go" id="stBtn" onclick="runSelfTest()">Run self-test</button></div>
+        <p class="note">Checks this device from top to bottom in a few seconds. It only reads, apart from one tiny test note that it writes and deletes again.</p>
+      </div>
+      <div class="cols">
+        <div class="card"><h2>This device</h2><table class="spec" id="envTbl"></table></div>
+        <div class="card"><h2>Sync engine <span class="ro">read-only</span></h2><table class="spec" id="syncTbl"></table>
+          <div class="ping"><button class="btn-ghost" onclick="pingServer(this)">Test connection</button><span class="res" id="pingRes"></span></div></div>
+      </div>
+      <div class="cols" style="margin-top:16px;">
+        <div class="card"><h2>Waiting to upload <span class="when" id="qN"></span></h2><div class="qlist" id="qList"></div></div>
+        <div class="card"><h2>One-time fixes applied here</h2><div class="qlist" id="migList"></div>
+          <p class="note">Repairs that ran once on this device after an update. Useful when one device behaves differently.</p></div>
+      </div>
+      <div class="row-btns"><button class="btn-go" onclick="copyDiag(this)">Copy diagnostics for Claude</button></div>
+      <p class="note">Everything on this page stays on this device. Passwords and login tokens are never shown or copied.</p>
+    </section>
+
+    <section class="sec" data-sec="settings">
+      <div class="card">
+        <h2>Announcement banner</h2>
+        <div id="annNow"></div>
+        <label style="font-size:12.5px;color:var(--ink2);display:block;margin:6px 0 5px;">Message</label>
+        <textarea id="annText" maxlength="160" placeholder="e.g. Please update the app today, new version is out." oninput="annDraw()"></textarea>
+        <div class="fgrid" style="margin-top:10px;">
+          <div><label>Type</label><div class="seg" id="annLvl">
+            <button data-l="info" class="on info" onclick="annLvl('info')">Info</button>
+            <button data-l="imp" onclick="annLvl('imp')">Important</button></div></div>
+          <div><label>Show until</label><input type="date" id="annUntil" onchange="annDraw()"></div>
+        </div>
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:14px;">How it will look on everyone's home screen</div>
+        <div id="annPrev"></div>
+        <div class="row-btns"><button class="btn-go" onclick="annPublish()">Publish to everyone</button>
+          <button class="btn-ghost" onclick="annRemove()">Remove banner</button></div>
+        <p class="note">Shows at the top of the home screen on every device until the date, or until you remove it.
+          Each person can close it once they've read it.</p>
+      </div><div class="cols"><div class="card">
+    <h2>Business settings</h2>
+    <div id="setBox"></div>
+    <p class="note">Shown so you can see the rules, not change them. All three affect what the
+      CEO approves, so changing any of them is a job for me &mdash; ask and I will do it properly.</p>
+  </div><div class="card">
+    <h2>Email alerts</h2>
+    <div id="mailBox"></div>
+  </div></div></section>
+  </main>
 </div>
 
 <script>
@@ -328,15 +728,30 @@ function timeAgo(iso) {
 /* ── summary strip ─────────────────────────────────────────────── */
 const summary = { version: '…', team: '…', devices: '…', behind: 0, storage: '…', storeAlert: false };
 function renderTiles() {
+  const waiting = JSON.parse(localStorage.getItem('fl_dirty') || '[]').length;
+  const stamp = localStorage.getItem('fl_sync_stamp');
+  const off = !navigator.onLine;
+  const pct = parseFloat(summary.storage) || 0;
   document.getElementById('tiles').innerHTML =
-    tile('Version', summary.version, summary.versionSub || '', false) +
-    tile('Team', summary.team, summary.teamSub || '', false) +
-    tile('Devices', summary.devices, summary.behind ? summary.behind + ' behind' : 'all current', !!summary.behind) +
-    tile('Storage', summary.storage, summary.storeSub || '', summary.storeAlert);
+    tile('Sync', off ? 'Offline' : waiting ? waiting + ' queued' : 'Healthy',
+      stamp ? 'last synced ' + timeAgo(stamp) : 'never synced', off ? 'off' : waiting ? 'warn' : '') +
+    tile('Version', 'v' + summary.version, summary.versionSub == null ? 'checking…' : (summary.versionSub || 'could not check'), summary.versionSub && /waiting/.test(summary.versionSub) ? 'warn' : '') +
+    tile('Devices', summary.devices + '<span style="font-size:14px;color:var(--ink3)"> online</span>',
+      summary.devices === '—' ? 'could not load' : summary.devices === '…' ? 'loading…' : summary.behind ? summary.behind + ' on an old version' : 'all on the latest version', summary.devices === '—' ? 'off' : summary.behind ? 'warn' : '') +
+    tile('Storage', summary.storage, summary.storeSub || '', summary.storeAlert ? 'bad' : '',
+      '<div class="meter"><i style="width:' + Math.min(100, pct) + '%"></i></div>');
+  document.getElementById('acVer').textContent = 'v' + summary.version + ' · ' + (off ? 'offline' : 'online');
+  const n = document.getElementById('n-devices'); if (n && summary.devices !== '…') n.textContent = summary.devices;
+  document.getElementById('acSys').innerHTML =
+    'device <b>' + esc(FLApp.deviceName ? FLApp.deviceName() : '') + '</b><br>' +
+    'queue <b>' + waiting + '</b> · store <b>' + summary.storage + '</b><br>' +
+    'sync <b>' + (stamp ? timeAgo(stamp) : 'never') + '</b>';
 }
-function tile(t, b, s, alert) {
-  return '<div class="tile' + (alert ? ' alert' : '') + '"><div class="t">' + t + '</div>' +
-    '<div class="b">' + b + '</div><div class="s">' + s + '</div></div>';
+function tile(t, b, s, state, extra) {
+  const led = state === 'bad' ? 'bad' : state === 'warn' ? 'warn' : state === 'off' ? 'off' : '';
+  return '<div class="tile' + (state === 'bad' ? ' alert' : state === 'warn' ? ' warn' : '') + '">' +
+    '<div class="t"><span class="led ' + led + '"></span>' + t + '</div>' +
+    '<div class="b">' + b + '</div><div class="s">' + s + '</div>' + (extra || '') + '</div>';
 }
 
 /* ── version ───────────────────────────────────────────────────── */
@@ -590,7 +1005,7 @@ async function renderDevices() {
   const box = document.getElementById('deviceList');
   let devices;
   try { devices = await FLApp.fetchAllDevices(); }
-  catch (e) { box.innerHTML = '<div class="empty">Could not load devices — check your connection.<br><button class="mini" style="margin-top:10px;" onclick="renderDevices()">↻ Retry</button></div>'; return; }
+  catch (e) { summary.devices = '—'; renderTiles(); box.innerHTML = '<div class="empty">Could not load devices — check your connection.<br><button class="mini" style="margin-top:10px;" onclick="renderDevices()">↻ Retry</button></div>'; return; }
   devicesCache = devices;
   if (!devices.length) { box.innerHTML = '<div class="empty">No devices have synced yet.</div>'; renderSync(); return; }
 
@@ -599,25 +1014,32 @@ async function renderDevices() {
      behind with the SAME name, and matching by name badged both as "this one" */
   const hereId = FLApp.deviceId();
   let behind = 0, live = 0;
+  const ICON = {
+    pc: '<svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="12" rx="1.6"/><path d="M8 20h8M12 16v4"/></svg>',
+    tab: '<svg viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path d="M11 18h2"/></svg>',
+    phone: '<svg viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M11 18.5h2"/></svg>'
+  };
+  const kind = n => /iphone|phone|mobile/i.test(n) ? 'phone' : /tab|ipad|android/i.test(n) ? 'tab' : 'pc';
   box.innerHTML = devices.map(d => {
     const age = Date.now() - new Date(d.time).getTime();
     const dead = age > 7 * 24 * 3600 * 1000;
     const stale = age > 24 * 3600 * 1000;
     if (!dead) live++;
-    let pill = '<span class="pill gr">version unknown</span>';
-    if (d.version) {
-      const old = d.version !== mine;
-      if (old && !dead) behind++;
-      pill = '<span class="pill ' + (old ? 'bad">' + esc(d.version) + ' — behind' : 'ok">' + esc(d.version)) + '</span>';
-    }
-    return '<div class="dev-row">' +
-      '<span class="dot' + (dead ? ' old' : stale ? ' bad' : '') + '"></span>' +
-      '<span class="nm">' + esc(d.device) + (d._id === hereId ? ' <span class="pill gr">this one</span>' : '') + '</span>' +
-      '<span class="rt">' + pill +
-        '<span>' + (d.who ? esc(d.who) + ' · ' : '') + timeAgo(d.time) + '</span>' +
-        (dead && d._id && d._id !== hereId
-          ? '<button class="mini danger" onclick="forgetDevice(\'' + esc(d._id) + '\')">Remove</button>' : '') +
-      '</span></div>';
+    const old = d.version && d.version !== mine;
+    if (old && !dead) behind++;
+    const here = d._id === hereId;
+    const st = dead ? '<span class="led off" title="Not seen for over a week"></span>'
+      : stale ? '<span class="led warn" title="Not seen today"></span>' : '<span class="led" title="Seen today"></span>';
+    return '<div class="dv' + (dead ? ' dead' : '') + (here ? ' here' : '') + '">' +
+      '<span class="dv-st">' + st + '</span>' +
+      '<div class="dv-top"><span class="dv-ic">' + ICON[kind(d.device || '')] + '</span>' +
+        '<div><div class="dv-nm">' + esc(d.device) + (here ? '<span class="tag">this one</span>' : '') + '</div>' +
+        '<div class="dv-who">' + (d.who ? esc(d.who) : 'unknown user') + '</div></div></div>' +
+      '<div class="dv-meta"><span>version</span><b class="' + (d.version ? (old ? 'old' : 'cur') : '') + '">' +
+        (d.version ? 'v' + esc(d.version) + (old ? ' · behind' : '') : 'unknown') + '</b>' +
+        '<span>last seen</span><b>' + timeAgo(d.time) + '</b></div>' +
+      devDiag(d) + (dead && d._id && !here ? '<button class="mini danger" onclick="forgetDevice(\'' + esc(d._id) + '\')">Remove</button>' : '') +
+    '</div>';
   }).join('');
 
   summary.devices = live;
@@ -632,25 +1054,44 @@ async function forgetDevice(id) {
   catch (e) { await FLApp.flAlert(e.message); }
 }
 
+let logKind = 'all';
+function logTag(t) {
+  if (/deleted|removed/i.test(t)) return ['d', 'DELETE'];
+  if (/LOCKED|reject|not approved/i.test(t)) return ['w', 'ALERT'];
+  if (/approved/i.test(t)) return ['a', 'APPROVE'];
+  if (/created|added|new /i.test(t)) return ['c', 'CREATE'];
+  if (/log ?in|logged|sign/i.test(t)) return ['u', 'AUTH'];
+  if (/edit|updated|changed|renamed|saved/i.test(t)) return ['u', 'UPDATE'];
+  return ['x', 'EVENT'];
+}
+function logLine(e) {
+  const d = new Date(e.time);
+  const tg = logTag(e.type || '');
+  const day = d.toDateString() === new Date().toDateString() ? '' : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ' ';
+  return '<div class="tl"><span class="tm">' + day + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
+    '<span class="tg ' + tg[0] + '">' + tg[1] + '</span>' +
+    '<span class="msg" title="' + esc(e.type) + '">' + esc(e.type) + '</span>' +
+    '<span class="by">' + esc(e.who || '') + (e.device ? ' @ ' + esc(e.device) : '') + '</span></div>';
+}
 function renderLog() {
   const q = (document.getElementById('logFilter').value || '').toLowerCase();
-  const box = document.getElementById('logList');
   const all = FLApp.activityLog();
+  const KINDS = ['all', 'CREATE', 'UPDATE', 'APPROVE', 'DELETE', 'ALERT'];
+  document.getElementById('logChips').innerHTML = KINDS.map(k =>
+    '<button class="' + (k === logKind ? 'on' : '') + '" onclick="logKind=\'' + k + '\';renderLog()">' + k.toLowerCase() + '</button>').join('');
   const log = all.filter(e =>
-    !q || (e.who || '').toLowerCase().includes(q) || (e.type || '').toLowerCase().includes(q) || (e.device || '').toLowerCase().includes(q));
+    (logKind === 'all' || logTag(e.type || '')[1] === logKind) &&
+    (!q || (e.who || '').toLowerCase().includes(q) || (e.type || '').toLowerCase().includes(q) || (e.device || '').toLowerCase().includes(q)));
   const oldest = all.length ? all[all.length - 1] : null;
-  document.getElementById('logNote').innerHTML = all.length
-    ? 'Keeps the last 500 actions — currently back to ' +
-      new Date(oldest.time).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
-      '. Anything older is forgotten.'
+  document.getElementById('termFoot').textContent = all.length
+    ? '> ' + log.length + ' of ' + all.length + ' entries · kept back to ' +
+      new Date(oldest.time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · last 500 actions only'
     : '';
-  if (!log.length) { box.innerHTML = '<div class="empty">No activity recorded yet.</div>'; return; }
-  box.innerHTML = log.slice(0, 100).map(e => {
-    const warn = /LOCKED|deleted/i.test(e.type);
-    return '<div class="log-row' + (warn ? ' warn' : '') + '">' +
-      '<div class="lt">' + esc(e.type) + ' — ' + esc(e.who) + '</div>' +
-      '<div class="lm">' + new Date(e.time).toLocaleString('en-GB') + ' · ' + esc(e.device || '') + '</div></div>';
-  }).join('');
+  document.getElementById('termBody').innerHTML = log.length
+    ? log.slice(0, 150).map(logLine).join('') : '<div class="tl"><span class="tm">—</span><span></span><span class="msg">no matching entries</span></div>';
+  document.getElementById('feedMini').innerHTML = all.slice(0, 7).map(logLine).join('') ||
+    '<div class="tl"><span class="tm">—</span><span></span><span class="msg">no activity yet</span></div>';
+  const n = document.getElementById('n-activity'); if (n) n.textContent = all.length;
 }
 
 renderTiles();
@@ -663,9 +1104,9 @@ runCheck();
 /* ── Enquiry statuses ──────────────────────────────────────────────── */
 const GRP_LABEL = { open: 'Still open', won: 'Won', lost: 'Lost' };
 const GRP_STYLE = {
-  open: 'background:#FBF6EC;color:#8a6d3b;',
-  won:  'background:#E3EFE7;color:#1E5631;',
-  lost: 'background:#F8E9E9;color:#8f1d1d;'
+  open: 'background:rgba(25,184,204,.14);color:var(--s);border:1px solid rgba(25,184,204,.4);',
+  won:  'background:rgba(74,222,128,.14);color:var(--ok);border:1px solid rgba(74,222,128,.4);',
+  lost: 'background:rgba(248,113,113,.14);color:var(--bad);border:1px solid rgba(248,113,113,.4);'
 };
 function renderStatuses() {
   const built = FLApp.BUILT_IN_STATUSES.map(s => s.v);
@@ -738,6 +1179,576 @@ renderDevices();
 renderLog();
 renderStatuses();
 renderTidy('');
+
+
+/* ── shared date helpers ── */
+const DAY = 864e5;
+function isoDay(d) { return d.toISOString().slice(0, 10); }
+function fmtD(s) { return s ? new Date(s + 'T00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'; }
+/* ── Announcement banner: a synced setting, shown on every home screen ── */
+let annLevel = 'info';
+function annGet() { try { return JSON.parse(FLApp.appSettings().announce || 'null'); } catch (e) { return null; } }
+function annLvl(l) { annLevel = l; document.querySelectorAll('#annLvl button').forEach(b => b.className = b.dataset.l === l ? 'on ' + l : ''); annDraw(); }
+function annHtml(a) {
+  return '<div class="ann-prev ' + a.level + '"><span class="ic">' + (a.level === 'imp' ? 'Important' : 'Info') + '</span>' +
+    '<span>' + esc(a.text) + '<span class="by">from ' + esc(a.by) + (a.until ? ' · until ' + fmtD(a.until) : '') + '</span></span></div>';
+}
+function annDraw() {
+  const t = document.getElementById('annText').value.trim() || 'Your message appears here.';
+  document.getElementById('annPrev').innerHTML = annHtml({ level: annLevel, text: t, by: FLApp.currentUser().name, until: document.getElementById('annUntil').value });
+  const cur = annGet();
+  document.getElementById('annNow').innerHTML = cur
+    ? '<div class="kv"><span class="k">Showing now</span><span class="v ok">' + esc(cur.text.slice(0, 48)) + (cur.text.length > 48 ? '…' : '') + '</span></div>'
+    : '<div class="kv"><span class="k">Showing now</span><span class="v">nothing</span></div>';
+}
+function annPublish() {
+  const text = document.getElementById('annText').value.trim();
+  if (!text) { FLApp.flAlert('Type a message first.'); return; }
+  FLApp.setAppSetting('announce', JSON.stringify({ text, level: annLevel, until: document.getElementById('annUntil').value,
+    by: FLApp.currentUser().name, at: new Date().toISOString() }));
+  annDraw();
+}
+function annRemove() { FLApp.setAppSetting('announce', ''); annDraw(); }
+document.getElementById('annUntil').value = isoDay(new Date(Date.now() + 3 * DAY));
+annDraw();
+
+/* ── Export to Excel: a CSV with a BOM, so Excel opens Arabic names and AED correctly ── */
+function expRows(what) {
+  const num = v => Math.round((parseFloat(v) || 0) * 100) / 100;
+  if (what === 'gp') return FLApp.eventsAll().map(e => {
+    const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
+    const fl = sum(e.flowers), su = sum(e.sundries), ot = sum(e.other), cost = fl + su + ot;
+    const after = (parseFloat(e.budget) || 0) * (1 - (parseFloat(e.discountPct) || 0) / 100);
+    return { _m: (e.date || '').slice(0, 7), Date: e.date || '', Event: e.name || '', 'Order no': e.orderNo || '',
+      'Budget AED': num(e.budget), 'Discount %': num(e.discountPct), 'After discount AED': num(after),
+      'Flowers AED': num(fl), 'Sundries AED': num(su), 'Other AED': num(ot), 'Total cost AED': num(cost),
+      'Profit AED': num(after - cost), 'GP %': after ? num((after - cost) / after * 100) : '',
+      Status: (e.approval && e.approval.status) || 'pending', 'Shopify link': e.shopify || '' };
+  });
+  if (what === 'trk') return FLApp.trackerAll().map(t => ({ _m: (t.eventDate || '').slice(0, 7), 'Event date': t.eventDate || '',
+    Client: t.client || '', 'Order no': t.orderNo || '', 'Revenue AED': num(t.revenue), 'Discount %': num(t.discountPct), Placed: t.placed || '' }));
+  if (what === 'enq') return FLApp.enquiriesAll().map(e => ({ _m: (e.eventDate || e.enqDate || '').slice(0, 7), 'Enquiry date': e.enqDate || '',
+    Name: e.name || '', Occasion: e.occasion || '', 'Event date': e.eventDate || '', Status: e.status || '', Chance: e.chance || '',
+    'Quote sent': e.quoteSentDate || '' }));
+  return FLApp.activityLog().map(a => ({ _m: (a.time || '').slice(0, 7), Time: new Date(a.time).toLocaleString('en-GB'),
+    Action: a.type || '', Who: a.who || '', Device: a.device || '' }));
+}
+function expMonths() {
+  const ms = [...new Set(expRows(document.getElementById('expWhat').value).map(r => r._m).filter(Boolean))].sort().reverse();
+  document.getElementById('expMonth').innerHTML = '<option value="">All months</option>' + ms.map(m =>
+    '<option value="' + m + '">' + new Date(m + '-01T00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) + '</option>').join('');
+  const cur = isoDay(new Date()).slice(0, 7);
+  if (ms.includes(cur)) document.getElementById('expMonth').value = cur;
+  expCount();
+}
+function expPick() {
+  const m = document.getElementById('expMonth').value;
+  return expRows(document.getElementById('expWhat').value).filter(r => !m || r._m === m);
+}
+function expCount() {
+  const n = expPick().length;
+  document.getElementById('expMeta').textContent = '> ' + n + ' row' + (n === 1 ? '' : 's') + ' · opens in Excel, Numbers or Google Sheets';
+}
+function expDownload() {
+  const rows = expPick();
+  if (!rows.length) { FLApp.flAlert('Nothing to export for that month.'); return; }
+  const cols = Object.keys(rows[0]).filter(k => k !== '_m');
+  const cell = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const csv = '\ufeff' + [cols.join(',')].concat(rows.map(r => cols.map(c => cell(r[c])).join(','))).join('\r\n');
+  const what = document.getElementById('expWhat').selectedOptions[0].text.split(' (')[0].replace(/\s+/g, '-');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'Flowers-' + what + '-' + (document.getElementById('expMonth').value || 'all') + '.csv';
+  a.click();
+}
+expMonths();
+
+
+/* ════ round 3: read-only depth ════ */
+function ageChip(d) {
+  if (!d) return '';
+  const days = Math.floor((Date.now() - new Date(d + 'T00:00').getTime()) / 864e5);
+  if (days < 1) return '';
+  return '<span class="age' + (days > 14 ? ' hot' : '') + '">' + days + 'd</span>';
+}
+const WHO_ALIAS = n => {
+  const s = String(n || '').trim();
+  if (/^sajith(@|$)/i.test(s)) return 'Sajith';
+  return s;
+};
+const isJunkWho = s => /@/.test(s) || /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(s);
+function logKindOf(t) {
+  return String(t || '').replace(/\(.*$/, '').replace(/:.*$/, '').replace(/ for \d{4}-\d{2}.*$/, '').replace(/ from order \d+/, '').replace(/ to (ceo|finance|admin|staff)$/, '').trim();
+}
+
+/* ── Insights ── */
+function median(a) { if (!a.length) return null; a = a.slice().sort((x, y) => x - y); const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
+function renderInsights() {
+  const now = Date.now(), today = isoDay(new Date());
+  const evs = FLApp.eventsAll(), trk = FLApp.trackerAll(), enq = FLApp.enquiriesAll(), log = FLApp.activityLog();
+  const sum = a => (a || []).reduce((s, l) => s + (parseFloat(l.qty) || 0) * (parseFloat(l.price) || 0), 0);
+
+  /* approval turnaround: event day → Jo's decision */
+  const appr = evs.filter(e => e.approval && e.approval.at && e.date && e.approval.status === 'approved')
+    .map(e => (new Date(e.approval.at) - new Date(e.date + 'T00:00')) / 864e5).filter(d => d >= 0 && d < 120);
+  /* costing speed: event day → sheet created (the id is the creation time) */
+  const made = evs.filter(e => /^e\d{13}$/.test(e.id) && e.date && e.date >= isoDay(new Date(now - 120 * 864e5)))
+    .map(e => (parseInt(e.id.slice(1)) - new Date(e.date + 'T00:00').getTime()) / 864e5).filter(d => d > -60);
+  /* coverage: finished orders in the last 90 days that have a sheet */
+  const onSheet = new Set(evs.map(e => (e.orderNo || '').trim()).filter(Boolean));
+  const fin = trk.filter(t => t.eventDate && t.eventDate < today && t.eventDate >= isoDay(new Date(now - 90 * 864e5)));
+  const cov = fin.length ? fin.filter(t => onSheet.has((t.orderNo || '').trim())).length / fin.length * 100 : null;
+  /* GP this month, weighted by money, like the dashboard */
+  const ym = today.slice(0, 7);
+  let after = 0, cost = 0;
+  evs.filter(e => (e.date || '').slice(0, 7) === ym).forEach(e => {
+    after += (parseFloat(e.budget) || 0) * (1 - (parseFloat(e.discountPct) || 0) / 100);
+    cost += sum(e.flowers) + sum(e.sundries) + sum(e.other);
+  });
+  const gp = after ? (after - cost) / after * 100 : null;
+  const won = enq.filter(e => FLApp.statusGroup(e.status) === 'won').length, lost = enq.filter(e => FLApp.statusGroup(e.status) === 'lost').length;
+  const ma = median(appr), mm = median(made);
+  const kpi = (l, v, s, cls) => '<div class="kpi"><div class="l">' + l + '</div><div class="v ' + (cls || '') + '">' + v + '</div><div class="s">' + s + '</div></div>';
+  document.getElementById('opsKpis').innerHTML =
+    kpi('GP this month', gp == null ? '—' : gp.toFixed(1) + '<small>%</small>', 'target 70% · AED ' + Math.round(after).toLocaleString() + ' sold', gp == null ? '' : gp >= 70 ? 'good' : gp >= 60 ? 'mid' : 'bad') +
+    kpi('Sheet coverage', cov == null ? '—' : Math.round(cov) + '<small>%</small>', 'orders costed, last 90 days', cov == null ? '' : cov >= 90 ? 'good' : cov >= 75 ? 'mid' : 'bad') +
+    kpi('Costing speed', mm == null ? '—' : mm.toFixed(1) + '<small>days</small>', 'median, event day → sheet made', mm == null ? '' : mm <= 7 ? 'good' : mm <= 14 ? 'mid' : 'bad') +
+    kpi('Approval time', ma == null ? '—' : ma.toFixed(1) + '<small>days</small>', 'median, event day → Jo approves · cut-off allows ~35', ma == null ? '' : ma <= 30 ? 'good' : ma <= 40 ? 'mid' : 'bad') +
+    kpi('Enquiry win rate', won + lost ? Math.round(won / (won + lost) * 100) + '<small>%</small>' : '—', won + ' won · ' + lost + ' lost', '') +
+    kpi('Open enquiries', enq.filter(e => FLApp.enquiryIsOpen(e)).length, 'still in the pipeline', '') +
+    kpi('Event sheets', evs.length, evs.filter(e => !(e.approval && e.approval.status)).length + ' not yet reviewed', '') +
+    kpi('Logged actions', log.length, 'kept back to ' + (log.length ? new Date(log[log.length - 1].time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'), '');
+
+  /* 30-day bars */
+  const days = [];
+  for (let i = 29; i >= 0; i--) days.push(isoDay(new Date(now - i * 864e5)));
+  const per = {}; log.forEach(l => { const d = isoDay(new Date(l.time)); per[d] = (per[d] || 0) + 1; });
+  const mx = Math.max(1, ...days.map(d => per[d] || 0));
+  document.getElementById('act30').innerHTML = days.map(d => {
+    const n = per[d] || 0;
+    return '<i class="' + (n ? '' : 'z') + (d === today ? ' t' : '') + '" style="height:' + (n / mx * 100) + '%" data-t="' + fmtD(d) + ' · ' + n + ' action' + (n === 1 ? '' : 's') + '"></i>';
+  }).join('');
+  document.getElementById('act30ax').innerHTML = '<span>' + fmtD(days[0]) + '</span><span>' + fmtD(days[15]) + '</span><span>today</span>';
+  document.getElementById('act30n').textContent = days.reduce((s, d) => s + (per[d] || 0), 0) + ' actions · busiest day ' + mx;
+
+  /* weekday × hour heatmap */
+  const H = Array.from({ length: 7 }, () => Array(24).fill(0));
+  log.forEach(l => { const t = new Date(l.time); H[(t.getDay() + 6) % 7][t.getHours()]++; });
+  const hm = Math.max(1, ...H.flat());
+  const DN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  document.getElementById('heat').innerHTML = '<b></b>' + Array.from({ length: 24 }, (_, i) => '<em>' + (i % 3 ? '' : i) + '</em>').join('') +
+    H.map((r, i) => '<b>' + DN[i] + '</b>' + r.map((n, hh) => '<span title="' + DN[i] + ' ' + hh + ':00 · ' + n + '" style="background:rgba(29,185,122,' +
+      (n ? (0.14 + 0.86 * n / hm).toFixed(2) : '.05') + ')"></span>').join('')).join('');
+
+  const bars = (obj, el, top) => {
+    const rows = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, top || 6);
+    const m = Math.max(1, ...rows.map(r => r[1]));
+    document.getElementById(el).innerHTML = rows.map(([k, n]) => '<div class="hbar"><span class="nm" title="' + esc(k) + '">' + esc(k) + '</span><span class="tr"><i style="width:' +
+      (n / m * 100) + '%"></i></span><span class="n">' + n + '</span></div>').join('');
+  };
+  const byWho = {}, byType = {};
+  log.forEach(l => { const w = WHO_ALIAS(l.who); if (!isJunkWho(w)) byWho[w] = (byWho[w] || 0) + 1; const k = logKindOf(l.type); byType[k] = (byType[k] || 0) + 1; });
+  bars(byWho, 'byWho'); bars(byType, 'byType', 8);
+
+  /* data quality: small things a developer would want to know about */
+  const dq = [];
+  const junk = log.filter(l => isJunkWho(String(l.who || '')));
+  dq.push(junk.length ? ['!', junk.length + ' log entries saved under an email or account ID instead of a name', [...new Set(junk.map(l => l.who))].map(x => String(x).slice(0, 18)).join(' · ')]
+    : ['✓', 'Every log entry has a proper name', '']);
+  const devs = {}; log.forEach(l => { if (l.device) devs[l.device] = (devs[l.device] || 0) + 1; });
+  const unnamed = Object.keys(devs).filter(d => /^device-[a-z0-9]{6}$/.test(d));
+  dq.push(unnamed.length ? ['!', unnamed.length + ' devices were never given a name', unnamed.map(d => d + ' (' + devs[d] + ' actions)').join(' · ') + ' — open Admin on each and press Rename']
+    : ['✓', 'Every device has a name', '']);
+  const lower = {}; Object.keys(devs).forEach(d => { const k = d.toLowerCase(); (lower[k] = lower[k] || []).push(d); });
+  const twins = Object.values(lower).filter(a => a.length > 1);
+  dq.push(twins.length ? ['!', 'Same device under two spellings', twins.map(a => a.join(' / ')).join(' · ')] : ['✓', 'No duplicate device names', '']);
+  const noOrder = evs.filter(e => !(e.orderNo || '').trim()).length;
+  dq.push(noOrder ? ['!', noOrder + ' event sheets have no order number', 'they cannot be matched to the Tracker'] : ['✓', 'Every event sheet has an order number', '']);
+  const futureSheets = evs.filter(e => e.date && e.date > isoDay(new Date(now + 180 * 864e5))).length;
+  dq.push(futureSheets ? ['!', futureSheets + ' sheets dated more than 6 months ahead', 'probably a typo in the year'] : ['✓', 'No sheets with impossible dates', '']);
+  document.getElementById('dqList').innerHTML = dq.map(r => '<div class="dq' + (r[0] === '✓' ? ' ok' : '') + '"><span class="ic">' + r[0] + '</span><span>' + esc(r[1]) +
+    (r[2] ? '<small>' + esc(r[2]) + '</small>' : '') + '</span></div>').join('');
+}
+
+/* ── Team activity ── */
+function renderTeamAct() {
+  const log = FLApp.activityLog(), cut = Date.now() - 30 * 864e5;
+  const P = {};
+  log.forEach(l => {
+    const w = WHO_ALIAS(l.who); if (!w || isJunkWho(w)) return;
+    const p = P[w] = P[w] || { n30: 0, login: null, last: null, dev: {}, kinds: {} };
+    const t = new Date(l.time).getTime();
+    if (t > cut) p.n30++;
+    if (!p.last || t > p.last) p.last = t;
+    if (/^Logged in/.test(l.type) && (!p.login || t > p.login)) p.login = t;
+    if (l.device) p.dev[l.device] = 1;
+    const k = logKindOf(l.type); if (k !== 'Logged in') p.kinds[k] = (p.kinds[k] || 0) + 1;
+  });
+  const ago = t => t ? timeAgo(new Date(t).toISOString()) : '—';
+  document.getElementById('teamAct').innerHTML = '<thead><tr><th>Person</th><th>Last active</th><th class="hide-s">Last login</th><th>30 days</th><th class="hide-s">Devices</th><th class="hide-s">Mostly</th></tr></thead><tbody>' +
+    Object.entries(P).sort((a, b) => b[1].last - a[1].last).map(([w, p]) => {
+      const top = Object.entries(p.kinds).sort((a, b) => b[1] - a[1])[0];
+      return '<tr><td><b>' + esc(w) + '</b></td><td class="m">' + ago(p.last) + '</td><td class="m hide-s">' + ago(p.login) + '</td><td class="m">' + p.n30 + ' actions</td>' +
+        '<td class="m hide-s">' + Object.keys(p.dev).map(esc).join(', ') + '</td><td class="m hide-s">' + (top ? esc(top[0]) : '—') + '</td></tr>';
+    }).join('') + '</tbody>';
+}
+
+/* ── System ── */
+function platformName() {
+  try { if (window.Capacitor && Capacitor.getPlatform && Capacitor.getPlatform() === 'android') return 'Android app'; } catch (e) {}
+  const ua = navigator.userAgent;
+  if (/Electron/i.test(ua)) return 'Windows app';
+  if (/iPhone|iPad/.test(ua)) return navigator.standalone ? 'iPhone app (home screen)' : 'iPhone browser';
+  return /Edg\//.test(ua) ? 'Edge browser' : /Chrome\//.test(ua) ? 'Chrome browser' : 'Web browser';
+}
+function sessionExpiry() {
+  /* reads only the expiry time out of the login; the token itself is never shown */
+  try {
+    const s = localStorage.getItem('fl_session') || '';
+    const m = s.match(/eyJ[\w-]+\.([\w-]+)\.[\w-]+/);
+    if (!m) return null;
+    const p = JSON.parse(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return p.exp ? p.exp * 1000 : null;
+  } catch (e) { return null; }
+}
+const stampAgo = k => { const v = localStorage.getItem(k); if (!v) return 'never'; const t = /^\d+$/.test(v) ? parseInt(v) : Date.parse(v); return isNaN(t) ? v : timeAgo(new Date(t).toISOString()); };
+function row(k, v, cls) { return '<tr><td>' + k + '</td><td class="' + (cls || '') + '">' + v + '</td></tr>'; }
+function renderSystem() {
+  const exp = sessionExpiry();
+  const left = exp ? (exp - Date.now()) / 3600e3 : null;
+  document.getElementById('envTbl').innerHTML =
+    row('App', 'v' + FLApp.appVersion() + ' · ' + platformName()) +
+    row('Device name', esc(FLApp.deviceName())) +
+    row('Device ID', esc(FLApp.deviceId())) +
+    row('Signed in as', esc(FLApp.currentUser().name) + ' · ' + esc(FLApp.role(FLApp.currentUser()))) +
+    row('Login expires', left == null ? 'unknown' : left < 0 ? 'expired' : left < 1 ? Math.round(left * 60) + ' min' : left.toFixed(1) + ' h', left != null && left < 1 ? 'mid' : '') +
+    row('Screen', screen.width + '×' + screen.height + ' @' + (window.devicePixelRatio || 1) + 'x · window ' + innerWidth + 'px') +
+    row('Network', navigator.onLine ? 'online' : 'offline', navigator.onLine ? 'ok' : 'bad') +
+    row('Time zone', Intl.DateTimeFormat().resolvedOptions().timeZone) +
+    row('Engine', (navigator.userAgent.match(/(Chrome|Edg|Safari|Firefox)\/[\d.]+/g) || ['—']).slice(-1)[0]);
+  const q = JSON.parse(localStorage.getItem('fl_dirty') || '[]');
+  let tomb = 0; try { const t = JSON.parse(localStorage.getItem('fl_tombstones') || '{}'); tomb = Array.isArray(t) ? t.length : Object.keys(t).length; } catch (e) {}
+  document.getElementById('syncTbl').innerHTML =
+    row('Server', 'nageqyossizmnzfwjxcf.supabase.co') +
+    row('Last sync', stampAgo('fl_sync_stamp')) +
+    row('Last full sync', stampAgo('fl_last_full_sync')) +
+    row('Last repair pass', stampAgo('fl_last_reconcile')) +
+    row('Last heartbeat', stampAgo('fl_last_heartbeat')) +
+    row('Waiting to upload', q.length + ' item' + (q.length === 1 ? '' : 's'), q.length ? 'mid' : 'ok') +
+    row('Deletions remembered', tomb + ' (stops deleted items coming back)');
+  document.getElementById('qN').textContent = q.length + ' item' + (q.length === 1 ? '' : 's');
+  document.getElementById('qList').innerHTML = q.length ? q.map(k => '› ' + esc(k)).join('<br>') : 'nothing waiting — everything is uploaded';
+  const mig = [];
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^fl_(resync|sig_shrunk|seed)_/.test(k)) mig.push(k); }
+  document.getElementById('migList').innerHTML = mig.sort().map(k => '✓ ' + esc(k.replace(/^fl_/, ''))).join('<br>') || 'none';
+}
+async function pingServer(btn) {
+  const r = document.getElementById('pingRes');
+  btn.disabled = true; r.textContent = 'testing…';
+  const t0 = performance.now();
+  try { await FLApp.publishedVersion(); const ms = Math.round(performance.now() - t0);
+    r.innerHTML = '<span style="color:var(--' + (ms < 600 ? 'ok' : ms < 1500 ? 'amber' : 'bad') + ')">● reachable · ' + ms + ' ms</span>';
+  } catch (e) { r.innerHTML = '<span style="color:var(--bad)">● not reachable · ' + esc(e.message || 'no connection') + '</span>'; }
+  btn.disabled = false;
+}
+async function copyDiag(btn) {
+  const txt = ['Flowers diagnostics ' + new Date().toISOString()]
+    .concat([...document.querySelectorAll('#envTbl tr, #syncTbl tr')].map(tr => '- ' + tr.cells[0].textContent + ': ' + tr.cells[1].textContent))
+    .concat(['- one-time fixes: ' + document.getElementById('migList').textContent.replace(/✓ /g, ' ')]).join('\n');
+  try { await navigator.clipboard.writeText(txt); btn.textContent = 'Copied ✓'; } catch (e) { btn.textContent = 'Could not copy'; }
+  setTimeout(() => btn.textContent = 'Copy diagnostics for Claude', 2000);
+}
+
+/* ── Data explorer (read-only; logins and passwords are left out entirely) ── */
+const XP_SKIP = /^fl_(session|users|netlog|err_fixed|ann_closed)$/;
+const XP_NAME = Object.assign({}, PRETTY, { fl_meta_monthly: 'Monthly totals & settings', fl_tombstones: 'Deletions remembered', fl_dirty: 'Upload queue',
+  fl_occasions: 'Client occasions', fl_calc_draft: 'Calculator draft', fl_seen_devices: 'Devices seen', fl_errlog: 'Error log (this device)' });
+let xpKey = null, xpData = [], xpIdx = -1;
+function xpLoad(k) {
+  if (k === 'fl_events') return FLApp.eventsAll();
+  try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return localStorage.getItem(k); }
+}
+function xpStores() {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.indexOf('fl_') !== 0 || XP_SKIP.test(k) || /^fl_(resync|sig_shrunk|seed|docs)_/.test(k)) continue;
+    const raw = localStorage.getItem(k) || '';
+    const v = xpLoad(k);
+    if (!v || typeof v !== 'object') continue;   /* single values live on the System page */
+    const recs = Array.isArray(v) ? v.length : (v && typeof v === 'object') ? Object.keys(v).length : 1;
+    let upd = 0;
+    if (Array.isArray(v)) v.forEach(r => { const t = r && Date.parse(r.updated || r.time || ''); if (t > upd) upd = t; });
+    else if (v && v.updated) upd = Date.parse(v.updated);
+    out.push({ k, name: XP_NAME[k] || k.replace(/^fl_/, '').replace(/_/g, ' '), recs, bytes: raw.length * 2, upd, arr: Array.isArray(v) });
+  }
+  return out.sort((a, b) => b.bytes - a.bytes);
+}
+function renderXp() {
+  document.getElementById('xpBody').innerHTML = xpStores().map(s => '<tr class="' + (s.k === xpKey ? 'on' : '') + '" onclick="xpOpen(\'' + s.k + '\')"><td>' + esc(s.name) +
+    '<code>' + s.k + '</code></td><td class="n">' + s.recs.toLocaleString() + '</td><td class="n">' + KB(s.bytes) + '</td><td class="n">' +
+    (s.upd ? timeAgo(new Date(s.upd).toISOString()) : '—') + '</td></tr>').join('');
+}
+function xpLabel(r, i) {
+  if (!r || typeof r !== 'object') return String(r).slice(0, 40);
+  return (r.name || r.client || r.type || r.title || r.id || ('#' + i)) + '';
+}
+function xpOpen(k) {
+  xpKey = k; xpIdx = -1;
+  const v = xpLoad(k);
+  xpData = Array.isArray(v) ? v.slice().sort((a, b) => Date.parse((b && (b.updated || b.time)) || 0) - Date.parse((a && (a.updated || a.time)) || 0)) : [v];
+  renderXp();
+  document.getElementById('xpRecs').innerHTML = xpData.slice(0, 60).map((r, i) => '<div onclick="xpShow(' + i + ')"><span>' + esc(xpLabel(r, i)) + '</span><span>' +
+    (r && (r.updated || r.time) ? timeAgo(r.updated || r.time) : '') + '</span></div>').join('') + (xpData.length > 60 ? '<div style="cursor:default">… ' + (xpData.length - 60) + ' more</div>' : '');
+  xpShow(0);
+}
+function xpShow(i) {
+  xpIdx = i;
+  [...document.querySelectorAll('#xpRecs div')].forEach((d, j) => d.classList.toggle('on', j === i));
+  const json = JSON.stringify(xpData[i], (key, val) => typeof val === 'string' && val.length > 120 && /^data:/.test(val)
+    ? '[image · ' + KB(val.length * 0.75) + ']' : val, 2) || '';
+  document.getElementById('xpJson').innerHTML = esc(json)
+    .replace(/(&quot;[^&]*?&quot;)(\s*:)/g, '<span class="k">$1</span>$2')
+    .replace(/:\s(&quot;.*?&quot;)/g, ': <span class="s">$1</span>')
+    .replace(/:\s(-?\d+\.?\d*)/g, ': <span class="n">$1</span>')
+    .replace(/:\s(true|false|null)/g, ': <span class="b">$1</span>');
+}
+async function xpCopy(btn) {
+  try { await navigator.clipboard.writeText(document.getElementById('xpJson').textContent); btn.textContent = 'Copied ✓'; } catch (e) { btn.textContent = 'Could not copy'; }
+  setTimeout(() => btn.textContent = 'Copy record', 2000);
+}
+
+renderInsights(); renderTeamAct(); renderSystem(); renderXp(); xpOpen('fl_events');
+
+
+/* ════ round 4: developer tools ════ */
+const H_ = 3600e3;
+/* Errors from every device: this one's own log, plus what each other device
+   sent with its last heartbeat. The same message on the same page is one row. */
+const FIX_KEY = 'fl_err_fixed';
+function fixedMap() { try { return JSON.parse(localStorage.getItem(FIX_KEY) || '{}'); } catch (e) { return {}; } }
+let ERRS = [];
+function gatherErrors() {
+  const here = FLApp.deviceId(), myName = FLApp.deviceName();
+  const src = [{ dev: myName, list: FLApp.errorLog(), plat: (FLApp.diagInfo().plat) }];
+  (devicesCache || []).forEach(d => { if (d._id !== here && Array.isArray(d.errors)) src.push({ dev: d.device, list: d.errors, plat: d.diag && d.diag.plat }); });
+  const by = {}, fx = fixedMap();
+  src.forEach(s => s.list.forEach(e => {
+    const g = by[e.k] = by[e.k] || { id: 'x' + Object.keys(by).length, k: e.k, msg: e.msg, sev: e.sev || 'error', page: e.page, line: e.line,
+      dev: {}, ver: [], first: e.first, last: e.last, n: 0, times: [], who: e.who, plat: s.plat || '', stack: e.stack, crumbs: e.crumbs || [] };
+    g.dev[s.dev] = (g.dev[s.dev] || 0) + (e.n || 1);
+    g.n += e.n || 1;
+    if (e.ver && g.ver.indexOf(e.ver) < 0) g.ver.push(e.ver);
+    g.times = g.times.concat(e.times || [e.last]);
+    if (Date.parse(e.first) < Date.parse(g.first)) g.first = e.first;
+    if (Date.parse(e.last) >= Date.parse(g.last)) { g.last = e.last; g.stack = e.stack; g.crumbs = e.crumbs || []; g.who = e.who; g.plat = s.plat || g.plat; g.line = e.line; }
+  }));
+  ERRS = Object.values(by).map(g => Object.assign(g, { fixed: !!(fx[g.k] && Date.parse(fx[g.k]) >= Date.parse(g.last)) }))
+    .sort((a, b) => Date.parse(b.last) - Date.parse(a.last));
+  if (!ERRS.find(e => e.id === errSel)) errSel = ERRS.length ? ERRS[0].id : null;
+}
+let errFilter = 'open', errSel = null;
+const hrsAgo = iso => (Date.now() - Date.parse(iso)) / 36e5;
+function stackHtml(s) {
+  return esc(s || 'no trace recorded').replace(/at ([\w$.<>]+) \(/g, 'at <i>$1</i> (').replace(/:(\d+):(\d+)\)/g, ':<b>$1</b>:$2)');
+}
+function renderErrs() {
+  gatherErrors();
+  const dv = document.getElementById('errDev').value, vr = document.getElementById('errVer').value;
+  const list = ERRS.filter(e => (errFilter === 'all' || (errFilter === 'open' ? !e.fixed : errFilter === 'fixed' ? e.fixed : e.sev === errFilter)) &&
+    (!dv || e.dev[dv]) && (!vr || e.ver.includes(vr)));
+  const open = ERRS.filter(e => !e.fixed);
+  const devs = new Set(); open.forEach(e => Object.keys(e.dev).forEach(d => devs.add(d)));
+  const kpi = (l, v, s, cls) => '<div class="kpi"><div class="l">' + l + '</div><div class="v ' + (cls || '') + '">' + v + '</div><div class="s">' + s + '</div></div>';
+  const day = open.filter(e => hrsAgo(e.last) < 24).length;
+  const pages = {}; ERRS.forEach(e => e.times.forEach(t => { if (hrsAgo(t) < 168) pages[e.page] = (pages[e.page] || 0) + 1; }));
+  const worst = Object.entries(pages).sort((a, b) => b[1] - a[1])[0];
+  document.getElementById('errKpis').innerHTML =
+    kpi('Open errors', open.length, open.filter(e => e.sev === 'error').length + ' crashes · ' + open.filter(e => e.sev === 'warn').length + ' warnings', open.length ? 'bad' : 'good') +
+    kpi('Last 24 hours', day, 'new or repeated', day ? 'bad' : 'good') +
+    kpi('Devices affected', devs.size, [...devs].join(', ') || 'none', '') +
+    kpi('Worst page', worst ? worst[0].replace('.html', '') : '—', worst ? worst[1] + ' reports this week' : 'nothing this week', '');
+  const per = Array(14).fill(0);
+  ERRS.forEach(e => e.times.forEach(t => { const d = Math.floor(hrsAgo(t) / 24); if (d >= 0 && d < 14) per[13 - d]++; }));
+  const mx = Math.max(1, ...per);
+  document.getElementById('err14').innerHTML = per.map((n, i) => '<i class="' + (n ? '' : 'z') + '" style="height:' + (n / mx * 100) + '%" data-t="' +
+    fmtD(isoDay(new Date(Date.now() - (13 - i) * 864e5))) + ' · ' + n + '"></i>').join('');
+  document.getElementById('err14ax').innerHTML = '<span>' + fmtD(isoDay(new Date(Date.now() - 13 * 864e5))) + '</span><span>today</span>';
+  document.getElementById('err14n').textContent = per.reduce((a, b) => a + b, 0) + ' reports';
+  document.getElementById('errChips').innerHTML = [['open', 'open'], ['error', 'crashes'], ['warn', 'warnings'], ['fixed', 'fixed'], ['all', 'all']].map(([k, t]) =>
+    '<button class="' + (k === errFilter ? 'on' : '') + '" onclick="errFilter=\'' + k + '\';renderErrs()">' + t + '</button>').join('');
+  document.getElementById('errList').innerHTML = list.map(e => '<div class="ex-row' + (e.id === errSel ? ' on' : '') + (e.fixed ? ' fixed' : '') + '" onclick="errSel=\'' + e.id + '\';renderErrs()">' +
+    '<span class="sv ' + (e.fixed ? 'fixed' : e.sev) + '"></span><span class="m">' + esc(e.msg) + '<small>' + esc(e.page) + ' · ' + esc(Object.keys(e.dev).join(', ')) + '</small></span>' +
+    '<span class="c"><b>×' + e.n + '</b>' + timeAgo(e.last) + '</span></div>').join('') ||
+    '<div class="ex-row" style="cursor:default"><span class="sv fixed"></span><span class="m" style="color:var(--ink2)">' +
+      (ERRS.length ? 'Nothing matches these filters.' : 'No errors on any device. All clear.') + '</span><span></span></div>';
+  const e = ERRS.find(x => x.id === errSel);
+  const n = document.getElementById('n-errors');
+  n.textContent = open.length || ''; n.className = 'n' + (open.length ? ' hot bad' : '');
+  const dSel = document.getElementById('errDev'), vSel = document.getElementById('errVer');
+  const keepD = dSel.value, keepV = vSel.value;
+  const allD = new Set(), allV = new Set(); ERRS.forEach(x => { Object.keys(x.dev).forEach(d => allD.add(d)); x.ver.forEach(v => allV.add(v)); });
+  dSel.innerHTML = '<option value="">All devices</option>' + [...allD].sort().map(d => '<option>' + esc(d) + '</option>').join(''); dSel.value = keepD;
+  vSel.innerHTML = '<option value="">All versions</option>' + [...allV].sort().reverse().map(v => '<option value="' + v + '">v' + v + '</option>').join(''); vSel.value = keepV;
+  if (!e) { document.getElementById('errDetail').innerHTML = '<div class="note" style="margin:0">Pick an error to see its full detail.</div>'; return; }
+  const when = iso => new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  document.getElementById('errDetail').innerHTML = '<h3>' + esc(e.msg) + '</h3>' +
+    '<div class="tags"><span class="' + (e.fixed ? 'ok' : 'bad') + '">' + (e.fixed ? 'fixed' : e.sev === 'warn' ? 'warning' : 'crash') + '</span><span>×' + e.n + '</span>' +
+    '<span>' + esc(e.page) + (e.line ? ':' + e.line : '') + '</span>' + e.ver.map(v => '<span>v' + esc(v) + '</span>').join('') + '</div>' +
+    '<table class="spec">' + row('First seen', when(e.first)) + row('Last seen', when(e.last)) +
+      row('Devices', Object.entries(e.dev).map(([k, c]) => esc(k) + ' ×' + c).join(' · ')) + row('Signed in as', esc(e.who || '—')) + row('Platform', esc(e.plat || '—')) + '</table>' +
+    '<div class="lab">Technical trace</div><pre class="stack">' + stackHtml(e.stack) + '</pre>' +
+    '<div class="lab">What happened just before</div><div class="crumbs">' + (e.crumbs.length ? e.crumbs.map(c =>
+      '<div><span>' + (c.s ? c.s + 's' : '0s') + '</span>' + esc(c.x) + '</div>').join('') + '<div class="boom"><span>0s</span>' + esc(e.msg.slice(0, 60)) + '</div>'
+      : '<div><span>—</span>nothing recorded</div>') + '</div>' +
+    '<div class="row-btns"><button class="btn-go" onclick="errCopyOne(this)">Copy for Claude</button>' +
+    '<button class="btn-ghost" onclick="errFix()">' + (e.fixed ? 'Reopen' : 'Mark as fixed') + '</button></div>';
+}
+function errFix() {
+  const e = ERRS.find(x => x.id === errSel); if (!e) return;
+  const fx = fixedMap();
+  if (e.fixed) delete fx[e.k]; else fx[e.k] = new Date().toISOString();   /* a newer repeat reopens it by itself */
+  try { localStorage.setItem(FIX_KEY, JSON.stringify(fx)); } catch (x) {}
+  renderErrs();
+}
+async function errCopyOne(btn) {
+  const e = ERRS.find(x => x.id === errSel); if (!e) return;
+  const txt = ['Flowers app error report', e.msg, 'page: ' + e.page + (e.line ? ':' + e.line : ''), 'versions: ' + e.ver.join(', '),
+    'devices: ' + Object.entries(e.dev).map(([k, n]) => k + ' x' + n).join(', '), 'platform: ' + (e.plat || ''), 'count: ' + e.n, '',
+    (e.stack || ''), '', 'before:', ...e.crumbs.map(c => '  ' + c.s + 's ' + c.x), 'first ' + e.first + ' · last ' + e.last].join('\n');
+  try { await navigator.clipboard.writeText(txt); btn.textContent = 'Copied ✓'; } catch (x) { btn.textContent = 'Could not copy'; }
+  setTimeout(() => btn.textContent = 'Copy for Claude', 2000);
+}
+renderErrs();
+const _rsE = renderSync;
+renderSync = function () { _rsE(); renderErrs(); };
+
+/* ── Network log: this device's last 200 calls ── */
+let NET = [];
+let netFilter = 'all';
+function renderNet() {
+  NET = FLApp.netLog().slice().sort((x, y) => Date.parse(y.t) - Date.parse(x.t)).map(r => [(Date.now() - Date.parse(r.t)) / 60e3, r.m, r.p, r.s, r.ms,
+    r.b == null ? '—' : r.b >= 1024 ? (r.b / 1024).toFixed(1) + ' KB' : r.b + ' B', r.w || '']);
+  if (!NET.length) {
+    document.getElementById('netKpis').innerHTML = '';
+    document.getElementById('netChips').innerHTML = '';
+    document.getElementById('netBody').innerHTML = '<tr><td colspan="7" style="color:var(--ink3)">No calls recorded yet on this device. They appear as the app syncs.</td></tr>';
+    return;
+  }
+  const ok = NET.filter(r => r[3] >= 200 && r[3] < 300), bad = NET.filter(r => !(r[3] >= 200 && r[3] < 300)), slow = NET.filter(r => r[4] >= 1000 && r[3] >= 200 && r[3] < 300);
+  const okMs = ok.map(r => r[4]).sort((a, b) => a - b);
+  const kpi = (l, v, s, cls) => '<div class="kpi"><div class="l">' + l + '</div><div class="v ' + (cls || '') + '">' + v + '</div><div class="s">' + s + '</div></div>';
+  document.getElementById('netKpis').innerHTML =
+    kpi('Requests recorded', NET.length, ok.length + ' ok · ' + bad.length + ' failed', '') +
+    kpi('Typical speed', (okMs.length ? okMs[okMs.length >> 1] : '—') + '<small>ms</small>', 'median of successful calls', 'good') +
+    kpi('Failure rate', Math.round(bad.length / NET.length * 100) + '<small>%</small>', bad.length + ' of ' + NET.length + ' calls', bad.length ? 'mid' : 'good') +
+    kpi('Slow calls', slow.length, 'over 1 second', slow.length ? 'mid' : 'good');
+  document.getElementById('netChips').innerHTML = [['all', 'all'], ['bad', 'failed'], ['slow', 'slow']].map(([k, t]) =>
+    '<button class="' + (k === netFilter ? 'on' : '') + '" onclick="netFilter=\'' + k + '\';renderNet()">' + t + '</button>').join('');
+  const mx = Math.max(1, ...NET.map(r => r[4]));
+  document.getElementById('netBody').innerHTML = NET.filter(r => netFilter === 'all' || (netFilter === 'bad' ? bad.includes(r) : slow.includes(r))).map(r => {
+    const good = r[3] >= 200 && r[3] < 300;
+    const t = new Date(Date.now() - r[0] * 60e3).toLocaleTimeString('en-GB') + (r[0] > 1440 ? ' · ' + fmtD(isoDay(new Date(Date.now() - r[0] * 60e3))) : '');
+    return '<tr><td>' + t + '</td><td class="mth">' + r[1] + '</td><td class="p" title="' + esc(r[2]) + '">' + esc(r[2]) + '</td>' +
+      '<td><span class="st ' + (good ? 'ok' : r[3] ? 'bad' : 'warn') + '">' + (r[3] || 'n/a') + '</span></td>' +
+      '<td><span class="ms"><i class="' + (!good ? 'bad' : r[4] >= 1000 ? 'slow' : '') + '" style="width:' + Math.max(2, r[4] / mx * 90) + 'px"></i>' + (r[4] >= 1000 ? (r[4] / 1000).toFixed(1) + ' s' : r[4] + ' ms') + '</span></td>' +
+      '<td class="hide-s">' + r[5] + '</td><td class="hide-s">' + esc(r[6]) + '</td></tr>';
+  }).join('');
+  const n = document.getElementById('n-net'); n.textContent = bad.length ? bad.length : ''; n.className = 'n' + (bad.length ? ' hot' : '');
+}
+renderNet();
+
+/* ── Self-test: real checks on this device ── */
+async function runSelfTest() {
+  const btn = document.getElementById('stBtn'); btn.disabled = true; btn.textContent = 'Testing…';
+  const box = document.getElementById('stList'), out = [];
+  const draw = () => { box.innerHTML = out.map(r => '<div class="st-row ' + r.s + '"><span class="ic">' + ({ pass: '✓', warn: '!', fail: '✕', run: '…' })[r.s] + '</span>' +
+    '<span>' + r.name + '<small>' + esc(r.d || '') + '</small></span><span class="t">' + (r.ms != null ? r.ms + ' ms' : '') + '</span></div>').join(''); };
+  async function step(name, fn) {
+    const r = { name, s: 'run' }; out.push(r); draw();
+    const t0 = performance.now();
+    try { const v = await fn(); r.s = v[0]; r.d = v[1]; } catch (e) { r.s = 'fail'; r.d = e.message || String(e); }
+    r.ms = Math.round(performance.now() - t0); draw();
+    await new Promise(z => setTimeout(z, 120));
+  }
+  await step('Local storage can save and read', () => {
+    localStorage.setItem('fl__selftest', 'ok'); const v = localStorage.getItem('fl__selftest'); localStorage.removeItem('fl__selftest');
+    return v === 'ok' ? ['pass', 'wrote, read and removed a test note'] : ['fail', 'read back ' + v];
+  });
+  await step('Working store has room', async () => {
+    const s = await FLApp.storageStats();
+    return [s.pct >= 85 ? 'fail' : s.pct >= 70 ? 'warn' : 'pass', s.pct.toFixed(1) + '% of 5 MB used'];
+  });
+  await step('Photo database opens', () => new Promise(res => {
+    const rq = indexedDB.open('fl_selftest_tmp');
+    rq.onsuccess = () => { rq.result.close(); indexedDB.deleteDatabase('fl_selftest_tmp'); res(['pass', 'IndexedDB available']); };
+    rq.onerror = () => res(['fail', 'IndexedDB blocked: ' + (rq.error && rq.error.name)]);
+  }));
+  await step('Device disk space', async () => {
+    if (!navigator.storage || !navigator.storage.estimate) return ['warn', 'this device does not report it'];
+    const e = await navigator.storage.estimate(); const free = (e.quota - e.usage) / 1048576;
+    return [free < 50 ? 'warn' : 'pass', Math.round(e.usage / 1048576) + ' MB used · ' + (free > 1024 ? (free / 1024).toFixed(1) + ' GB' : Math.round(free) + ' MB') + ' free'];
+  });
+  await step('Every saved store reads cleanly', () => {
+    let n = 0, bad = [];
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (!/^fl_/.test(k)) continue; const v = localStorage.getItem(k);
+      if (/^[\[{]/.test(v)) { n++; try { JSON.parse(v); } catch (e) { bad.push(k); } } }
+    return bad.length ? ['fail', 'damaged: ' + bad.join(', ')] : ['pass', n + ' stores parsed, none damaged'];
+  });
+  await step('No duplicate records', () => {
+    const d = (a, k) => { const s = {}, x = []; a.forEach(r => { if (s[r[k]]) x.push(r[k]); s[r[k]] = 1; }); return x; };
+    const x = d(FLApp.eventsAll(), 'id').concat(d(FLApp.trackerAll(), 'id'), d(FLApp.enquiriesAll(), 'id'));
+    return x.length ? ['fail', x.length + ' duplicate ids: ' + x.slice(0, 3).join(', ')] : ['pass', 'events, tracker and enquiries all unique'];
+  });
+  await step('Server reachable', async () => { const p = await FLApp.publishedVersion(); return ['pass', 'update server answered · latest v' + p.version]; });
+  await step('App up to date', async () => { const p = await FLApp.publishedVersion();
+    return p.upToDate ? ['pass', 'v' + FLApp.appVersion() + ' is the latest'] : ['warn', 'v' + p.version + ' is out, this device has v' + FLApp.appVersion()]; });
+  await step('Login still valid', () => { const x = sessionExpiry(); if (!x) return ['warn', 'expiry not readable on this device'];
+    const hrs = (x - Date.now()) / 36e5; return hrs <= 0 ? ['fail', 'expired, log in again'] : ['pass', 'expires in ' + hrs.toFixed(1) + ' h, renews itself']; });
+  await step('Everything uploaded', () => { const q = JSON.parse(localStorage.getItem('fl_dirty') || '[]').length;
+    return q ? ['warn', q + ' changes waiting · last sync ' + stampAgo('fl_sync_stamp')] : ['pass', 'nothing waiting']; });
+  const c = s => out.filter(r => r.s === s).length;
+  document.getElementById('stSum').innerHTML = '<b class="ok">' + c('pass') + ' passed</b><b class="warn">' + c('warn') + ' warnings</b><b class="bad">' + c('fail') + ' failed</b>' +
+    '<span>· ' + out.reduce((s, r) => s + r.ms, 0) + ' ms total</span>';
+  document.getElementById('stWhen').textContent = 'run ' + new Date().toLocaleTimeString('en-GB');
+  btn.disabled = false; btn.textContent = 'Run again';
+}
+document.getElementById('stList').innerHTML = '<div class="st-row"><span class="ic">·</span><span>Ten checks: storage, photos, disk, data, duplicates, server, version, login, uploads<small>press Run self-test</small></span><span></span></div>';
+
+/* ── device technical details (arrive with each device's heartbeat) ── */
+function devDiag(d) {
+  const x = d.diag;
+  if (!x) return '<div class="dv-x"><span class="na">technical details arrive after this device updates</span></div>';
+  const cls = (v, w, b) => v >= b ? 'bad' : v >= w ? 'warn' : 'ok';
+  return '<div class="dv-x"><span>platform</span><b>' + esc(x.plat) + '</b><span>screen</span><b>' + esc(x.screen) + '</b>' +
+    '<span>storage</span><b class="' + cls(x.store, 70, 85) + '">' + x.store + '%</b><span>upload queue</span><b class="' + (x.queue ? 'warn' : 'ok') + '">' + x.queue + '</b>' +
+    '<span>errors 7d</span><b class="' + (x.err ? 'bad' : 'ok') + '">' + x.err + '</b><span>last sync</span><b>' + (x.sync ? timeAgo(x.sync) : 'never') + '</b></div>';
+}
+
+/* ── control room: side menu ───────────────────────────────────── */
+const SEC_SUB = { overview: 'How the app is doing, right now.', team: 'Who can log in, and their role.',
+  devices: 'Every PC, tablet and phone running the app.', access: 'Who sees which page, and the enquiry statuses.',
+  data: 'Every store, record by record, plus storage, checks and exports.', activity: 'Everything anyone did, newest first.',
+  settings: 'Announcements, business rules and email alerts.',
+  errors: 'Every crash and failed request, from every device, with the full technical detail. Other devices report every 10 minutes.', network: 'Every call this device makes to the server, how long it took, and whether it worked.', insights: 'How the business and the app are running, from what is already recorded.',
+  system: 'What this device is, and what its sync engine is doing.' };
+function showSec(k) {
+  if (!SEC_SUB[k]) k = 'overview';
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.dataset.sec === k));
+  document.querySelectorAll('#acNav button').forEach(b => b.classList.toggle('on', b.dataset.sec === k));
+  const b = document.querySelector('#acNav button[data-sec="' + k + '"]');
+  document.getElementById('acTitle').textContent = b.querySelector('span').textContent;
+  document.getElementById('acSub').textContent = SEC_SUB[k];
+  try { localStorage.setItem('fl_admin_sec', k); } catch (e) {}
+  if (window.innerWidth <= 980) b.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+document.querySelectorAll('#acNav button').forEach(b => b.onclick = () => showSec(b.dataset.sec));
+showSec(location.hash.slice(1) || (function () { try { return localStorage.getItem('fl_admin_sec'); } catch (e) { return ''; } })());
+(function clock() {
+  document.getElementById('acClock').textContent = new Date().toLocaleString('en-GB',
+    { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' GST';
+  setTimeout(clock, 30000);
+})();
 </script>
 </body>
 </html>
