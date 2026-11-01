@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>/* the entrance animation plays once per app session; refreshes after that update quietly */
+try { if (sessionStorage.getItem('fl_dash_seen')) document.documentElement.classList.add('noanim'); sessionStorage.setItem('fl_dash_seen', '1'); } catch (e) {}</script>
+<style>.noanim *, .noanim *::before, .noanim *::after { animation: none !important; } .noanim .live:not(.off) i { animation: dpulse 2s infinite !important; }</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/app-icon.png">
@@ -646,7 +649,10 @@ const prevY = String(+CY - 1);
 const ytd = yearToMonth(CY, CM);
 const ytdPrev = yearToMonth(prevY, CM);
 const ytdDelta = ytdPrev ? (ytd - ytdPrev) / ytdPrev * 100 : null;
-const mPrevYear = monthTotal(prevY, CM);
+/* last year's month is only stored as a monthly total, so compare against the same
+   share of it — on 1 November, 1/30 of November last year, not the whole month */
+const monthPart = Math.min(1, now.getDate() / new Date(+CY, CM, 0).getDate());
+const mPrevYear = monthTotal(prevY, CM) * monthPart;
 const mDelta = mPrevYear ? (mSales - mPrevYear) / mPrevYear * 100 : null;
 const approvedCount = monthEvs.filter(e => e.approval && e.approval.status === 'approved').length;
 
@@ -906,7 +912,14 @@ renderYoy();
 if (FLApp.syncEnabled()) {
   const fingerprint = () => String((localStorage.getItem('fl_events') || '').length) + ':' + FLApp.eventsAll().length + ':' + (localStorage.getItem('fl_meta_monthly') || '').length;
   const initialFp = fingerprint();
-  FLApp.onSync(state => { if (state === 'synced' && fingerprint() !== initialFp) location.reload(); });
+  /* at most one automatic reload every 5 minutes — Jo's tablet kept reloading and the dashboard flickered */
+  FLApp.onSync(state => {
+    if (state !== 'synced' || fingerprint() === initialFp) return;
+    let last = 0; try { last = +sessionStorage.getItem('fl_dash_reload') || 0; } catch (e) {}
+    if (Date.now() - last < 5 * 60 * 1000) return;
+    try { sessionStorage.setItem('fl_dash_reload', String(Date.now())); } catch (e) {}
+    location.reload();
+  });
   FLApp.syncNow();
 }
 
@@ -1045,7 +1058,7 @@ function gaugeSvg(v, target) {
   const t = [];
   t.push('<div class="kpi w2"><div class="kl2">Sales · ' + MONTHS[CM - 1] + '</div>' +
     '<div class="pair"><div>' + big(mPlaced) + '<div class="lbl">sold this month</div></div>' +
-    '<div class="alt">' + big(mSales) + '<div class="lbl">delivering this month ' + tagD(mSales ? mDelta : null, 'vs ' + MONTHS[CM - 1].slice(0, 3) + ' ' + prevY) + '</div></div></div>' +
+    '<div class="alt">' + big(mSales) + '<div class="lbl">delivering this month ' + tagD(mSales ? mDelta : null, 'vs ' + (monthPart < 1 ? 'same point ' : '') + MONTHS[CM - 1].slice(0, 3) + ' ' + prevY) + '</div></div></div>' +
     areaSpark(last12, true) +
     '<div class="legend2"><span>last 12 months</span><span>' + MONTHS[(CM % 12)].slice(0, 3) + ' ' + (CM === 12 ? CY : prevY) + ' → ' + MONTHS[CM - 1].slice(0, 3) + ' ' + CY + '</span><span>peak AED ' + fmtK(Math.max(...last12)) + '</span></div></div>');
   t.push('<div class="kpi ' + (mGp == null ? '' : mGp >= GPT ? '' : mGp >= GPT - 10 ? 'warn' : 'bad') + '"><div class="kl2">GP margin<span class="tag ' + (gpGap == null ? 'flat' : gpGap >= 0 ? 'up' : 'down') + '">target ' + GPT + '%</span></div>' +

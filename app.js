@@ -1156,32 +1156,22 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Admin is now a control room',
-       'A side menu, live health lights, Insights, Team activity, a Data explorer and Export to Excel. Everything you had before is still there.'],
-      ['Errors, Network and Self-test',
-       'Every crash on any device shows up in Admin › Errors with its full detail and a "Copy for Claude" button. Network lists every server call, and Self-test checks this device in one tap.'],
-      ['Announcements',
-       'Admin › Settings can now put a message at the top of everyone’s home screen until a date you choose.'],
-      ['GP sheets warn you',
-       'A sheet now tells you if the order number, Shopify link, flowers or invoice are missing. Boxes also no longer turn white when you click in them.'],
-      ['A new dashboard for Jo',
-       'Live status, new figure tiles and charts, an Intelligence section and a Board report button.']
+      ['Log enquiries from WhatsApp',
+       'In Enquiries, tap 📋 Paste message or 📷 From screenshot. The form fills itself in: green = found, amber = please check. Nothing is saved until you press Save.'],
+      ['Dashboard no longer flickers',
+       'The opening animation plays once, and the page refreshes itself at most every 5 minutes. Jo saw it flicker on her tablet.'],
+      ['Fairer month comparison',
+       'Early in a month, the sales tile now compares with the same point of last year’s month, not the whole month.']
     ],
     ceo: [
-      ['Your dashboard is new',
-       'Live status at the top, clearer figures with trends, revenue against last year in one chart, and your running total against 2025 with a projection to year end.'],
-      ['Intelligence',
-       'Scroll below the charts for plain-English insights, margin health, top events, the next 14 days, the enquiry funnel and seasonality.'],
-      ['Board report',
-       'The button in the top bar turns the dashboard into a clean one-page report for printing or PDF.'],
-      ['Your approvals work exactly as before',
-       'They are still the first thing under the header.']
+      ['Steadier dashboard',
+       'No more flickering: the opening animation plays once, and the figures update quietly after that.'],
+      ['Fairer month comparison',
+       'Early in a month, sales are compared with the same point of last year’s month, not the whole month.']
     ],
     finance: [
-      ['A new dashboard',
-       'The same figures with clearer tiles and charts, plus margin health, cost breakdown and seasonality. No calculation changed.'],
-      ['Board report',
-       'The button in the top bar turns the dashboard into a clean one-page report for printing or PDF.']
+      ['Steadier dashboard',
+       'No more flickering, and early-month sales are compared with the same point of last year.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1845,7 +1835,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.45';
+  const APP_VERSION = '5.7.46';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

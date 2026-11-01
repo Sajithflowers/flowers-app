@@ -204,6 +204,23 @@ input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--cardBord
 .fchip.on{background:var(--p);color:var(--onP);border-color:var(--p);}
 .msg-compose button{background:var(--p);color:var(--onP);border-radius:var(--rs);min-height:44px;}
 *{animation-name:none !important;}
+/* paste / screenshot reader */
+.add-head{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.add-head h2{margin-right:auto;}
+.rd-btn{background:rgba(255,255,255,.04);border:1px solid var(--cardBorder);color:var(--ink);border-radius:var(--rs);min-height:40px;padding:0 12px;font:600 12.5px var(--ui);cursor:pointer;}
+.rd-btn.on{border-color:var(--p);color:var(--p);}
+#addCard.reading .add-body{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;}
+#readCol{display:none;}
+#addCard.reading #readCol{display:block;}
+#readCol textarea{width:100%;min-height:260px;padding:10px 12px;font:13px/1.5 var(--ui);resize:vertical;}
+.rd-note{font-size:11.5px;color:var(--ink3,var(--ink2));margin-top:6px;}
+.rd-sum{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px;}
+.rd-pill{font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid;}
+.rd-pill.g{color:var(--p);border-color:rgba(52,211,153,.4);} .rd-pill.c{color:#fbbf24;border-color:rgba(251,191,36,.45);} .rd-pill.u{color:var(--bad);border-color:rgba(248,113,113,.45);}
+.rd-hint{font-size:11px;margin-top:3px;}
+.rd-c input{border-color:rgba(251,191,36,.6)!important;background:rgba(251,191,36,.06)!important;} .rd-c .rd-hint{color:#fbbf24;}
+.rd-g input{border-color:rgba(52,211,153,.45)!important;} .rd-g .rd-hint{color:var(--p);}
+@media (max-width:760px){#addCard.reading .add-body{grid-template-columns:1fr;}}
 @media (max-width:560px){
   .enq,.card,.deal-panel,.deal-item,.ebody{
     -webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cardSolid);}
@@ -273,6 +290,7 @@ label,
 <body>
 <script src="ios-install.js"></script>
 <script src="app.js"></script>
+<script src="enquiry-reader.js"></script>
 <script>FLApp.guardRole(['admin','ceo']);</script>
 
 <div class="topbar">
@@ -287,16 +305,28 @@ label,
 
 <div class="wrap">
   <div class="card" id="addCard">
-    <h2>＋ Log a new enquiry</h2>
-    <label>Client name</label>
-    <input id="a-name" placeholder="e.g. Fatima Al Suwaidi">
+    <div class="add-head">
+      <h2>＋ Log a new enquiry</h2>
+      <button class="rd-btn" id="rdPaste" onclick="startReading('paste')">📋 Paste message</button>
+      <button class="rd-btn" id="rdShot" onclick="startReading('shot')">📷 From screenshot</button>
+      <input type="file" id="rdFile" accept="image/*" style="display:none" onchange="readShot(this)">
+    </div>
+    <div class="add-body">
+    <div id="readCol">
+      <textarea id="rdText" placeholder="Paste the WhatsApp message here…" oninput="fillFromText(this.value)"></textarea>
+      <div class="rd-note" id="rdNote">The form fills in as you paste. Nothing is saved until you press Save.</div>
+    </div>
+    <div>
+    <div class="rd-sum" id="rdSum"></div>
+    <div id="rdf-name"><label>Client name</label>
+    <input id="a-name" placeholder="e.g. Fatima Al Suwaidi"><div class="rd-hint"></div></div>
     <div class="grid2">
-      <div><label>Mobile number</label><input id="a-mobile" type="tel" placeholder="e.g. 050 123 4567"></div>
-      <div><label>Occasion</label><input id="a-occasion" list="occasion-list" placeholder="e.g. Wedding"></div>
+      <div id="rdf-mobile"><label>Mobile number</label><input id="a-mobile" type="tel" placeholder="e.g. 050 123 4567"><div class="rd-hint"></div></div>
+      <div id="rdf-occasion"><label>Occasion</label><input id="a-occasion" list="occasion-list" placeholder="e.g. Wedding"><div class="rd-hint"></div></div>
     </div>
     <div class="grid2">
-      <div><label>Enquiry received</label><input id="a-enqdate" type="date"></div>
-      <div><label>Event date</label><input id="a-eventdate" type="date"></div>
+      <div id="rdf-enqDate"><label>Enquiry received</label><input id="a-enqdate" type="date"><div class="rd-hint"></div></div>
+      <div id="rdf-eventDate"><label>Event date</label><input id="a-eventdate" type="date"><div class="rd-hint"></div></div>
     </div>
     <div class="grid2">
       <div><label>Current status</label><select id="a-status"></select></div>
@@ -307,7 +337,9 @@ label,
       <option value="Engagement"><option value="Baby Shower"><option value="Corporate">
     </datalist>
     <div class="check-row"><input type="checkbox" id="a-quotesent"><label for="a-quotesent" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--terra);font-size:13px;">Quote already sent</label></div>
-    <button class="add-btn" onclick="addEnquiry()">＋ Save enquiry</button>
+    <button class="add-btn" id="addBtn" onclick="addEnquiry()">＋ Save enquiry</button>
+    </div>
+    </div>
   </div>
 
   <div class="focusbar" id="focusbar" style="display:none;"></div>
@@ -489,7 +521,64 @@ async function addEnquiry() {
   document.getElementById('a-status').value = 'new';
   document.getElementById('a-chance').value = '';
   document.getElementById('a-quotesent').checked = false;
+  stopReading();
   render();
+}
+
+/* ── Paste message / From screenshot ──────────────────────────────────────
+   The customer service team sends enquiries on WhatsApp. Pasting the text, or
+   picking a screenshot, fills the boxes above; green = found, amber = check.
+   Nothing is saved until Save is pressed, and the duplicate check still runs. */
+const RD_FIELDS = { name: 'a-name', mobile: 'a-mobile', occasion: 'a-occasion', enqDate: 'a-enqdate', eventDate: 'a-eventdate' };
+function startReading(mode) {
+  const card = document.getElementById('addCard');
+  card.classList.add('reading');
+  document.getElementById('rdPaste').classList.toggle('on', mode === 'paste');
+  document.getElementById('rdShot').classList.toggle('on', mode === 'shot');
+  document.getElementById('addBtn').textContent = '✓ All good, save enquiry';
+  if (mode === 'shot') document.getElementById('rdFile').click();
+  else document.getElementById('rdText').focus();
+}
+function stopReading() {
+  document.getElementById('addCard').classList.remove('reading');
+  document.getElementById('rdPaste').classList.remove('on');
+  document.getElementById('rdShot').classList.remove('on');
+  document.getElementById('rdText').value = '';
+  document.getElementById('rdSum').innerHTML = '';
+  document.getElementById('addBtn').textContent = '＋ Save enquiry';
+  Object.keys(RD_FIELDS).forEach(k => { const b = document.getElementById('rdf-' + k); b.className = ''; b.querySelector('.rd-hint').textContent = ''; });
+}
+function fillFromText(text) {
+  if (!text.trim()) return;
+  const r = readEnquiry(text, new Date());
+  let found = 0, check = 0;
+  Object.entries(RD_FIELDS).forEach(([k, id]) => {
+    document.getElementById(id).value = r[k].v;
+    const b = document.getElementById('rdf-' + k);
+    b.className = r[k].check ? 'rd-c' : 'rd-g';
+    b.querySelector('.rd-hint').textContent = (r[k].check ? '⚠ ' : '✓ ') + r[k].why;
+    r[k].check ? check++ : found++;
+  });
+  const twin = r.mobile.v && findDuplicate(r.name.v, r.mobile.v, r.eventDate.v);
+  document.getElementById('rdSum').innerHTML = '<span class="rd-pill g">' + found + ' found</span>' +
+    (check ? '<span class="rd-pill c">' + check + ' to check</span>' : '') +
+    (r.urgent ? '<span class="rd-pill u">URGENT · ' + (r.days <= 0 ? 'today' : 'tomorrow') + '</span>' : '') +
+    (twin ? '<span class="rd-pill c">Already in Enquiries: ' + esc(twin.name) + '</span>' : '');
+}
+async function readShot(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const note = document.getElementById('rdNote');
+  note.textContent = 'Reading the screenshot…';
+  try {
+    const text = await readEnquiryImage(file);
+    document.getElementById('rdText').value = text.trim();
+    fillFromText(text);
+    note.textContent = 'This is what was read from the screenshot. Fix it here or in the boxes, then Save.';
+  } catch (e) {
+    note.textContent = 'Could not read that image. Paste the message text instead.';
+  }
 }
 
 function patch(id, field, value) {
