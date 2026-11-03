@@ -365,6 +365,26 @@ body{background-image:linear-gradient(rgba(29,185,122,.035) 1px,transparent 1px)
 .fgrid label{display:block;font-size:12.5px;color:var(--ink2);margin:0 0 5px;}
 .fgrid select,.fgrid input,#annText{width:100%;font:400 14px var(--ui);padding:10px 12px;}
 #annText{min-height:76px;resize:vertical;}
+/* sales targets */
+.tg-top{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:4px 0 12px;font-size:13px;color:var(--ink2);}
+.tg-top select,.tg-top input{font:400 14px var(--ui);padding:7px 10px;margin-left:6px;}
+.tg-top input{width:70px;text-align:right;}
+.tg-scroll{overflow-x:auto;}
+.tg-t{width:100%;border-collapse:collapse;font-size:13px;min-width:560px;}
+.tg-t th{text-align:right;color:var(--ink2);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--cardBorder);}
+.tg-t td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-variant-numeric:tabular-nums;}
+.tg-t th:first-child,.tg-t td:first-child{text-align:left;}
+.tg-t tfoot td{font-weight:700;border-top:1px solid var(--cardBorder);}
+.tg-t .auto{color:var(--ink2);font-size:12px;}
+.tg-t input{width:110px;text-align:right;font:400 13.5px var(--ui);padding:6px 9px;min-height:36px;}
+.tg-t input.man{border-color:rgba(251,191,36,.65);background:rgba(251,191,36,.07);}
+.tg-t .x{cursor:pointer;color:var(--ink2);margin-left:6px;}
+.tg-pill{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid;}
+.tg-pill.ok{color:#4ADE80;border-color:rgba(74,222,128,.4);} .tg-pill.no{color:#F87171;border-color:rgba(248,113,113,.4);}
+.tg-share{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--cardBorder);font-size:13px;color:var(--ink2);}
+.tg-share b{color:var(--ink);margin-right:auto;}
+.tg-share label{margin-left:12px;}
+.tg-share input{width:76px;text-align:right;font:400 14px var(--ui);padding:7px 9px;margin:0 4px 0 6px;}
 .seg{display:flex;gap:6px;}
 .seg button{flex:1;min-height:40px;border-radius:var(--rs);border:1px solid var(--cardBorder);background:none;color:var(--ink2);font:500 13px var(--ui);cursor:pointer;}
 .seg button.on.info{border-color:var(--s);color:var(--s);background:rgba(25,184,204,.1);}
@@ -510,6 +530,7 @@ pre.stack b{color:#FCA5A5;font-weight:500;} pre.stack i{color:var(--s);font-styl
 <body>
 <script src="ios-install.js"></script>
 <script src="app.js"></script>
+<script src="history-data.js"></script>
 <script>FLApp.guardRole(['admin']);</script>
 
 <div class="topbar">
@@ -675,6 +696,20 @@ pre.stack b{color:#FCA5A5;font-weight:500;} pre.stack i{color:var(--s);font-styl
     </section>
 
     <section class="sec" data-sec="settings">
+      <div class="card" id="tgCard">
+        <h2>Sales targets</h2>
+        <div class="tg-top">
+          <label>Year <select id="tgYear" onchange="tgDraw()"></select></label>
+          <label>Auto rule: last year + <input id="tgPct" type="number" min="0" max="200" step="1" oninput="tgDraw(true)">%</label>
+        </div>
+        <div class="tg-scroll"><table class="tg-t"><thead><tr><th>Month</th><th>Last year</th><th>Auto target</th><th>Your target</th><th>Actual</th><th>Reached</th></tr></thead>
+          <tbody id="tgBody"></tbody><tfoot id="tgFoot"></tfoot></table></div>
+        <div class="tg-share"><b>Event share of company target</b><span id="tgShare"></span></div>
+        <div class="row-btns"><button class="btn-go" onclick="tgSave()">Save targets</button>
+          <button class="btn-ghost" onclick="tgLoad();tgDraw()">Undo changes</button></div>
+        <p class="note">Leave "Your target" empty to use the auto target. Type a number and that month uses it instead; ✕ goes back to auto.
+          Jo and Finance see these on the dashboard. Only Admin can change them.</p>
+      </div>
       <div class="card">
         <h2>Announcement banner</h2>
         <div id="annNow"></div>
@@ -1211,6 +1246,72 @@ function annPublish() {
 function annRemove() { FLApp.setAppSetting('announce', ''); annDraw(); }
 document.getElementById('annUntil').value = isoDay(new Date(Date.now() + 3 * DAY));
 annDraw();
+
+/* ── Sales targets: a synced setting the dashboard reads ──
+   { pct: 10, months: { '2027-03': 120000 }, share: { '2027': 5 } }
+   Monthly sales are counted the same way as dashboard.html salesRows() —
+   keep the two in step. */
+const TG_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+let tg = {};
+function tgLoad() { try { tg = JSON.parse(FLApp.appSettings().targets || '{}') || {}; } catch (e) { tg = {}; } tg.months = tg.months || {}; tg.share = Object.assign({ 2027: 5 }, tg.share || {}); }
+function tgSales() {
+  const out = {}, add = (ym, a) => { out[ym] = (out[ym] || 0) + a; };
+  const calc = e => (parseFloat(e.budget) || 0) * (1 - (parseFloat(e.discountPct) || 0) / 100);
+  (typeof FL_HISTORY !== 'undefined' ? FL_HISTORY : []).forEach(x => add(x.m.slice(0, 7), x.a));
+  const agg = new Set();
+  (typeof FL_HISTORY_MONTHLY !== 'undefined' ? FL_HISTORY_MONTHLY : []).forEach(x => { add(x.m.slice(0, 7), x.a); agg.add(x.m.slice(0, 7)); });
+  FLApp.eventsAll().filter(e => e.date && !agg.has(e.date.slice(0, 7))).forEach(e => add(e.date.slice(0, 7), calc(e)));
+  const costed = new Set(FLApp.eventsAll().map(e => String(e.orderNo || '').trim()).filter(Boolean));
+  FLApp.trackerAll().forEach(t => {
+    if (!t.eventDate || agg.has(t.eventDate.slice(0, 7)) || costed.has(String(t.orderNo || '').trim())) return;
+    add(t.eventDate.slice(0, 7), (parseFloat(t.revenue) || 0) * (1 - (parseFloat(t.discountPct) || 0) / 100));
+  });
+  Object.entries(FLApp.monthlyOverrides()).forEach(([ym, amt]) => { out[ym.slice(0, 7)] = amt; });
+  return out;
+}
+const tgNum = v => Math.round(v).toLocaleString('en-US');
+function tgDraw(keepInputs) {
+  if (keepInputs) tgRead();
+  const now = new Date(), cy = now.getFullYear(), cm = now.getMonth() + 1;
+  const ysel = document.getElementById('tgYear');
+  if (!ysel.options.length) { ysel.innerHTML = [cy - 1, cy, cy + 1].map(y => '<option' + (y === cy ? ' selected' : '') + '>' + y + '</option>').join(''); }
+  const yr = +ysel.value, S = tgSales();
+  const pctBox = document.getElementById('tgPct');
+  if (!keepInputs) pctBox.value = tg.pct != null && tg.pct !== '' ? tg.pct : 10;
+  const pct = parseFloat(pctBox.value) || 0;
+  let tl = 0, tt = 0, ta = 0, rows = '';
+  TG_MON.forEach((m, i) => {
+    const k = yr + '-' + String(i + 1).padStart(2, '0'), lk = (yr - 1) + '-' + String(i + 1).padStart(2, '0');
+    const lyDone = yr - 1 < cy || (yr - 1 === cy && i + 1 < cm);
+    const l = lyDone ? (S[lk] || 0) : null, auto = l ? l * (1 + pct / 100) : null;
+    const man = +tg.months[k] > 0 ? +tg.months[k] : null, t = man || auto;
+    const done = yr < cy || (yr === cy && i + 1 < cm), a = (yr < cy || (yr === cy && i + 1 <= cm)) ? (S[k] || 0) : null;
+    tl += l || 0; tt += t || 0; ta += a || 0;
+    rows += '<tr><td>' + m + ' ' + yr + '</td><td>' + (l != null ? tgNum(l) : '<span class="auto">not finished</span>') + '</td>' +
+      '<td class="auto">' + (auto ? tgNum(auto) : '—') + '</td>' +
+      '<td><input data-k="' + k + '" class="' + (man ? 'man' : '') + '" inputmode="numeric" placeholder="' + (auto ? 'auto' : 'type it') + '" value="' + (man ? tgNum(man) : '') + '" oninput="this.classList.toggle(\'man\', !!this.value.trim())">' +
+      (man ? '<span class="x" title="back to auto" onclick="tgAuto(\'' + k + '\')">✕</span>' : '') + '</td>' +
+      '<td>' + (a != null ? tgNum(a) : '—') + '</td>' +
+      '<td>' + (done && t ? '<span class="tg-pill ' + (a >= t ? 'ok' : 'no') + '">' + Math.round(a / t * 100) + '%</span>' : '') + '</td></tr>';
+  });
+  document.getElementById('tgBody').innerHTML = rows;
+  document.getElementById('tgFoot').innerHTML = '<tr><td>Year</td><td>' + tgNum(tl) + '</td><td></td><td>' + tgNum(tt) + '</td><td>' + (ta ? tgNum(ta) : '—') + '</td><td></td></tr>';
+  document.getElementById('tgShare').innerHTML = [cy, cy + 1].map(y => '<label>' + y + '<input data-sy="' + y + '" type="number" step="0.01" min="0" max="100" placeholder="—" value="' + (tg.share[y] != null && tg.share[y] !== '' ? (+tg.share[y]).toFixed(2) : '') + '">%</label>').join('');
+}
+function tgRead() {
+  const p = document.getElementById('tgPct').value;
+  tg.pct = p === '' ? 10 : +p;
+  document.querySelectorAll('#tgBody input[data-k]').forEach(i => { const v = parseFloat(i.value.replace(/[^0-9.]/g, '')); if (v > 0) tg.months[i.dataset.k] = v; else delete tg.months[i.dataset.k]; });
+  document.querySelectorAll('#tgShare input[data-sy]').forEach(i => { const v = i.value.trim(); if (v === '') tg.share[i.dataset.sy] = ''; else tg.share[i.dataset.sy] = +v; });
+}
+function tgAuto(k) { tgRead(); delete tg.months[k]; tgDraw(); }
+function tgSave() {
+  tgRead();
+  FLApp.setAppSetting('targets', JSON.stringify({ pct: tg.pct, months: tg.months, share: tg.share }));
+  tgLoad(); tgDraw();
+  FLApp.flAlert('Targets saved. Every dashboard will show them after the next sync.');
+}
+tgLoad(); tgDraw();
 
 /* ── Export to Excel: a CSV with a BOM, so Excel opens Arabic names and AED correctly ── */
 function expRows(what) {

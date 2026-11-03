@@ -1121,7 +1121,7 @@ const FLApp = (() => {
   /* Only the email preference is a setting. The GP target, the cut-off day and the
      commission rate are deliberately NOT settings: all three appear on, or decide, the
      documents Jo approves. Sajith's instruction — do not touch that area. */
-  const SETTING_DEFAULTS = { emailMode: 'off', announce: '' };
+  const SETTING_DEFAULTS = { emailMode: 'off', announce: '', targets: '' };
   function appSettings() {
     const s = (metaDoc().settings) || {};
     const out = {};
@@ -1138,7 +1138,7 @@ const FLApp = (() => {
     d.updated = new Date().toISOString();
     localStorage.setItem(META_KEY, JSON.stringify(d));
     markDirty('meta_monthly');
-    if (currentUser()) recordEvent('Setting changed: ' + key + ' = ' + (key === 'announce' ? (value ? 'banner published' : 'banner removed') : value), currentUser().name);
+    if (currentUser()) recordEvent('Setting changed: ' + key + ' = ' + (key === 'announce' ? (value ? 'banner published' : 'banner removed') : key === 'targets' ? 'sales targets updated' : value), currentUser().name);
     scheduleSync();
   }
 
@@ -1156,22 +1156,16 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Log enquiries from WhatsApp',
-       'In Enquiries, tap 📋 Paste message or 📷 From screenshot. The form fills itself in: green = found, amber = please check. Nothing is saved until you press Save.'],
-      ['Dashboard no longer flickers',
-       'The opening animation plays once, and the page refreshes itself at most every 5 minutes. Jo saw it flicker on her tablet.'],
-      ['Fairer month comparison',
-       'Early in a month, the sales tile now compares with the same point of last year’s month, not the whole month.']
+      ['Sales targets',
+       'Admin › Settings › Targets: every month is last year + 10% unless you type your own, plus the event share target (5% for 2027). Jo sees them in a new Targets card on the dashboard.']
     ],
     ceo: [
-      ['Steadier dashboard',
-       'No more flickering: the opening animation plays once, and the figures update quietly after that.'],
-      ['Fairer month comparison',
-       'Early in a month, sales are compared with the same point of last year’s month, not the whole month.']
+      ['Targets',
+       'A new Targets card under your figures: the year and this month against target, the event share target for 2027, and which months hit or missed.']
     ],
     finance: [
-      ['Steadier dashboard',
-       'No more flickering, and early-month sales are compared with the same point of last year.']
+      ['Targets',
+       'A new Targets card on the dashboard: sales against target (last year + 10%) and the 5% event share target for 2027.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1835,7 +1829,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.46';
+  const APP_VERSION = '5.7.47';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

@@ -447,6 +447,38 @@ body.board .rep-head b{font:600 15px var(--ui);color:var(--ink);letter-spacing:.
   .wrap,.head,.sysline{max-width:none !important;}
 }
 </style>
+<style>
+/* ── Targets card ── */
+.tgt{grid-column:1/-1;margin:14px 0 4px;padding:20px 22px 18px;border-radius:var(--r,18px);background:
+  radial-gradient(600px 220px at 0% 0%,rgba(29,185,122,.16),transparent 70%),
+  radial-gradient(500px 200px at 100% 100%,rgba(25,184,204,.12),transparent 70%),var(--cardBg,rgba(16,30,26,.8));
+  border:1px solid var(--cardBorder,rgba(110,231,183,.16));box-shadow:var(--cardShadow,none);}
+.tgt-h{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.tgt-h h3{margin:0;font-size:17px;color:var(--ink)}
+.tgt-h .hint{font-size:12px;color:var(--ink2)}
+.tgt-h .rule{margin-left:auto;font:600 11px JetBrains Mono,monospace;color:#5FE3F5;border:1px solid rgba(95,227,245,.3);border-radius:99px;padding:3px 10px}
+.tgt-g{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.tgt-g{grid-template-columns:1fr}}
+.tgt-c{display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.05)}
+.tgt-c svg{flex:none}
+.tgt-k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:700}
+.tgt-v{font:700 24px/1.15 JetBrains Mono,monospace;color:var(--ink);margin:4px 0 2px;letter-spacing:-.5px}
+.tgt-v small{font-size:12px;color:var(--ink2);font-weight:600;margin-right:3px}
+.tgt-s{font-size:12px;color:var(--ink2);line-height:1.5}
+.tgt-s b{color:var(--ink);font-family:JetBrains Mono,monospace;font-weight:600}
+.tgt-s .ok{color:#4ADE80;font-weight:700} .tgt-s .no{color:#F5A524;font-weight:700}
+.tgt-m{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin-top:14px}
+@media(max-width:700px){.tgt-m{grid-template-columns:repeat(6,1fr)}}
+.tgt-m div{border-radius:10px;padding:8px 4px 7px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.tgt-m b{display:block;font:700 13px JetBrains Mono,monospace}
+.tgt-m span{display:block;font-size:10.5px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.tgt-m i{display:block;font:normal 10px JetBrains Mono,monospace;color:var(--ink2);margin-top:2px;opacity:.8}
+.tgt-m .hit{background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.35)} .tgt-m .hit b{color:#4ADE80}
+.tgt-m .miss{background:rgba(248,113,113,.09);border-color:rgba(248,113,113,.35)} .tgt-m .miss b{color:#F87171}
+.tgt-m .now{border-color:#5FE3F5;box-shadow:0 0 0 1px rgba(95,227,245,.35) inset} .tgt-m .now b{color:#5FE3F5}
+.tgt-m .fut b{color:var(--ink2)}
+body.board .tgt{break-inside:avoid}
+</style>
 </head>
 <body>
 <script src="ios-install.js"></script>
@@ -654,6 +686,18 @@ const ytdDelta = ytdPrev ? (ytd - ytdPrev) / ytdPrev * 100 : null;
 const monthPart = Math.min(1, now.getDate() / new Date(+CY, CM, 0).getDate());
 const mPrevYear = monthTotal(prevY, CM) * monthPart;
 const mDelta = mPrevYear ? (mSales - mPrevYear) / mPrevYear * 100 : null;
+/* Sales targets: last year's same month + 10% (Admin can change the %), unless
+   Admin typed a number for that month in Admin › Settings › Targets.
+   The event-share target is per year; 5% for 2027 was set by the Finance Director. */
+const TGT = (() => { try { return JSON.parse((FLApp.appSettings && FLApp.appSettings().targets) || '{}') || {}; } catch (e) { return {}; } })();
+const TGT_PCT = TGT.pct != null && TGT.pct !== '' ? +TGT.pct : 10;
+function monthTarget(y, m) {
+  const k = y + '-' + String(m).padStart(2, '0');
+  if (TGT.months && +TGT.months[k] > 0) return +TGT.months[k];
+  const l = monthTotal(String(+y - 1), m);
+  return l ? l * (1 + TGT_PCT / 100) : 0;
+}
+function shareTarget(y) { const s = Object.assign({ 2027: 5 }, TGT.share || {}); return s[y] != null && s[y] !== '' ? +s[y] : null; }
 const approvedCount = monthEvs.filter(e => e.approval && e.approval.status === 'approved').length;
 
 /* ── the two figures in the Sales tile ──────────────────────────────────
@@ -1080,6 +1124,53 @@ function gaugeSvg(v, target) {
       (sharePrev != null ? '<br><span class="m ' + (shareYtd - sharePrev >= 0 ? 'up' : 'down') + '" style="color:var(--' + (shareYtd - sharePrev >= 0 ? 'ok' : 'bad') + ')">' + (shareYtd - sharePrev >= 0 ? '+' : '') + (shareYtd - sharePrev).toFixed(2) + ' pts</span> vs ' + prevY : '') +
       (shareNow != null ? '<br>' + MONTHS[CM - 1] + ' so far <span class="m">' + shareNow.toFixed(2) + '%</span>' : '')) + '</div></div>');
   document.getElementById('kpis').innerHTML = t.join('');
+})();
+
+(function targetsCard() {
+  const kp = document.getElementById('kpis');
+  if (!kp) return;
+  const T = Array.from({ length: 12 }, (_, i) => monthTarget(CY, i + 1));
+  const fy = T.reduce((a, b) => a + b, 0);
+  if (!fy) return;
+  const mT = T[CM - 1];
+  let pace = mT * monthPart; for (let i = 0; i < CM - 1; i++) pace += T[i];
+  const n = x => Math.round(x).toLocaleString('en-US');
+  const ring = (pct, mark, size, col) => {
+    const r = size / 2 - 9, c = 2 * Math.PI * r, p = Math.max(0, Math.min(1, pct)), id = 'tr' + Math.random().toString(36).slice(2, 6);
+    const ma = (mark * 360 - 90) * Math.PI / 180, mx = size / 2 + r * Math.cos(ma), my = size / 2 + r * Math.sin(ma);
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + (col || '#1DB97A') + '"/><stop offset="1" stop-color="#5FE3F5"/></linearGradient></defs>' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="url(#' + id + ')" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + (c * p).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')"/>' +
+      (mark != null ? '<circle cx="' + mx.toFixed(1) + '" cy="' + my.toFixed(1) + '" r="4.5" fill="#0B1411" stroke="#FFFFFF" stroke-width="2"/>' : '') +
+      '<text x="50%" y="50%" dy=".35em" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="' + (size / 5.2).toFixed(0) + '" fill="#E8F1EE">' + Math.round(pct * 100) + '%</text></svg>';
+  };
+  const ahead = ytd - pace;
+  const yearBox = '<div class="tgt-c">' + ring(ytd / fy, pace / fy, 118) + '<div><div class="tgt-k">' + CY + ' sales target</div>' +
+    '<div class="tgt-v"><small>AED</small>' + n(fy) + '</div>' +
+    '<div class="tgt-s"><b>AED ' + n(ytd) + '</b> done · <b>AED ' + n(Math.max(0, fy - ytd)) + '</b> to go<br>' +
+    '<span class="' + (ahead >= 0 ? 'ok' : 'no') + '">' + (ahead >= 0 ? '▲ AED ' + n(ahead) + ' ahead of plan' : '▼ AED ' + n(-ahead) + ' behind plan') + '</span> · ○ = where you should be today</div></div></div>';
+  const daysLeft = new Date(+CY, CM, 0).getDate() - now.getDate() + 1;
+  const monthBox = !mT ? '' : '<div class="tgt-c">' + ring(mSales / mT, monthPart, 96) + '<div><div class="tgt-k">' + MONTHS[CM - 1] + ' target</div>' +
+    '<div class="tgt-v"><small>AED</small>' + n(mT) + '</div>' +
+    '<div class="tgt-s"><b>AED ' + n(mSales) + '</b> so far<br>' + (mSales >= mT ? '<span class="ok">Target reached</span>' :
+      '<b>AED ' + n((mT - mSales) / daysLeft) + '</b> a day for ' + daysLeft + ' days') + '</div></div></div>';
+  const sy = shareTarget(CY) != null ? CY : shareTarget(String(+CY + 1)) != null ? String(+CY + 1) : null;
+  const shareBox = (!sy || shareYtd == null) ? '' : (() => { const tv = shareTarget(sy), gap = tv - shareYtd;
+    return '<div class="tgt-c">' + ring(shareYtd / tv, null, 96, '#19B8CC') + '<div><div class="tgt-k">Event share · ' + sy + ' target</div>' +
+      '<div class="tgt-v">' + tv.toFixed(2) + '<small style="margin-left:2px">%</small></div>' +
+      '<div class="tgt-s">now <b>' + shareYtd.toFixed(2) + '%</b><br>' + (gap <= 0 ? '<span class="ok">Already there</span>' : '<span class="no">+' + gap.toFixed(2) + ' pts to go</span>') + '</div></div></div>'; })();
+  const strip = T.map((t, i) => {
+    const a = monthTotal(CY, i + 1), cls = i + 1 < CM ? (a >= t ? 'hit' : 'miss') : i + 1 === CM ? 'now' : 'fut';
+    return '<div class="' + cls + '" title="' + MONTHS[i] + ': AED ' + n(a) + ' of AED ' + n(t) + '"><span>' + MONTHS[i].slice(0, 3) + '</span><b>' +
+      (cls === 'fut' ? '—' : t ? Math.round(a / t * 100) + '%' : '—') + '</b><i>' + (t ? fmtK(t) : '') + '</i></div>';
+  }).join('');
+  const hit = T.filter((t, i) => i + 1 < CM && monthTotal(CY, i + 1) >= t).length;
+  const box = document.createElement('div');
+  box.className = 'tgt';
+  box.innerHTML = '<div class="tgt-h"><h3>Targets</h3><span class="hint">' + hit + ' of ' + (CM - 1) + ' months hit so far this year</span>' +
+    '<span class="rule">target = last year + ' + TGT_PCT + '%</span></div>' +
+    '<div class="tgt-g">' + yearBox + monthBox + shareBox + '</div><div class="tgt-m">' + strip + '</div>';
+  kp.insertAdjacentElement('afterend', box);
 })();
 
 /* ── charts ── */
