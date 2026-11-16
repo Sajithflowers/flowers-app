@@ -1155,10 +1155,18 @@ function gaugeSvg(v, target) {
     '<div class="tgt-s"><b>AED ' + n(mSales) + '</b> so far<br>' + (mSales >= mT ? '<span class="ok">Target reached</span>' :
       '<b>AED ' + n((mT - mSales) / daysLeft) + '</b> a day for ' + daysLeft + ' days') + '</div></div></div>';
   const sy = shareTarget(CY) != null ? CY : shareTarget(String(+CY + 1)) != null ? String(+CY + 1) : null;
-  const shareBox = (!sy || shareYtd == null) ? '' : (() => { const tv = shareTarget(sy), gap = tv - shareYtd;
+  /* AED a month the events need for the target share, from the same closed
+     months as shareYtd. Event sales are part of company income too, so the
+     extra x solves (e+x)/(c+x)=t → x=(t·c−e)/(1−t). Shown with VAT, like sales. */
+  const sharePerMonth = () => { let e = 0, c = 0, k = 0;
+    closedMonths.forEach(m => { const ym = CY + '-' + String(m).padStart(2, '0'); if (coInc[ym] != null) { e += monthTotal(CY, m) / VAT; c += +coInc[ym]; k++; } });
+    if (!k || !c) return null; const t = shareTarget(sy) / 100;
+    return { now: e / k * VAT, need: (e + Math.max(0, (t * c - e) / (1 - t))) / k * VAT }; };
+  const shareBox = (!sy || shareYtd == null) ? '' : (() => { const tv = shareTarget(sy), gap = tv - shareYtd; const pm = sy ? sharePerMonth() : null;
     return '<div class="tgt-c">' + ring(shareYtd / tv, null, 96, '#19B8CC') + '<div><div class="tgt-k">Event share · ' + sy + ' target</div>' +
       '<div class="tgt-v">' + tv.toFixed(2) + '<small style="margin-left:2px">%</small></div>' +
-      '<div class="tgt-s">now <b>' + shareYtd.toFixed(2) + '%</b><br>' + (gap <= 0 ? '<span class="ok">Already there</span>' : '<span class="no">+' + gap.toFixed(2) + ' pts to go</span>') + '</div></div></div>'; })();
+      '<div class="tgt-s">now <b>' + shareYtd.toFixed(2) + '%</b><br>' + (gap <= 0 ? '<span class="ok">Already there</span>' : '<span class="no">+' + gap.toFixed(2) + ' pts to go</span>') +
+      (pm && gap > 0 ? '<br>Events need <b>≈ AED ' + n(pm.need) + '</b> a month · now AED ' + n(pm.now) : '') + '</div></div></div>'; })();
   const strip = T.map((t, i) => {
     const a = monthTotal(CY, i + 1), cls = i + 1 < CM ? (a >= t ? 'hit' : 'miss') : i + 1 === CM ? 'now' : 'fut';
     return '<div class="' + cls + '" title="' + MONTHS[i] + ': AED ' + n(a) + ' of AED ' + n(t) + '"><span>' + MONTHS[i].slice(0, 3) + '</span><b>' +

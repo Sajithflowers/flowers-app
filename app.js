@@ -1156,16 +1156,26 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Sales targets',
-       'Admin › Settings › Targets: every month is last year + 10% unless you type your own, plus the event share target (5% for 2027). Jo sees them in a new Targets card on the dashboard.']
+      ['Tracker: paste an order',
+       'Tap 📋 Paste order and paste the WhatsApp order. Name, mobile, event day and discount fill in; amber boxes are the ones to type (order number, price).'],
+      ['Discount in % or AED',
+       'Type the discount either way, in the form and in the list. The other one fills itself.'],
+      ['Supplier invoice tick',
+       'Once an event is done, tick "Invoice asked" when you have requested the invoice from the supplier. Type the request number in the small box beside it. The ⚠ chip shows the ones still to ask.'],
+      ['Event share target in AED',
+       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
     ],
     ceo: [
-      ['Targets',
-       'A new Targets card under your figures: the year and this month against target, the event share target for 2027, and which months hit or missed.']
+      ['Discount in AED',
+       'The Tracker now shows each discount in AED as well as %.'],
+      ['Event share target in AED',
+       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
     ],
     finance: [
-      ['Targets',
-       'A new Targets card on the dashboard: sales against target (last year + 10%) and the 5% event share target for 2027.']
+      ['Discount in AED',
+       'The Tracker now shows each discount in AED as well as %.'],
+      ['Event share target in AED',
+       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1829,7 +1839,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.47';
+  const APP_VERSION = '5.7.48';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 

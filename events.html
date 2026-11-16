@@ -201,6 +201,25 @@ td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var
 .trk-form h3{font-family:var(--ui);color:var(--ink);}
 .trk-grid label{color:var(--ink3);}
 .trk-grid input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var(--ink);}
+/* paste an order · discount in % or AED · supplier invoice */
+.trk-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.trk-head h3{margin:0 auto 0 0 !important;}
+.trk-pbtn{background:rgba(255,255,255,.04);border:1px solid var(--cardBorder);color:var(--ink);border-radius:var(--rs,10px);min-height:38px;padding:0 12px;font:600 12.5px var(--ui);cursor:pointer;}
+.trk-pbtn.on{border-color:var(--p);color:var(--p);}
+#trkPasteText{width:100%;min-height:150px;padding:10px 12px;font:13px/1.5 var(--ui);resize:vertical;background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var(--ink);border-radius:var(--rs,10px);}
+.trk-psum{font-size:11.5px;color:var(--ink2);margin:5px 0 10px;}
+.trk-psum .pl{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid;margin-right:5px;}
+.trk-psum .pl.g{color:var(--p);border-color:rgba(52,211,153,.4);} .trk-psum .pl.c{color:#fbbf24;border-color:rgba(251,191,36,.45);}
+.trk-hint{display:block;font-size:10.5px;margin-top:2px;min-height:0;}
+.trk-c input{border-color:rgba(251,191,36,.6) !important;background:rgba(251,191,36,.06) !important;} .trk-c .trk-hint{color:#fbbf24;}
+.trk-g input{border-color:rgba(52,211,153,.45) !important;} .trk-g .trk-hint{color:var(--p);}
+.trk-disc{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.inv-cell{white-space:nowrap;font-size:11.5px;}
+.inv-cell label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+.inv-cell input{width:17px;height:17px;min-height:0;accent-color:#34d399;}
+.inv-cell input.req{width:52px;height:28px;min-height:0;text-align:center;padding:2px 4px;margin:0 6px;font-size:12.5px;accent-color:auto;}
+.inv-cell .todo{color:#fbbf24;font-weight:700;} .inv-cell .done{color:var(--p);} .inv-cell .wait{color:var(--ink3,var(--muted));}
+.chip.inv-warn.on{border-color:#fbbf24;color:#fbbf24;background:rgba(251,191,36,.1);}
 /* the order number stays visually a heading, not a form field, until
    you touch it — it is read a hundred times for every time it is
    corrected */
@@ -472,6 +491,7 @@ th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
 <body>
 <script src="ios-install.js"></script>
 <script src="app.js"></script>
+<script src="enquiry-reader.js"></script>
 <script>FLApp.guardRole(['admin','finance','ceo']);</script>
 <script src="history-data.js"></script>
 <!-- the contribution report builds its own PDF; without these exportPdf falls
@@ -513,17 +533,22 @@ th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
 
   <div id="tab-tracker" class="section">
     <div class="trk-form" id="trkForm" style="display:none;">
-      <h3>Log an order you just placed</h3>
+      <div class="trk-head"><h3>Log an order you just placed</h3>
+        <button class="trk-pbtn" id="trkPasteBtn" onclick="trkPasteToggle()">📋 Paste order</button></div>
+      <div id="trkPaste" style="display:none;">
+        <textarea id="trkPasteText" placeholder="Paste the WhatsApp order here…" oninput="trkFillFromText(this.value)"></textarea>
+        <div class="trk-psum" id="trkPasteSum">The boxes fill in as you paste. Nothing is added until you press the button.</div>
+      </div>
       <div class="trk-grid">
-        <div><label>Order number</label><input id="t-order" inputmode="numeric" placeholder="e.g. 266934"></div>
-        <div><label>Client name</label><input id="t-client" placeholder="e.g. Khalifa Rashed"></div>
-        <div><label>Mobile number</label><input id="t-mobile" inputmode="tel" placeholder="e.g. 050 123 4567"></div>
-        <div><label>Revenue (AED)</label><input id="t-rev" type="number" inputmode="decimal" placeholder="0.00"></div>
+        <div id="tf-order"><label>Order number</label><input id="t-order" inputmode="numeric" placeholder="e.g. 266934"><small class="trk-hint"></small></div>
+        <div id="tf-client"><label>Client name</label><input id="t-client" placeholder="e.g. Khalifa Rashed"><small class="trk-hint"></small></div>
+        <div id="tf-mobile"><label>Mobile number</label><input id="t-mobile" inputmode="tel" placeholder="e.g. 050 123 4567"><small class="trk-hint"></small></div>
+        <div id="tf-revenue"><label>Revenue (AED)</label><input id="t-rev" type="number" inputmode="decimal" placeholder="0.00"><small class="trk-hint"></small></div>
         <div><label>Date order placed</label><input id="t-placed" type="date"></div>
-        <div><label>Date of the event</label><input id="t-event" type="date"></div>
-        <div><label>Discount %</label><input id="t-disc" type="number" inputmode="decimal" placeholder="0"></div>
+        <div id="tf-eventDate"><label>Date of the event</label><input id="t-event" type="date"><small class="trk-hint"></small></div>
+        <div><label>Discount — % or AED</label><div class="trk-disc"><input id="t-disc" type="number" inputmode="decimal" placeholder="%"><input id="t-disc-amt" type="number" inputmode="decimal" placeholder="AED"></div></div>
         <div><label>Discounted amount (auto)</label><input id="t-after" disabled placeholder="—"></div>
-        <button class="trk-add" onclick="addTrack()">＋ Add to tracker</button>
+        <button class="trk-add" id="trkAddBtn" onclick="addTrack()">＋ Add to tracker</button>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;">
@@ -533,7 +558,7 @@ th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
              placeholder="Search order number, client or mobile…" oninput="renderTracker()">
     </div>
     <div class="tblwrap"><table id="trkTable">
-      <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Discounted</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
+      <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Disc AED</th><th>Discounted</th><th class="col-inv">Invoice asked</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
       <tbody></tbody>
     </table></div>
     <p class="note">Quick log so you never forget an order you placed in Shopify. Independent from the event sheets.</p>
@@ -756,13 +781,63 @@ function renderEvents() {
 }
 
 /* ── Tracker (manual order log) ── */
-function trkAfter() {
+/* Discount can be typed as % or as AED; the other box follows. Only the % is
+   stored (discountPct) — GP sheets, the dashboard and targets all read that. */
+function trkAfter(from) {
   const rev = parseFloat(document.getElementById('t-rev').value) || 0;
-  const d = parseFloat(document.getElementById('t-disc').value) || 0;
-  document.getElementById('t-after').value = rev ? AED(rev * (1 - d / 100)) : '';
+  const pctEl = document.getElementById('t-disc'), amtEl = document.getElementById('t-disc-amt');
+  if (from === 'amt') { const a = parseFloat(amtEl.value) || 0; pctEl.value = a && rev ? +(a / rev * 100).toFixed(2) : ''; }
+  else if (amtEl.value && (from === 'rev' || !pctEl.value) && rev && pctEl.dataset.src !== 'pct') { pctEl.value = +((parseFloat(amtEl.value) || 0) / rev * 100).toFixed(2); }
+  else { const p = parseFloat(pctEl.value) || 0; amtEl.value = p && rev ? +(rev * p / 100).toFixed(2) : (from === 'pct' ? '' : amtEl.value); }
+  if (from === 'pct') pctEl.dataset.src = 'pct'; else if (from === 'amt') pctEl.dataset.src = 'amt';
+  document.getElementById('t-after').value = rev ? AED(rev * (1 - trkFormPct() / 100)) : '';
 }
-document.getElementById('t-rev').addEventListener('input', trkAfter);
-document.getElementById('t-disc').addEventListener('input', trkAfter);
+/* the % that gets stored: exact when the discount was typed in AED, so
+   AED 50 off 1,650 is saved as 3.0303…%, not a rounded 3.03% */
+function trkFormPct() {
+  const rev = parseFloat(document.getElementById('t-rev').value) || 0;
+  const pctEl = document.getElementById('t-disc'), amt = parseFloat(document.getElementById('t-disc-amt').value) || 0;
+  return pctEl.dataset.src === 'amt' && rev ? amt / rev * 100 : (parseFloat(pctEl.value) || 0);
+}
+document.getElementById('t-rev').addEventListener('input', () => trkAfter('rev'));
+document.getElementById('t-disc').addEventListener('input', () => trkAfter('pct'));
+document.getElementById('t-disc-amt').addEventListener('input', () => trkAfter('amt'));
+
+/* ── 📋 Paste order: the team's WhatsApp order fills the boxes; green = found,
+   amber = type it. Nothing is added until "Add to tracker" is pressed. ── */
+function trkToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const TRK_FIELDS = { order: 't-order', client: 't-client', mobile: 't-mobile', revenue: 't-rev', eventDate: 't-event' };
+function trkPasteToggle(force) {
+  const box = document.getElementById('trkPaste'), on = force != null ? force : box.style.display === 'none';
+  box.style.display = on ? '' : 'none';
+  document.getElementById('trkPasteBtn').classList.toggle('on', on);
+  document.getElementById('trkAddBtn').textContent = on ? '✓ All good, add to tracker' : '＋ Add to tracker';
+  if (on) document.getElementById('trkPasteText').focus();
+  else { document.getElementById('trkPasteText').value = ''; trkClearHints(); }
+}
+function trkClearHints() {
+  Object.keys(TRK_FIELDS).forEach(k => { const b = document.getElementById('tf-' + k); b.classList.remove('trk-c', 'trk-g'); b.querySelector('.trk-hint').textContent = ''; });
+  document.getElementById('trkPasteSum').textContent = 'The boxes fill in as you paste. Nothing is added until you press the button.';
+}
+function trkFillFromText(text) {
+  if (!text.trim()) { trkClearHints(); return; }
+  const r = readOrder(text, new Date());
+  let found = 0, check = 0;
+  Object.entries(TRK_FIELDS).forEach(([k, id]) => {
+    document.getElementById(id).value = r[k].v;
+    const b = document.getElementById('tf-' + k);
+    b.classList.toggle('trk-c', r[k].check); b.classList.toggle('trk-g', !r[k].check);
+    b.querySelector('.trk-hint').textContent = (r[k].check ? '⚠ ' : '✓ ') + r[k].why;
+    r[k].check ? check++ : found++;
+  });
+  if (!document.getElementById('t-placed').value) document.getElementById('t-placed').value = trkToday();
+  document.getElementById('t-disc').value = ''; document.getElementById('t-disc-amt').value = '';
+  if (r.discount) { document.getElementById(r.discount.pct ? 't-disc' : 't-disc-amt').value = r.discount.v; trkAfter(r.discount.pct ? 'pct' : 'amt'); }
+  else trkAfter('pct');
+  document.getElementById('trkPasteSum').innerHTML = '<span class="pl g">' + found + ' found</span>' +
+    (check ? '<span class="pl c">' + check + ' to type</span>' : '') +
+    (r.discount ? 'Discount: ' + esc(r.discount.text) + (r.discount.pct ? '' : ' (the % fills in once the revenue is typed)') : '');
+}
 
 async function addTrack() {
   const row = {
@@ -773,7 +848,7 @@ async function addTrack() {
     placed: document.getElementById('t-placed').value,
     eventDate: document.getElementById('t-event').value,
     revenue: parseFloat(document.getElementById('t-rev').value) || 0,
-    discountPct: parseFloat(document.getElementById('t-disc').value) || 0
+    discountPct: trkFormPct()
   };
   if (!row.orderNo) { await FLApp.flAlert('Enter the order number.'); return; }
 
@@ -793,9 +868,11 @@ async function addTrack() {
   }
 
   FLApp.trackerSave(row);
-  ['t-order', 't-client', 't-mobile', 't-placed', 't-event', 't-rev', 't-disc']
+  ['t-order', 't-client', 't-mobile', 't-placed', 't-event', 't-rev', 't-disc', 't-disc-amt']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('t-after').value = '';
+  delete document.getElementById('t-disc').dataset.src;
+  trkPasteToggle(false);
   renderTracker();
   offerToCloseEnquiry(row);
 }
@@ -947,10 +1024,31 @@ async function trkRenumber(id, raw, el) {
   renderTracker();
 }
 
-function trkRecalcRow(id) {
+function trkRecalcRow(id, from) {
   const rev = parseFloat(document.getElementById('rev-' + id).value) || 0;
-  const disc = parseFloat(document.getElementById('disc-' + id).value) || 0;
+  const pctEl = document.getElementById('disc-' + id), amtEl = document.getElementById('damt-' + id);
+  if (from === 'amt') {
+    const a = parseFloat(amtEl.value) || 0, p = rev ? a / rev * 100 : 0;
+    pctEl.value = +p.toFixed(4);
+    trkPatch(id, 'discountPct', p);
+  } else if (amtEl) amtEl.value = +(rev * (parseFloat(pctEl.value) || 0) / 100).toFixed(2);
+  const disc = parseFloat(pctEl.value) || 0;
   document.getElementById('after-' + id).textContent = AED(rev * (1 - disc / 100));
+}
+
+/* Supplier invoice — once the event is done Sajith asks the flower supplier for
+   the invoice; the tick records the day he asked. Admin only. */
+let trkInvFilter = false;
+/* the reminder starts with November 2026 events — older ones were handled
+   before the tick existed; they can still be ticked, they just aren't nagged */
+const TRK_INV_FROM = '2026-11-01';
+/* a GP sheet is only made once the supplier invoice is in, so an order with a
+   sheet counts as invoice requested AND received — never flagged */
+const trkHasSheet = r => !!r.orderNo && FLApp.eventsAll().some(e => String(e.orderNo || '').trim() === String(r.orderNo).trim());
+const trkInvDue = r => !!r.eventDate && r.eventDate >= TRK_INV_FROM && r.eventDate <= trkToday() && !trkHasSheet(r);
+function trkInvoice(id, on) {
+  trkPatch(id, 'supplierInvoice', on ? trkToday() : '');
+  renderTracker();
 }
 
 /* 'event' groups by the event's own month — how commission actually works —
@@ -975,7 +1073,10 @@ function renderTrackerChips() {
   document.getElementById('trkGroupChips').innerHTML =
     trackerGroups().map(([g, label]) =>
       '<button class="chip ' + (trackerGroupBy === g ? 'on' : '') + '" onclick="trackerGroupBy=\'' + g + '\';renderTracker()">' +
-      label + '</button>').join(' ');
+      label + '</button>').join(' ') +
+    (FLApp.isAdmin() ? (() => { const n = FLApp.trackerAll().filter(r => trkInvDue(r) && !r.supplierInvoice).length;
+      return ' <button class="chip inv-warn ' + (trkInvFilter ? 'on' : '') + '" onclick="trkInvFilter=!trkInvFilter;renderTracker()">' +
+        (n ? '⚠ Invoice not requested · ' + n : '✓ All invoices requested') + '</button>'; })() : '');
 }
 function renderTracker() {
   const showClient = FLApp.isAdmin();
@@ -985,7 +1086,7 @@ function renderTracker() {
   table.className = 'group-' + trackerGroupBy;
   /* for anyone but admin the client columns are removed from the page outright,
      not merely hidden — the names and numbers never reach their screen at all */
-  if (!showClient) table.querySelectorAll('thead .col-client').forEach(th => th.remove());
+  if (!showClient) table.querySelectorAll('thead .col-client, thead .col-inv').forEach(th => th.remove());
   const tb = document.querySelector('#trkTable tbody');
   const dateField = trackerGroupBy === 'placed' ? 'placed' : 'eventDate';
   const fallbackField = trackerGroupBy === 'placed' ? 'eventDate' : 'placed';
@@ -1007,12 +1108,13 @@ function renderTracker() {
       ? (!!last9(q) && last9(r.mobile) === last9(q))
       : qDigits.length >= 3 && String(r.mobile || '').replace(/\D/g, '').includes(qDigits));
 
-  const rows = FLApp.trackerAll().filter(matches).sort((a, b) =>
+  const rows = FLApp.trackerAll().filter(matches)
+    .filter(r => !(showClient && trkInvFilter) || (trkInvDue(r) && !r.supplierInvoice)).sort((a, b) =>
     (b[dateField] || b[fallbackField] || '').localeCompare(a[dateField] || a[fallbackField] || ''));
   const gpOrders = new Set(FLApp.eventsAll().map(e => e.orderNo).filter(Boolean));
   tb.innerHTML = '';
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="10" style="color:var(--muted);font-style:italic;">' +
+    tb.innerHTML = '<tr><td colspan="12" style="color:var(--muted);font-style:italic;">' +
       (q ? 'Nothing found for "' + esc(q) + '"' : 'Nothing logged yet') + '</td></tr>';
     return;
   }
@@ -1030,7 +1132,9 @@ function renderTracker() {
       '<td class="col-event" style="border-top:1.5px solid var(--champagne);"></td>' +
       '<td style="border-top:1.5px solid var(--champagne);"></td>' +
       '<td style="border-top:1.5px solid var(--champagne);"></td>' +
+      '<td style="border-top:1.5px solid var(--champagne);"></td>' +
       '<td style="font-weight:700;color:var(--rouge);border-top:1.5px solid var(--champagne);">' + AED(afterTotal) + '</td>' +
+      (showClient ? '<td class="col-inv" style="border-top:1.5px solid var(--champagne);"></td>' : '') +
       '<td class="col-gp" style="border-top:1.5px solid var(--champagne);"></td>' +
       '<td style="border-top:1.5px solid var(--champagne);"></td>';
     tb.appendChild(tr);
@@ -1046,7 +1150,7 @@ function renderTracker() {
       const [y, m] = groupKey ? groupKey.split('-').map(Number) : [null, null];
       const label = (y && m) ? MONTH_NAMES[m - 1] + ' ' + y : 'No date yet';
       const head = document.createElement('tr');
-      head.innerHTML = '<td colspan="10" style="background:transparent;font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
+      head.innerHTML = '<td colspan="12" style="background:transparent;font-family:\'EB Garamond\',Georgia,serif;font-size:13px;color:var(--muted);letter-spacing:1.5px;padding:10px 8px;">' + label + '</td>';
       tb.appendChild(head);
     }
     const after = (r.revenue || 0) * (1 - (r.discountPct || 0) / 100);
@@ -1072,8 +1176,14 @@ function renderTracker() {
       '<td class="col-placed">' + (isAdmin ? '<input type="date" value="' + (r.placed || '') + '" onchange="trkPatch(\'' + r.id + '\',\'placed\',this.value)">' : fmtD(r.placed)) + '</td>' +
       '<td class="col-event">' + (isAdmin ? '<input type="date" value="' + (r.eventDate || '') + '" onchange="trkPatch(\'' + r.id + '\',\'eventDate\',this.value);renderTracker()">' : fmtD(r.eventDate)) + '</td>' +
       '<td>' + (isAdmin ? '<input type="number" id="rev-' + r.id + '" value="' + (r.revenue || 0) + '" oninput="trkPatch(\'' + r.id + '\',\'revenue\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : AED(r.revenue || 0)) + '</td>' +
-      '<td>' + (isAdmin ? '<input type="number" id="disc-' + r.id + '" value="' + (r.discountPct || 0) + '" oninput="trkPatch(\'' + r.id + '\',\'discountPct\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : (r.discountPct || 0) + '%') + '</td>' +
+      '<td>' + (isAdmin ? '<input type="number" id="disc-' + r.id + '" value="' + +(r.discountPct || 0).toFixed(2) + '" oninput="trkPatch(\'' + r.id + '\',\'discountPct\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : +(r.discountPct || 0).toFixed(2) + '%') + '</td>' +
+      '<td>' + (isAdmin ? '<input type="number" id="damt-' + r.id + '" value="' + +((r.revenue || 0) * (r.discountPct || 0) / 100).toFixed(2) + '" oninput="trkRecalcRow(\'' + r.id + '\',\'amt\')">' : AED((r.revenue || 0) * (r.discountPct || 0) / 100)) + '</td>' +
       '<td><b id="after-' + r.id + '">' + AED(after) + '</b></td>' +
+      (showClient ? '<td class="col-inv inv-cell">' + (onGP ? '<span class="done" title="GP sheet made, so the invoice is in">✓ received</span>' : r.supplierInvoice
+          ? '<label class="done" title="Invoice requested from the supplier"><input type="checkbox" checked onchange="trkInvoice(\'' + r.id + '\',this.checked)"></label><input class="req" value="' + String(r.supplierInvoiceRef || '').replace(/"/g, '&quot;') + '" placeholder="No." title="Invoice request number" onchange="trkPatch(\'' + r.id + '\',\'supplierInvoiceRef\',this.value.trim())"> <span class="done">' + fmtD(r.supplierInvoice) + '</span>'
+          : trkInvDue(r) ? '<label class="todo" title="Tick once you have asked the supplier for the invoice"><input type="checkbox" onchange="trkInvoice(\'' + r.id + '\',this.checked)"> ask</label>'
+          : r.eventDate && r.eventDate <= trkToday() ? '<label title="Before the reminder started"><input type="checkbox" onchange="trkInvoice(\'' + r.id + '\',this.checked)"></label>'
+          : '<span class="wait">after event</span>') + '</td>' : '') +
       '<td class="col-gp" style="text-align:center;">' +
         (onGP ? '✅'
               : isAdmin ? '<button class="mini" onclick="makeSheet(\'' + r.id + '\')">Make sheet</button>'

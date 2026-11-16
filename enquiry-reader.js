@@ -82,6 +82,30 @@
       days
     };
   }
+  /* Tracker orders as the team sends them on WhatsApp: name on the first line,
+     phone, address, items, "50 AED discount", "Friday 5pm - 6pm". Order number
+     and price are usually NOT in the message — those come back empty (amber). */
+  function readOrder(text, now) {
+    now = now || new Date();
+    const phone = findPhone(text);
+    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+    const lab = text.match(/^\s*(?:name|customer|client)\s*[-:–]\s*(.+)$/im);
+    const name = lab ? lab[1].trim() : (lines.find(l => /^[A-Za-z][A-Za-z .'\-]{1,40}$/.test(l)) || '');
+    const ord = text.match(/(?:order\s*(?:no\.?|number|#)?\s*:?\s*#?|#)(\d{5,7})\b/i);
+    const date = findDate(text, now);
+    const disc = text.match(/([\d,]+(?:\.\d+)?)[ \t]*(%|aed|dhs?)?[ \t]*(?:discount|off)\b|discount[ \t]*:?[ \t]*-?[ \t]*(?:aed|dhs?)?[ \t]*([\d,]+(?:\.\d+)?)[ \t]*(%)?/i);
+    const price = text.replace(disc ? disc[0] : '\u0000', '').match(/(?:aed|dhs?)\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:aed|dhs?)\b/i);
+    const dv = disc ? parseFloat((disc[1] || disc[3]).replace(/,/g, '')) : 0;
+    return {
+      order: { v: ord ? ord[1] : '', check: !ord, why: ord ? 'Order number' : 'Not in the message, type it from Shopify' },
+      client: { v: name, check: !name, why: name ? (lab ? 'Name line' : 'First line') : 'No name found' },
+      mobile: { v: phone ? phone.pretty : '', check: !phone, why: phone ? (phone.country ? phone.country + ' number' : 'Phone number') : 'No number found' },
+      revenue: { v: price ? parseFloat((price[1] || price[2]).replace(/,/g, '')) : '', check: !price, why: price ? 'Price in the message' : 'No price in the message, type it' },
+      eventDate: { v: date ? iso(date.d) : '', check: !date, why: date ? 'From ' + date.how + (date.check ? ' (the coming one)' : '') : 'No date found' },
+      discount: disc ? { v: dv, pct: (disc[2] || disc[4]) === '%', text: disc[0].trim() } : null
+    };
+  }
+  root.readOrder = readOrder;
   root.readEnquiry = readEnquiry;
   if (typeof module !== 'undefined') module.exports = readEnquiry;
 })(typeof window !== 'undefined' ? window : globalThis);
