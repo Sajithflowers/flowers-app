@@ -215,9 +215,15 @@ td input{background:rgba(0,0,0,.28);border:1px solid var(--cardBorder);color:var
 .trk-g input{border-color:rgba(52,211,153,.45) !important;} .trk-g .trk-hint{color:var(--p);}
 .trk-disc{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .inv-cell{white-space:nowrap;font-size:11.5px;}
+/* v5.7.49 — the whole Tracker row fits on a laptop: wider page on this tab
+   only, number/date boxes sized to what they hold */
+@media (min-width:900px){ .wrap:has(#tab-tracker.active){max-width:1320px;} }
+#tab-tracker td input[type=number]{min-width:0;width:78px;}
+#tab-tracker td input[type=date]{min-width:0;width:128px;}
+#tab-tracker td input.order-edit{min-width:0;width:84px;}
 .inv-cell label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
-.inv-cell input{width:17px;height:17px;min-height:0;accent-color:#34d399;}
-.inv-cell input.req{width:52px;height:28px;min-height:0;text-align:center;padding:2px 4px;margin:0 6px;font-size:12.5px;accent-color:auto;}
+.inv-cell input{width:17px;min-width:0;height:17px;min-height:0;accent-color:#34d399;}
+.inv-cell input.req{width:52px;min-width:0;height:28px;min-height:0;text-align:center;padding:2px 4px;margin:0 6px;font-size:12.5px;accent-color:auto;}
 .inv-cell .todo{color:#fbbf24;font-weight:700;} .inv-cell .done{color:var(--p);} .inv-cell .wait{color:var(--ink3,var(--muted));}
 .chip.inv-warn.on{border-color:#fbbf24;color:#fbbf24;background:rgba(251,191,36,.1);}
 /* the order number stays visually a heading, not a form field, until
@@ -558,7 +564,7 @@ th{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;}
              placeholder="Search order number, client or mobile…" oninput="renderTracker()">
     </div>
     <div class="tblwrap"><table id="trkTable">
-      <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Disc AED</th><th>Discounted</th><th class="col-inv">Invoice asked</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
+      <thead><tr><th>Order #</th><th class="col-client">Client</th><th class="col-client">Mobile</th><th class="col-placed">Placed</th><th class="col-event">Event date</th><th>Revenue</th><th>Disc %</th><th>Disc AED</th><th>Discounted</th><th class="col-inv">Invoice</th><th class="col-gp">GP sheet</th><th></th></tr></thead>
       <tbody></tbody>
     </table></div>
     <p class="note">Quick log so you never forget an order you placed in Shopify. Independent from the event sheets.</p>
@@ -1179,8 +1185,8 @@ function renderTracker() {
       '<td>' + (isAdmin ? '<input type="number" id="disc-' + r.id + '" value="' + +(r.discountPct || 0).toFixed(2) + '" oninput="trkPatch(\'' + r.id + '\',\'discountPct\',parseFloat(this.value)||0);trkRecalcRow(\'' + r.id + '\')">' : +(r.discountPct || 0).toFixed(2) + '%') + '</td>' +
       '<td>' + (isAdmin ? '<input type="number" id="damt-' + r.id + '" value="' + +((r.revenue || 0) * (r.discountPct || 0) / 100).toFixed(2) + '" oninput="trkRecalcRow(\'' + r.id + '\',\'amt\')">' : AED((r.revenue || 0) * (r.discountPct || 0) / 100)) + '</td>' +
       '<td><b id="after-' + r.id + '">' + AED(after) + '</b></td>' +
-      (showClient ? '<td class="col-inv inv-cell">' + (onGP ? '<span class="done" title="GP sheet made, so the invoice is in">✓ received</span>' : r.supplierInvoice
-          ? '<label class="done" title="Invoice requested from the supplier"><input type="checkbox" checked onchange="trkInvoice(\'' + r.id + '\',this.checked)"></label><input class="req" value="' + String(r.supplierInvoiceRef || '').replace(/"/g, '&quot;') + '" placeholder="No." title="Invoice request number" onchange="trkPatch(\'' + r.id + '\',\'supplierInvoiceRef\',this.value.trim())"> <span class="done">' + fmtD(r.supplierInvoice) + '</span>'
+      (showClient ? '<td class="col-inv inv-cell"' + (!onGP && r.supplierInvoice ? ' title="Asked ' + fmtD(r.supplierInvoice) + '"' : '') + '>' + (onGP ? '<span class="done" title="GP sheet made, so the invoice is in">✓</span>' : r.supplierInvoice
+          ? '<label class="done" title="Invoice requested from the supplier"><input type="checkbox" checked onchange="trkInvoice(\'' + r.id + '\',this.checked)"></label><input class="req" value="' + String(r.supplierInvoiceRef || '').replace(/"/g, '&quot;') + '" placeholder="No." title="Invoice request number" onchange="trkPatch(\'' + r.id + '\',\'supplierInvoiceRef\',this.value.trim())">'
           : trkInvDue(r) ? '<label class="todo" title="Tick once you have asked the supplier for the invoice"><input type="checkbox" onchange="trkInvoice(\'' + r.id + '\',this.checked)"> ask</label>'
           : r.eventDate && r.eventDate <= trkToday() ? '<label title="Before the reminder started"><input type="checkbox" onchange="trkInvoice(\'' + r.id + '\',this.checked)"></label>'
           : '<span class="wait">after event</span>') + '</td>' : '') +

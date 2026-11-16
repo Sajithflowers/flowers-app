@@ -1156,26 +1156,8 @@ const FLApp = (() => {
      run long afterwards. (Same trap as SETTING_DEFAULTS, Sep 2026.) */
   const WHATS_NEW = {
     admin: [
-      ['Tracker: paste an order',
-       'Tap 📋 Paste order and paste the WhatsApp order. Name, mobile, event day and discount fill in; amber boxes are the ones to type (order number, price).'],
-      ['Discount in % or AED',
-       'Type the discount either way, in the form and in the list. The other one fills itself.'],
-      ['Supplier invoice tick',
-       'Once an event is done, tick "Invoice asked" when you have requested the invoice from the supplier. Type the request number in the small box beside it. The ⚠ chip shows the ones still to ask.'],
-      ['Event share target in AED',
-       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
-    ],
-    ceo: [
-      ['Discount in AED',
-       'The Tracker now shows each discount in AED as well as %.'],
-      ['Event share target in AED',
-       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
-    ],
-    finance: [
-      ['Discount in AED',
-       'The Tracker now shows each discount in AED as well as %.'],
-      ['Event share target in AED',
-       'The Targets card now shows how much event sales a month are needed to reach the event share target.']
+      ['Tracker fits the screen',
+       'The whole Tracker row now fits on a laptop without scrolling sideways. The invoice column is just the tick and your request number; hover the tick to see the date.']
     ]
   };
   const SEEN_VERSION_KEY = 'fl_last_version';
@@ -1839,7 +1821,7 @@ const FLApp = (() => {
      New releases are published to Supabase storage. Phones get a
      tap-to-update banner; the Windows app downloads silently via
      electron-updater and the banner restarts it. */
-  const APP_VERSION = '5.7.48';
+  const APP_VERSION = '5.7.49';
   const UPDATE_BASE = SYNC.url + '/storage/v1/object/public/updates';
   const IS_ELECTRON = /electron/i.test(navigator.userAgent);
 
